@@ -5,11 +5,7 @@ import { Router } from "express";
 
 const authRouter: Router = Router();
 
-authRouter.post(
-  "/signin",
-  // validate({ body: signinSchema }),
-  signin,
-);
+authRouter.post("/signin", validate({ body: SigninSchema }), signin);
 
 authRouter.post("/verify-signin", verifySignin);
 
