@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import ContributorAvatar from './ContributorAvatar';
-import Changelog from '@/model/changelog';
+import Changelog from '@/types/changelog';
 
 type Props = {
   changelog: Changelog;

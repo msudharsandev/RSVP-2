@@ -1,4 +1,4 @@
-import Changelog from '@/model/changelog';
+import Changelog from '@/types/changelog';
 
 export const changelogs: Changelog[] = [
   {

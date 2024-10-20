@@ -39,7 +39,7 @@ const ReleasePage = () => {
           />
         </header>
         <section className="mx-auto">
-          <ChangelogCard changelog={selectedChangelog} />
+          {selectedChangelog && <ChangelogCard changelog={selectedChangelog} />}
         </section>
       </main>
     </Container>

@@ -8,17 +8,11 @@ const GuestLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <>
-      <html>
-        <body>
-          <Suspense>
-            <Guest />
-            {children}
-            <Footer className="mt-24" />
-          </Suspense>
-        </body>
-      </html>
-    </>
+    <Suspense>
+      <Guest />
+      {children}
+      <Footer className="mt-24" />
+    </Suspense>
   );
 };
 
