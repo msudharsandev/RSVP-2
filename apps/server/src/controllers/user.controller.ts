@@ -1,18 +1,22 @@
-import catchAsync from '@/utils/catchAsync';
-import { Request } from 'express';
-import { SigninSchema } from '@/validations/auth.validation';
-import z from 'zod';
-import { Users } from '@/db/models/users';
+import { Users } from "@/db/models/users";
+import { AuthenticatedRequest } from "@/middleware/authMiddleware";
+import catchAsync from "@/utils/catchAsync";
+import { profilePayloadSchema } from "@/validations/users.validation";
+import z from "zod";
 
-type RequestBody = z.infer<typeof SigninSchema>;
-export const signin = catchAsync(async (req: Request<{}, {}, RequestBody>, res, next) => {
-  return res.status(200).json({ message: 'success' });
-});
+type UpdateProfileBody = z.infer<typeof profilePayloadSchema>;
+export const updateProfile = catchAsync(
+  async (req: AuthenticatedRequest<{}, {}, UpdateProfileBody>, res, next) => {
+    const userId = req.userId;
+    if (!userId)
+      return res.status(401).json({ message: "Invalid or expired token" });
 
-export const verifySignin = catchAsync(async (req, res, next) => {
-  return res.status(200).json({ message: 'success' });
-});
+    const data = req.body;
+    const user = await Users.updateProfile(userId, req.body);
 
-export const me = catchAsync(async (req, res, next) => {
-  return res.status(200).json({ message: 'success' });
-});
+    if (!user)
+      return res.status(401).json({ message: "Invalid or expired token" });
+
+    return res.status(200).json({ message: "success", data: user });
+  }
+);

@@ -11,6 +11,7 @@ model Users {
   id                          Int        @id @default(autoincrement())
   primary_email               String     @db.VarChar(256) @unique
   secondary_email             String?    @db.VarChar(256)
+  contact                     String?    @db.VarChar(20)
   full_name                   String     @db.VarChar(256)
   magicToken                  String?    @db.VarChar(256) @unique
   is_completed                Boolean    @default(false)
