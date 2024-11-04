@@ -75,7 +75,9 @@ const SigninDialog: React.FC<SigninDialogProps> = ({ children, variant }) => {
         setIsEmailSent(null);
       }}
     >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger className="cursor-pointer" asChild>
+        {children}
+      </DialogTrigger>
       <DialogContent className="w-[92%] rounded-[12px]">
         {!isEmailSent && (
           <>

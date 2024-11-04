@@ -1,13 +1,16 @@
+'use client';
+
 import Image from 'next/image';
 import Logo from './Logo';
 import { cn } from '@/lib/utils';
 import Container from './Container';
-import { buttonVariants } from '../ui/button';
+import Link from 'next/link';
+import SigninDialog from '../auth/SigninDialog';
 
-const Footer = ({ className }: PropsWithClassName) => {
+const FooterNonAuthenticated = ({ className }: PropsWithClassName) => {
   return (
-    <footer data-testid="footer" className={cn('footer border-t', className)}>
-      <div className="bg-black py-6">
+    <footer data-testid="footer" className={cn('footer', className)}>
+      <div className="bg-black px-11 py-10 lg:py-20">
         <Container className="flex flex-col justify-between sm:flex-row">
           <div>
             <Logo className="mb-4 h-10 w-fit" />
@@ -30,20 +33,16 @@ const Footer = ({ className }: PropsWithClassName) => {
               />
             </div>
           </div>
-          <div className="mt-auto">
-            <ul className="space-y-4">
-              <li>
-                <a
-                  href="https://github.com/TeamShiksha"
-                  target="_blank"
-                  className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'px-0')}
-                  data-testid="github-link"
-                >
-                  Github
-                </a>
-              </li>
-              <li className="text-sm">© 2023 Team Shiksha. All rights reserved.</li>
-            </ul>
+          <div className="mt-16 flex flex-col gap-x-28 gap-y-9 md:flex-row lg:mt-auto">
+            <div className="flex flex-col gap-y-4 text-sm font-medium">
+              <SigninDialog children={<span>Sign In</span>} variant="signin" />
+              <Link href="/release">Help</Link>
+            </div>
+            <div className="flex flex-col gap-y-4 text-sm font-medium">
+              <Link href="/">RSVP</Link>
+              <Link href="/about">About</Link>
+              <Link href="https://github.com/TeamShiksha">Github</Link>
+            </div>
           </div>
         </Container>
       </div>
@@ -51,4 +50,4 @@ const Footer = ({ className }: PropsWithClassName) => {
   );
 };
 
-export default Footer;
+export default FooterNonAuthenticated;
