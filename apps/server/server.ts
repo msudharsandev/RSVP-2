@@ -3,7 +3,7 @@ import { errorHandler, successHandler } from '@/config/morgan';
 import { router } from '@/routes/v1/routes';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { json, NextFunction, urlencoded, type Express } from 'express';
+import express, { json, urlencoded, type Express } from 'express';
 
 export const createServer = (): Express => {
   const app = express();
@@ -19,7 +19,7 @@ export const createServer = (): Express => {
     .use((req, res) => {
       return res.status(404).json({ message: `Not Found - ${req.originalUrl}` });
     })
-    .use((err: Error, req: any, res: any, _next: NextFunction) => {
+    .use((err: Error, req: any, res: any) => {
       if (config.env === 'development') {
         console.log(err.stack);
       }

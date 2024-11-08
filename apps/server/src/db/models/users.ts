@@ -1,8 +1,7 @@
-import { generateJwtToken } from "@/utils/jwt";
-import { prisma } from "../connection";
-import { randomUUID } from "crypto";
-import { Prisma } from "@prisma/client";
-
+import { generateJwtToken } from '@/utils/jwt';
+import { prisma } from '../connection';
+import { randomUUID } from 'crypto';
+import { Prisma } from '@prisma/client';
 
 export class Users {
   static async findById(id: number) {
@@ -37,7 +36,7 @@ export class Users {
 
   static async createMagicLink(userId: number): Promise<string> {
     const tokenId = randomUUID();
-    const token = generateJwtToken({ userId, tokenId }, "10m");
+    const token = generateJwtToken({ userId, tokenId }, '10m');
 
     await prisma.users.update({
       where: { id: userId },
@@ -58,7 +57,7 @@ export class Users {
 
     await prisma.users.update({
       where: { id: user.id },
-      data: { magicToken: '' },
+      data: { magicToken: null },
     });
 
     return user;
