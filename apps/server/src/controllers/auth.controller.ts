@@ -4,8 +4,13 @@ import { SigninSchema, verifySigninSchema } from '@/validations/auth.validation'
 import z from 'zod';
 import { Users } from '@/db/models/users';
 import config from '@/config/config';
-import { generateJwtToken, verifyJwtToken } from '@/utils/jwt';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from '@/utils/jwt';
 
 type SigninRequestBody = z.infer<typeof SigninSchema>;
 export const signin = catchAsync(async (req: Request<{}, {}, SigninRequestBody>, res, next) => {
@@ -16,8 +21,6 @@ export const signin = catchAsync(async (req: Request<{}, {}, SigninRequestBody>,
 
   if (existinguser) {
     user = existinguser;
-    console.log(user);
-    console.log('user already exist');
   } else {
     user = await Users.createUser(email);
   }
@@ -33,7 +36,7 @@ type VerifySigninBody = z.infer<typeof verifySigninSchema>;
 export const verifySignin = catchAsync(
   async (req: Request<{}, {}, VerifySigninBody>, res, next) => {
     const { token } = req.body;
-    const decodedToken = verifyJwtToken(token);
+    const decodedToken = verifyAccessToken(token);
     if (!decodedToken) {
       return res.status(401).json({ message: 'Token expired or invalid' });
     }
@@ -44,9 +47,20 @@ export const verifySignin = catchAsync(
       return res.status(401).json({ message: 'Token expired or invalid' });
     }
 
-    const cookieToken = generateJwtToken({ userId: user.id }, '7d');
+    const accessToken = generateAccessToken({ userId: user.id });
+    const refreshToken = generateRefreshToken({ userId: user.id });
 
-    res.cookie('authToken', cookieToken, {
+    await Users.updateRefreshToken(user.id, refreshToken);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: config.env === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    });
+
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: config.env === 'production',
       sameSite: 'strict',
@@ -54,9 +68,55 @@ export const verifySignin = catchAsync(
       path: '/',
     });
 
-    return res.status(200).json({ message: 'success' });
+    return res.status(200).json({ accessToken, refreshToken });
   }
 );
+
+export const refreshToken = catchAsync(async (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token is required' });
+  }
+
+  const decoded = verifyRefreshToken(refreshToken);
+  if (!decoded) {
+    return res.status(403).json({ message: 'Invalid refresh token' });
+  }
+
+  try {
+    const user = await Users.findById(decoded.userId);
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: 'Invalid refresh token' });
+    }
+
+    const accessToken = generateAccessToken({ userId: user.id });
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: config.env === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    });
+
+    return res.json({
+      accessToken,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+export const logout = catchAsync(async (req, res, next) => {
+  const { userId } = req.body;
+
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+  await Users.updateRefreshToken(userId, null);
+
+  return res.status(204).send();
+});
 
 export const me = catchAsync(async (req: AuthenticatedRequest, res, next) => {
   const userId = req.userId;
