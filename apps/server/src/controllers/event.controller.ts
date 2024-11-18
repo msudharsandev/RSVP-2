@@ -2,6 +2,7 @@ import { Events } from '@/db/models/events';
 import { Users } from '@/db/models/users';
 import { Attendees } from '@/db/models/attendees';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
+import { eventsPlannedByUserReqSchema } from '@/validations/event.validation';
 import catchAsync from '@/utils/catchAsync';
 import config from '@/config/config';
 import { CreateEventSchema } from '@/validations/event.validation';
@@ -39,6 +40,34 @@ export const createEvent = catchAsync(
     }
   }
 );
+
+export const plannedByUser = catchAsync(async (req: AuthenticatedRequest<{}, {}, {}>, res) => {
+  const { email, type, fromDate, toDate, search, page, limit, sortBy, sortOrder } =
+    eventsPlannedByUserReqSchema.parse(req.query);
+
+  const existingUser = await Users.userExists(email);
+
+  if (existingUser) {
+    const plannedEvents = await Events.plannedEvents({
+      filters: {
+        email: email as string,
+        type: type as string,
+        fromDate: fromDate ? new Date(fromDate as string) : undefined,
+        toDate: toDate ? new Date(toDate as string) : undefined,
+        search: search as string,
+      },
+      pagination: {
+        page: Number(page) || 1,
+        limit: Number(limit) || 10,
+        sortBy: sortBy as string,
+        sortOrder: sortOrder as 'asc' | 'desc',
+      },
+    });
+    res.status(200).json({ message: 'success', data: plannedEvents });
+  } else {
+    res.status(404).json({ message: 'user not found' });
+  }
+});
 
 export const createAttendee = catchAsync(
   async (req: AuthenticatedRequest<{ eventId: string }, {}, CreateAttendeeBody>, res, next) => {

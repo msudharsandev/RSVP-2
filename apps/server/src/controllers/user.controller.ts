@@ -6,11 +6,10 @@ import z from 'zod';
 
 type UpdateProfileBody = z.infer<typeof profilePayloadSchema>;
 export const updateProfile = catchAsync(
-  async (req: AuthenticatedRequest<{}, {}, UpdateProfileBody>, res, next) => {
+  async (req: AuthenticatedRequest<{}, {}, UpdateProfileBody>, res) => {
     const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
 
-    const data = req.body;
     const user = await Users.updateProfile(userId, req.body);
 
     if (!user) return res.status(401).json({ message: 'Invalid or expired token' });

@@ -63,7 +63,6 @@ const SigninDialog: React.FC<SigninDialogProps> = ({ children, variant }) => {
     <Dialog onOpenChange={handleClose}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
-
         {!isEmailSent && (
           <>
             <DialogHeader>

@@ -1,7 +1,6 @@
 import { generateJwtToken } from '@/utils/jwt';
 import { prisma } from '../connection';
 import { randomUUID } from 'crypto';
-import { Prisma } from '@prisma/client';
 
 export class Users {
   static async findById(id: number) {

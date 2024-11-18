@@ -1,5 +1,10 @@
 import z from 'zod';
 
+export enum PAGINATION_ORDER {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
 export const CreateEventSchema = z
   .object({
     name: z.string().max(256),
@@ -31,3 +36,15 @@ export const CreateEventSchema = z
       path: ['venueType'],
     }
   );
+
+export const eventsPlannedByUserReqSchema = z.object({
+  email: z.string().min(1, { message: 'email is required' }).email(),
+  type: z.string().min(1, { message: 'type is required' }),
+  fromDate: z.string(),
+  toDate: z.string(),
+  search: z.string().max(256).optional(),
+  page: z.number().int().positive().optional(),
+  limit: z.number().int().positive().optional(),
+  sortBy: z.string().max(256).optional(),
+  sortOrder: z.enum([PAGINATION_ORDER.ASC, PAGINATION_ORDER.DESC]).optional(),
+});
