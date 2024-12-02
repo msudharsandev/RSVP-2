@@ -40,11 +40,11 @@ export const CreateEventSchema = z
 export const eventsPlannedByUserReqSchema = z.object({
   email: z.string().min(1, { message: 'email is required' }).email(),
   type: z.string().min(1, { message: 'type is required' }),
-  fromDate: z.string(),
-  toDate: z.string(),
+  fromDate: z.coerce.date().default(() => new Date(new Date().setDate(new Date().getDate() - 1))),
+  toDate: z.coerce.date().default(() => new Date()),
   search: z.string().max(256).optional(),
-  page: z.number().int().positive().optional(),
-  limit: z.number().int().positive().optional(),
+  page: z.coerce.number().positive().default(1).optional(),
+  limit: z.coerce.number().positive().default(10).optional(),
   sortBy: z.string().max(256).optional(),
   sortOrder: z.enum([PAGINATION_ORDER.ASC, PAGINATION_ORDER.DESC]).optional(),
 });

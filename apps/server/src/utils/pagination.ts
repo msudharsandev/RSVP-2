@@ -1,36 +1,40 @@
-import { PaginationParams, PaginatedResult } from '@/types/pagination';
+import { IPaginationParams, IPaginatedResult } from '@/interface/pagination';
 import { prisma } from '@/db/connection';
 
-export async function paginate<T>(
-  model: any,
-  params: PaginationParams = {},
-  where: any = {}
-): Promise<PaginatedResult<T>> {
-  const { page = 1, limit = 10, orderBy = 'id', orderDirection = 'desc' } = params;
+export class Paginator {
+  private model: string;
 
-  const skip = (page - 1) * limit;
+  constructor(model: string) {
+    this.model = model;
+  }
 
-  const [total, items] = await Promise.all([
-    prisma[model].count({ where }),
-    prisma[model].findMany({
-      where,
-      take: limit,
-      skip,
-      orderBy: {
-        [orderBy]: orderDirection,
+  async paginate<T>(params: IPaginationParams = {}, where: any = {}): Promise<IPaginatedResult<T>> {
+    const { page = 1, limit = 10, sortBy = 'eventDate', sortOrder = 'desc' } = params;
+
+    const skip = (page - 1) * limit;
+
+    const [total, items] = await Promise.all([
+      prisma[this.model].count({ where }),
+      prisma[this.model].findMany({
+        where,
+        take: limit,
+        skip,
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
+      }),
+    ]);
+
+    const hasMore = skip + items.length < total;
+
+    return {
+      data: items,
+      metadata: {
+        total,
+        page,
+        limit,
+        hasMore,
       },
-    }),
-  ]);
-
-  const hasMore = skip + items.length < total;
-
-  return {
-    data: items,
-    metadata: {
-      total,
-      page,
-      limit,
-      hasMore,
-    },
-  };
+    };
+  }
 }

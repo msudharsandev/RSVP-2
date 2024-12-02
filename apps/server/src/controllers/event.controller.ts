@@ -50,17 +50,17 @@ export const plannedByUser = catchAsync(async (req: AuthenticatedRequest<{}, {},
   if (existingUser) {
     const plannedEvents = await Events.plannedEvents({
       filters: {
-        email: email as string,
-        type: type as string,
-        fromDate: fromDate ? new Date(fromDate as string) : undefined,
-        toDate: toDate ? new Date(toDate as string) : undefined,
-        search: search as string,
+        email,
+        type,
+        fromDate,
+        toDate,
+        search,
       },
       pagination: {
-        page: Number(page) || 1,
-        limit: Number(limit) || 10,
-        sortBy: sortBy as string,
-        sortOrder: sortOrder as 'asc' | 'desc',
+        page,
+        limit,
+        sortBy,
+        sortOrder,
       },
     });
     res.status(200).json({ message: 'success', data: plannedEvents });

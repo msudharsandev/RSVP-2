@@ -34,7 +34,7 @@ const checkFromRefreshToken = (req: AuthenticatedRequest) => {
 const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies.accessToken || req.headers.accessToken;
-    
+
     if (!token) {
       return res.status(401).json({ message: 'Authentication token is missing' });
     }

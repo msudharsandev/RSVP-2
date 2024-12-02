@@ -1,36 +1,7 @@
-import { VenueType } from '@prisma/client';
 import { prisma } from '../connection';
-
-interface IEvent {
-  creatorId: number;
-  name: string;
-  category: string;
-  startTime: string;
-  endTime: string;
-  eventDate: string;
-  description: string;
-  eventImageId: string;
-  venueType: VenueType;
-  venueAddress?: string;
-  venueUrl?: string;
-  hostPermissionRequired: boolean;
-}
-
-interface IEventFilters {
-  email: string;
-  type?: string;
-  fromDate?: Date;
-  toDate?: Date;
-  search?: string;
-}
-
-export interface IPaginationParams {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
+import { Paginator } from '@/utils/pagination';
+import { IEvent, IEventFilters } from '@/interface/event';
+import { IPaginationParams } from '@/interface/pagination';
 export class Events {
   static async create(eventDetails: IEvent) {
     const newEvent = await prisma.event.create({
@@ -49,18 +20,10 @@ export class Events {
     pagination: IPaginationParams;
   }) {
     const { email, type, fromDate, toDate, search } = filters;
+    const eventsPaginator = new Paginator('Event');
     const { page = 1, limit = 10, sortBy = 'eventDate', sortOrder = 'asc' } = pagination;
 
-    const skip = (page - 1) * limit;
-
     const where = {
-      Attendee: {
-        some: {
-          user: {
-            primary_email: email,
-          },
-        },
-      },
       ...(type && { category: type }),
       ...(fromDate &&
         toDate && {
@@ -76,40 +39,28 @@ export class Events {
           { category: { contains: search, mode: 'insensitive' } },
         ],
       }),
-    };
-
-    const [total, events] = await Promise.all([
-      prisma.event.count({ where }),
-      prisma.event.findMany({
-        where,
-        take: limit,
-        skip,
-        orderBy: {
-          [sortBy]: sortOrder,
-        },
-        include: {
-          Attendee: {
-            include: {
-              user: {
-                select: {
-                  primary_email: true,
-                  full_name: true,
-                },
-              },
-            },
+      Attendee: {
+        some: {
+          user: {
+            primary_email: email,
           },
         },
-      }),
-    ]);
+      },
+    };
 
-    return {
-      events,
-      metadata: {
-        total,
+    const { data, metadata } = await eventsPaginator.paginate(
+      {
         page,
         limit,
-        hasMore: skip + events.length < total,
+        sortOrder,
+        sortBy,
       },
+      where
+    );
+
+    return {
+      events: data,
+      metadata,
     };
   }
 
