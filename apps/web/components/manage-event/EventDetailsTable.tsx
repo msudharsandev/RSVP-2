@@ -1,6 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
@@ -9,24 +20,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, ChevronLeft, ChevronRight, ArrowDown } from 'lucide-react';
+import { ArrowDown, Search } from 'lucide-react';
+import { useState } from 'react';
 
-export default function Component() {
+export default function EventDetailsTable() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('All');
 
@@ -112,8 +110,8 @@ export default function Component() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Guest List</h2>
-      <div className="space-y-4 rounded-lg border p-4">
-        <div className="space-y-4 sm:flex sm:items-center sm:space-x-4 sm:space-y-0">
+      <div className="rounded-lg border bg-dark-900">
+        <div className="space-y-4 p-4 sm:flex sm:items-center sm:space-x-4 sm:space-y-0">
           <div className="relative w-full flex-1 sm:w-auto">
             <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -172,7 +170,7 @@ export default function Component() {
           </Table>
         </div>
 
-        <Pagination className="flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
+        <Pagination className="flex flex-col items-center justify-between space-y-2 border-t px-6 py-4 sm:flex-row sm:space-y-0">
           <PaginationPrevious href="#" />
           <PaginationContent className="flex space-x-2">
             <PaginationLink href="#">1</PaginationLink>

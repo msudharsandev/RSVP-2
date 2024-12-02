@@ -8,8 +8,8 @@ const RecentRegistrations = ({ className }: PropsWithClassName) => {
   return (
     <section className={cn('space-y-3', className)}>
       <header className="flex flex-col justify-between gap-3 sm:flex-row">
-        <h2 className="text-xl font-semibold">Recent Registrations</h2>
-        <Button radius="sm" variant="tertiary">
+        <h2 className="text-lg font-semibold">Recent Registrations</h2>
+        <Button radius="sm" size="sm" variant="tertiary">
           View all
           <ArrowRightIcon className="ml-2 size-4" />
         </Button>

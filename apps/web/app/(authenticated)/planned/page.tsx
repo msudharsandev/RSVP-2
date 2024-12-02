@@ -16,11 +16,11 @@ const PlannedEvents = () => {
               Your Planned <span className="text-primary">Events</span>
             </h1>
 
-            <TabsList style="default">
-              <TabsTrigger value="upcoming" style="default">
+            <TabsList variant="default">
+              <TabsTrigger value="upcoming" variant="default">
                 Upcoming
               </TabsTrigger>
-              <TabsTrigger value="past" style="default">
+              <TabsTrigger value="past" variant="default">
                 Past
               </TabsTrigger>
             </TabsList>

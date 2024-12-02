@@ -4,6 +4,7 @@ import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OverviewSection from '@/components/manage-event/overview-section';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import GuestManageSection from '@/components/manage-event/guest-manage-section';
 
 const ManageEventPage = () => {
   return (
@@ -19,17 +20,28 @@ const ManageEventPage = () => {
       </header>
       <main>
         <Tabs defaultValue="overview">
-          <ScrollArea className="w-full sm:w-[cacl(100vh-36px)]">
-            <TabsList className="w-full">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="guests">Guests</TabsTrigger>
-              <TabsTrigger value="communication">Communication</TabsTrigger>
-              <TabsTrigger value="more">More</TabsTrigger>
+          <ScrollArea className="w-full sm:h-[cacl(100vw-36px)]">
+            <TabsList variant="underline" className="w-full">
+              <TabsTrigger variant="underline" value="overview">
+                Overview
+              </TabsTrigger>
+              <TabsTrigger variant="underline" value="guests">
+                Guests
+              </TabsTrigger>
+              <TabsTrigger variant="underline" value="communication">
+                Communication
+              </TabsTrigger>
+              <TabsTrigger variant="underline" value="more">
+                More
+              </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
           <TabsContent className="mt-6" value="overview">
             <OverviewSection />
+          </TabsContent>
+          <TabsContent className="mt-6" value="guests">
+            <GuestManageSection />
           </TabsContent>
         </Tabs>
       </main>

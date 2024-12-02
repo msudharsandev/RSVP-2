@@ -7,7 +7,7 @@ export default function SemiCircleBar() {
   const percentage = (score / total) * 100;
 
   return (
-    <div className="relative flex h-32 w-full p-1 sm:w-full">
+    <div className="relative flex h-32 w-full justify-between p-1 sm:w-full">
       <svg className="h-full w-full" viewBox="0 0 100 50">
         <path
           d="M10 50 A40 40 0 0 1 90 50"
@@ -27,7 +27,7 @@ export default function SemiCircleBar() {
         />
       </svg>
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold sm:text-4xl">
+        <span className="text-3xl font-bold sm:text-2xl">
           {score}/{total}
         </span>
       </div>
