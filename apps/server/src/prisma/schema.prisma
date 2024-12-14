@@ -79,6 +79,7 @@ model Event {
   venueUrl               String?    @map("venue_url") @db.VarChar(256)
   hostPermissionRequired Boolean    @map("host_permission_required")
   capacity               Int?
+  isActive               Boolean    @default(true)
   createdAt              DateTime   @default(now()) @map("created_at")
   updatedAt              DateTime   @updatedAt @map("updated_at")
   creator                Users      @relation(fields: [creatorId], references: [id])
@@ -99,6 +100,7 @@ model Attendee {
   feedback         String?   @db.VarChar(512)
   qrToken          String    @unique @db.VarChar(512)
   status           Status    @default(Waiting)
+  allowedStatus    Boolean   @default(false)
   user             Users     @relation(fields: [userId], references: [id])
   event            Event     @relation(fields: [eventId], references: [id])
 

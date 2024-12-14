@@ -6,12 +6,19 @@ import { eventsPlannedByUserReqSchema } from '@/validations/event.validation';
 import catchAsync from '@/utils/catchAsync';
 import config from '@/config/config';
 import { CreateEventSchema } from '@/validations/event.validation';
-import { attendeePayloadSchema } from '@/validations/attendee.validation';
-import { generateQrToken } from '@/utils/qrTokenService';
+import {
+  attendeePayloadSchema,
+  verifyQrTokenPayloadSchema,
+} from '@/validations/attendee.validation';
+
+import { randomUUID } from 'crypto';
+import { createHash } from 'crypto';
+import EmailService from '@/utils/sendEmail';
 import z from 'zod';
 
 type createEventBody = z.infer<typeof CreateEventSchema>;
 type CreateAttendeeBody = z.infer<typeof attendeePayloadSchema>;
+type verifyQrTokenPayloadBody = z.infer<typeof verifyQrTokenPayloadSchema>;
 
 export const createEvent = catchAsync(
   async (req: AuthenticatedRequest<{}, {}, createEventBody>, res) => {
@@ -115,20 +122,23 @@ export const createAttendee = catchAsync(
         return res.status(404).json({ message: 'Event not found' });
       }
 
-      const qrData = {
-        userId: req.userId,
-        userName: user.full_name,
-        eventId: event.id,
-        eventName: event.name,
-        expirationTime: event.endTime,
-      };
-
-      const qrToken = generateQrToken(qrData);
-
-      const existingAttendee = await Attendees.findByQrToken(qrToken);
-      if (existingAttendee) {
-        return res.status(400).json({ message: 'QR Token already exists' });
+      if (!event.isActive) {
+        return res.status(400).json({ message: 'Event is not active' });
       }
+
+      const currentTime = new Date();
+      if (event.endTime < currentTime) {
+        return res.status(400).json({ message: 'Event has expired' });
+      }
+
+      const existingAttendee = await Attendees.findByUserIdAndEventId(req.userId, eventId);
+      if (existingAttendee) {
+        return res.status(400).json({ message: 'User already registered for this event' });
+      }
+
+      const uuid = randomUUID();
+      const hash = createHash('sha256').update(uuid).digest('base64');
+      const qrToken = hash.slice(0, 6);
 
       const attendeeData = {
         qrToken: qrToken,
@@ -141,9 +151,100 @@ export const createAttendee = catchAsync(
       const url = `${config.CLIENT_URL}/generateQr/${newAttendee.id}`;
       console.log('URL to be sent via email:', url);
 
+      await EmailService.send({
+        id: 5,
+        subject: 'Event Registration Confirmation',
+        recipient: user.primary_email,
+        body: {
+          email: user.primary_email,
+          qrLink: url,
+        },
+      });
+
       return res.status(201).json(newAttendee);
     } catch (error) {
       console.error('Error creating attendee:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+);
+
+export const getAttendeeDetails = catchAsync(
+  async (req: AuthenticatedRequest<{ attendeeId: string }, {}, {}>, res, next) => {
+    try {
+      const attendeeId = req.params.attendeeId;
+      const attendee = await Attendees.findById(attendeeId);
+      if (!attendee) {
+        return res.status(404).json({ message: 'Attendee not found' });
+      }
+
+      return res.status(200).json(attendee);
+    } catch (error) {
+      console.error('Error finding attendee:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+);
+
+export const getAttendeeByQrToken = catchAsync(
+  async (req: AuthenticatedRequest<{ qrToken: string }, {}, {}>, res, next) => {
+    try {
+      const { qrToken } = req.params;
+
+      const attendee = await Attendees.findByQrToken(qrToken);
+      if (!attendee) {
+        return res.status(404).json({ message: 'Attendee not found' });
+      }
+
+      return res.status(200).json(attendee);
+    } catch (error) {
+      console.error('Error finding attendee by QR token:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+);
+
+export const verifyQrToken = catchAsync(
+  async (req: AuthenticatedRequest<{}, {}, verifyQrTokenPayloadBody>, res, next) => {
+    try {
+      const { qrToken, eventId } = req.body;
+
+      const attendee = await Attendees.findByQrToken(qrToken);
+      if (!attendee) {
+        return res.status(404).json({ message: 'Attendee not found' });
+      }
+
+      if (attendee.eventId !== eventId) {
+        return res.status(400).json({ message: 'Not verified (wrong event)' });
+      }
+
+      if (!attendee.allowedStatus) {
+        return res.status(403).json({ message: 'Attendee is not allowed' });
+      }
+
+      if (attendee.hasAttended) {
+        return res.status(400).json({ message: 'Already scanned ticket' });
+      }
+
+      const event = await Events.findById(eventId);
+      if (!event) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+
+      const currentTime = new Date();
+
+      if (currentTime < new Date(event.startTime) || currentTime > new Date(event.endTime)) {
+        return res.status(400).json({ message: 'Ticket not valid at this time' });
+      }
+
+      await Attendees.update(attendee.id, {
+        hasAttended: true,
+        checkInTime: currentTime,
+      });
+
+      return res.status(200).json({ message: 'Ticket is valid' });
+    } catch (error) {
+      console.error('Error verifying QR token:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
   }

@@ -1,36 +1,20 @@
-import { Router } from 'express';
 import {
-  createEvent,
   createAttendee,
-  updateEvent,
+  createEvent,
   deleteEvent,
   plannedByUser,
-  getAttendeeDetails,
-  verifyQrToken,
-  getAttendeeByQrToken,
+  updateEvent,
 } from '@/controllers/event.controller';
+import { Router } from 'express';
+import { validate } from '@/middleware/validate';
 import {
   CreateEventSchema,
   eventParamsSchema,
   userUpdateSchema,
 } from '@/validations/event.validation';
-import {
-  attendeePayloadSchema,
-  attendeeParamsSchema,
-  attendeeIdSchema,
-  verifyQrTokenPayloadSchema,
-  qrTokenSchema,
-} from '@/validations/attendee.validation';
-
-import {
-  canAccessAttendeeById,
-  canAccessAttendeeByQrToken,
-  canVerifyQrToken,
-} from '@/middleware/eventAuthMiddleware';
-
+import { attendeePayloadSchema, attendeeParamsSchema } from '@/validations/attendee.validation';
 import authMiddleware from '@/middleware/authMiddleware';
 import { eventManageMiddleware } from '@/middleware/hostMiddleware';
-import { validate } from '@/middleware/validate';
 import {
   eventAttendeeReqSchema,
   eventsPlannedByUserReqSchema,
@@ -83,25 +67,5 @@ eventRouter.get(
   validate({ params: eventParamsSchema }),
   getNotification
 );
-eventRouter.get(
-  '/attendee/:attendeeId',
-  authMiddleware,
-  validate({ params: attendeeIdSchema }),
-  canAccessAttendeeById,
-  getAttendeeDetails
-);
-eventRouter.post(
-  '/attendee/verify',
-  authMiddleware,
-  validate({ body: verifyQrTokenPayloadSchema }),
-  canVerifyQrToken,
-  verifyQrToken
-);
-eventRouter.get(
-  '/:eventId/attendee/qr/:qrToken',
-  authMiddleware,
-  validate({ params: qrTokenSchema }),
-  canAccessAttendeeByQrToken,
-  getAttendeeByQrToken
-);
+
 export { eventRouter };
