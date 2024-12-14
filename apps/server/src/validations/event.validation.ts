@@ -54,3 +54,10 @@ export const eventsPlannedByUserReqSchema = z.object({
 export const eventAttendeeReqSchema = z.object({
   eventId: z.string().max(256),
 });
+export const userUpdateSchema = z.object({
+  content: z.string(),
+});
+
+export const eventParamsSchema = z.object({
+  eventId: z.string().uuid(),
+});

@@ -5,16 +5,21 @@ import {
   plannedByUser,
   updateEvent,
 } from '@/controllers/event.controller';
-import authMiddleware from '@/middleware/authMiddleware';
-import { eventManageMiddleware } from '@/middleware/hostMiddleware';
+import { Router } from 'express';
 import { validate } from '@/middleware/validate';
-import { attendeeParamsSchema, attendeePayloadSchema } from '@/validations/attendee.validation';
 import {
   CreateEventSchema,
+  eventParamsSchema,
+  userUpdateSchema,
+} from '@/validations/event.validation';
+import { attendeePayloadSchema, attendeeParamsSchema } from '@/validations/attendee.validation';
+import authMiddleware from '@/middleware/authMiddleware';
+import { eventManageMiddleware } from '@/middleware/hostMiddleware';
+import {
   eventAttendeeReqSchema,
   eventsPlannedByUserReqSchema,
 } from '@/validations/event.validation';
-import { Router } from 'express';
+import { createNotification, getNotification } from '@/controllers/update.controller';
 
 const eventRouter: Router = Router();
 
@@ -47,6 +52,20 @@ eventRouter.post(
   authMiddleware,
   validate({ params: attendeeParamsSchema, body: attendeePayloadSchema }),
   createAttendee
+);
+
+eventRouter.post(
+  '/:eventId/communications',
+  authMiddleware,
+  validate({ params: eventParamsSchema, body: userUpdateSchema }),
+  createNotification
+);
+
+eventRouter.get(
+  '/:eventId/communications',
+  authMiddleware,
+  validate({ params: eventParamsSchema }),
+  getNotification
 );
 
 export { eventRouter };
