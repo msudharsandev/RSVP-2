@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OverviewSection from '@/components/manage-event/overview-section';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import GuestManageSection from '@/components/manage-event/guest-manage-section';
+import MoreSection from '@/components/manage-event/more-section';
 
 const ManageEventPage = () => {
   return (
@@ -42,6 +43,9 @@ const ManageEventPage = () => {
           </TabsContent>
           <TabsContent className="mt-6" value="guests">
             <GuestManageSection />
+          </TabsContent>
+          <TabsContent className="mt-6" value="more">
+            <MoreSection />
           </TabsContent>
         </Tabs>
       </main>
