@@ -2,12 +2,18 @@ import { prisma } from '../connection';
 import { Paginator } from '@/utils/pagination';
 import { CreateEventDto, IEventFilters } from '@/interface/event';
 import { IPaginationParams } from '@/interface/pagination';
-import { Event } from '@prisma/client';
+import { Event, Prisma } from '@prisma/client';
 
 export class Events {
   static async create(eventDetails: CreateEventDto) {
     return await prisma.event.create({
       data: eventDetails,
+    });
+  }
+
+  static async findUnique(where: Prisma.EventWhereUniqueInput) {
+    return await prisma.event.findUnique({
+      where,
     });
   }
 

@@ -18,6 +18,18 @@ type createEventBody = z.infer<typeof CreateEventSchema>;
 type CreateAttendeeBody = z.infer<typeof attendeePayloadSchema>;
 type verifyQrTokenPayloadBody = z.infer<typeof verifyQrTokenPayloadSchema>;
 
+export const getEventBySlug = catchAsync(
+  async (req: AuthenticatedRequest<{ slug?: string }, {}, {}>, res) => {
+    const { slug } = req.params;
+
+    const event = await Events.findUnique({ slug });
+
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    return res.status(200).json(event);
+  }
+);
+
 export const createEvent = catchAsync(
   async (req: AuthenticatedRequest<{}, {}, createEventBody>, res) => {
     const data = req.body;

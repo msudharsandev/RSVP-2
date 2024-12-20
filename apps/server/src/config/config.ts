@@ -32,6 +32,4 @@ const config = {
   EMAIL_TOKEN: envVars.data.EMAIL_TOKEN,
 };
 
-console.log(config.env);
-
 export default config;

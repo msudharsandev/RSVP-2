@@ -8,10 +8,12 @@ import {
   getAttendeeDetails,
   verifyQrToken,
   getAttendeeByQrToken,
+  getEventBySlug,
 } from '@/controllers/event.controller';
 import {
   CreateEventSchema,
   eventParamsSchema,
+  getEventBySlugSchema,
   userUpdateSchema,
 } from '@/validations/event.validation';
 import {
@@ -38,6 +40,8 @@ import {
 import { createNotification, getNotification } from '@/controllers/update.controller';
 
 const eventRouter: Router = Router();
+
+eventRouter.get('/slug/:slug', validate({ params: getEventBySlugSchema }), getEventBySlug);
 
 eventRouter.post('/', authMiddleware, validate({ body: CreateEventSchema }), createEvent);
 

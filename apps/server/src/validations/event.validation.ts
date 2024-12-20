@@ -5,6 +5,10 @@ export enum PAGINATION_ORDER {
   DESC = 'desc',
 }
 
+export const getEventBySlugSchema = z.object({
+  slug: z.string(),
+});
+
 export const EventSchema = z.object({
   name: z.string().max(256),
   category: z.string().max(256),
