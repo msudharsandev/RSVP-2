@@ -22,7 +22,9 @@ const Guest = () => {
     <>
       <nav className={`fixed z-30 h-20 w-full py-5 ${isScrolled ? 'border-b bg-background' : ''}`}>
         <Container className="mx-auto flex justify-between">
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
           <div className="hidden gap-14 md:flex">
             {navItemsWithoutSignup.map((item) => (
               <Link href={item.href} key={item.name}>

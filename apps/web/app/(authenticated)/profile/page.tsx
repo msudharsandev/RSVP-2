@@ -11,8 +11,7 @@ import { useCurrentUser } from '@/lib/react-query/auth';
 import { useMemo } from 'react';
 import { IUser } from '@/types/user';
 import ProfileFormSkeleton from '@/components/profile/ProfileFormLoading';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { UserCircle2 } from 'lucide-react';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 
 const ProfilePage = () => {
   const { data, isSuccess, isLoading } = useCurrentUser();

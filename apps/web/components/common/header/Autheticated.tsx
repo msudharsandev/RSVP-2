@@ -33,7 +33,9 @@ const Autheticated = () => {
         className={`sticky top-0 z-30 h-20 w-full py-5 ${isScrolled ? 'border-b bg-background' : ''}`}
       >
         <Container className="mx-auto flex justify-between gap-8 lg:gap-12">
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
           <div className="flex flex-1">
             <div className="hidden gap-3 md:flex">
               <Link href="/events">
@@ -56,7 +58,9 @@ const Autheticated = () => {
               </Link>
             </div>
             <div className="ml-auto flex gap-6">
-              <Button variant="default">Create Event</Button>
+              <Link href="/create-event">
+                <Button variant="default">Create Event</Button>
+              </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger data-testid="profile-dropdown-button">
                   <Avatar>

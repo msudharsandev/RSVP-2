@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const createEventFormSchema = z
   .object({
-    eventname: z.string().min(2, {
+    name: z.string().min(2, {
       message: 'Event Name must be at least 2 characters.',
     }),
     category: z.string({
@@ -22,11 +22,11 @@ export const createEventFormSchema = z
       required_error: 'To time is required',
     }),
     description: z.string(),
-    locationType: z.enum(['venue', 'online'] as const),
+    venueType: z.enum(['physical', 'virtual'] as const),
     location: z.string().min(2, {
       message: 'Location must be at least 2 characters.',
     }),
-    requiresApproval: z.boolean(),
+    hostPermissionRequired: z.boolean(),
     capacity: z.coerce
       .number({
         required_error: 'Capacity is required',
@@ -35,9 +35,31 @@ export const createEventFormSchema = z
       .int()
       .positive()
       .min(1, { message: 'Capacity should be at least 1' }),
+    eventImageId: z.string().max(256),
     fromDateTime: z.string().optional(),
     toDateTime: z.string().optional(),
   })
+  .refine(
+    (data) => {
+      if (data.venueType === 'physical') {
+        return data.location.length > 0;
+      }
+      if (data.venueType === 'virtual') {
+        try {
+          new URL(data.location);
+          return true;
+        } catch {
+          return false;
+        }
+      }
+      return true;
+    },
+    {
+      message:
+        'Location must be a valid address for physical events or a valid URL for virtual events.',
+      path: ['location'],
+    }
+  )
   .superRefine((data, ctx) => {
     const fromDateTime = combineDateAndTime(data.fromDate, data.fromTime);
     const toDateTime = combineDateAndTime(data.toDate, data.toTime);
@@ -61,3 +83,18 @@ export const createEventFormSchema = z
   });
 
 export type CreateEventFormType = z.infer<typeof createEventFormSchema>;
+
+export type CreateEventSubmissionType = {
+  name: string;
+  category: string;
+  description: string;
+  eventImageId: string;
+  venueType: 'physical' | 'virtual';
+  venueAddress?: string;
+  venueUrl?: string;
+  hostPermissionRequired: boolean;
+  capacity: number;
+  startTime: Date;
+  endTime: Date;
+  eventDate: Date;
+};

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/drawer';
 import FormGroupSelect from '../common/form/FormSelect';
 import FormDatePicker from '../common/form/FormDatePicker';
-import { eventCapacityOptions, eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
+import { eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import { Separator } from '../ui/separator';
 import EventPreview from './EventPreview';
@@ -24,24 +24,59 @@ import FormSwitch from '../common/form/FormSwitch';
 import Tiptap from '../ui/tiptap';
 import FormCombobox from '../common/form/FormCombobox';
 import { createEventFormSchema, CreateEventFormType } from '@/lib/zod/event';
+import { useCreateEvent } from '@/lib/react-query/event';
+import { combineDateAndTime } from '@/utils/time';
 
-const BasicDetailsForm = () => {
+const CreateEventForm = () => {
+  const { mutate } = useCreateEvent();
   const form = useForm<CreateEventFormType>({
     resolver: zodResolver(createEventFormSchema),
     defaultValues: {
-      eventname: '',
+      name: '',
+      category: '',
+      description: '',
+      venueType: 'physical',
       location: '',
-      locationType: 'venue',
-      requiresApproval: false,
+      hostPermissionRequired: false,
       fromTime: '17:00',
       fromDate: new Date(),
       toTime: '20:00',
       toDate: new Date(),
+      capacity: 20,
+      eventImageId: '123',
     },
   });
 
-  function onSubmit(values: CreateEventFormType) {
-    console.log(values);
+  function onSubmit(data: CreateEventFormType) {
+    const {
+      name,
+      category,
+      description,
+      eventImageId,
+      venueType,
+      hostPermissionRequired,
+      capacity,
+      location,
+      fromTime,
+      fromDate,
+      toTime,
+      toDate,
+    } = data;
+    const submissionData = {
+      name,
+      category,
+      description,
+      eventImageId,
+      venueType,
+      venueAddress: venueType === 'physical' ? location : undefined,
+      venueUrl: venueType === 'virtual' ? location : undefined,
+      hostPermissionRequired,
+      capacity,
+      startTime: combineDateAndTime(fromDate, fromTime),
+      endTime: combineDateAndTime(toDate, toTime),
+      eventDate: fromDate,
+    };
+    mutate(submissionData);
   }
 
   return (
@@ -57,7 +92,7 @@ const BasicDetailsForm = () => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex max-w-[585px] grow flex-col gap-[1.125rem]"
           >
-            <FormInput label="Event Name" name="eventname" control={form.control} />
+            <FormInput label="Event Name" name="name" control={form.control} />
             <FormCombobox
               control={form.control}
               label="Category"
@@ -119,14 +154,14 @@ const BasicDetailsForm = () => {
             <div>
               <FormField
                 control={form.control}
-                name="locationType"
+                name="venueType"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-white">Location</FormLabel>
                     <ToggleGroup
                       size={'sm'}
                       type="single"
-                      defaultValue="venue"
+                      defaultValue="physical"
                       value={field.value}
                       onValueChange={(value) => {
                         if (value) field.onChange(value);
@@ -134,16 +169,16 @@ const BasicDetailsForm = () => {
                       className="justify-start gap-3 py-2"
                     >
                       <ToggleGroupItem
-                        value="venue"
-                        aria-label="Toggle venue"
+                        value="physical"
+                        aria-label="Toggle physical"
                         className="h-6 items-center gap-1 rounded-[1.25rem] bg-gray-100 px-3 text-xs/[1.25rem] text-slate-800 data-[state=on]:bg-primary data-[state=on]:text-white"
                       >
                         <BuildingOfficeIcon className="size-4" />
                         Venue
                       </ToggleGroupItem>
                       <ToggleGroupItem
-                        value="online"
-                        aria-label="Toggle online"
+                        value="virtual"
+                        aria-label="Toggle virtual"
                         className="h-6 items-center gap-1 rounded-[1.25rem] bg-gray-100 px-3 text-xs/[1.25rem] text-slate-800 data-[state=on]:bg-primary data-[state=on]:text-white"
                       >
                         <LinkIcon className="size-4" />
@@ -157,7 +192,7 @@ const BasicDetailsForm = () => {
               <FormInput
                 name="location"
                 control={form.control}
-                placeholder={form.watch('locationType') === 'venue' ? 'Address' : 'Event Link'}
+                placeholder={form.watch('venueType') === 'physical' ? 'Address' : 'Event Link'}
                 className="mt-2"
               />
             </div>
@@ -165,7 +200,7 @@ const BasicDetailsForm = () => {
               <h3 className="mb-8 font-semibold text-white">Joining Details</h3>
               <FormSwitch
                 control={form.control}
-                name="requiresApproval"
+                name="hostPermissionRequired"
                 className="!mt-1 data-[state=checked]:bg-[linear-gradient(188deg,#AC6AFF_53.34%,#DF7364_116.65%)]"
                 thumbClassName="bg-white"
                 containerClassName="flex flex-col lg:flex-row justify-between lg:items-end gap-3"
@@ -189,7 +224,7 @@ const BasicDetailsForm = () => {
               <DrawerContent className="bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 pb-[28px] lg:hidden">
                 <DrawerHeader className="mb-2 pl-0">
                   <DrawerTitle className="text-left text-4xl text-white">
-                    {form.watch('eventname') || '-'}
+                    {form.watch('name') || '-'}
                   </DrawerTitle>
                   <DrawerDescription />
                 </DrawerHeader>
@@ -205,7 +240,7 @@ const BasicDetailsForm = () => {
             className="sticky top-28 hidden w-full max-w-[424px] rounded-[1.25rem] bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 pb-[28px] pt-8 lg:block"
           >
             <h2 className="mb-[86px] line-clamp-2 text-left text-4xl font-semibold text-white">
-              {form.watch('eventname') || '-'}
+              {form.watch('name') || '-'}
             </h2>
           </EventPreview>
         </section>
@@ -214,4 +249,4 @@ const BasicDetailsForm = () => {
   );
 };
 
-export default BasicDetailsForm;
+export default CreateEventForm;
