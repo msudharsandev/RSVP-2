@@ -14,12 +14,14 @@ export const eventAPI = {
 
   getEventCommunications: async (eventId: string) => {
     return api.get(`/event/${eventId}/communications`);
-  getEventBySlug: async (slug: string): Promise<IEvent> => {
-    const response = await api.get(`/event/slug/${slug}`);
-    return response.data;
   },
 
   createAttendee: async (eventId: string) => {
     return api.post(`event/${eventId}/attendees`);
+  },
+
+  getEventBySlug: async (slug: string): Promise<IEvent> => {
+    const response = await api.get(`/event/slug/${slug}`);
+    return response.data;
   },
 };
