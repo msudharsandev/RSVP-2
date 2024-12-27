@@ -2,11 +2,17 @@ import Link from 'next/link';
 import React from 'react';
 import Container from './Container';
 
-const LegalStrip = ({ authenticated }: { authenticated: boolean }) => {
+const LegalStrip = ({
+  authenticated,
+  className,
+}: {
+  authenticated: boolean;
+  className?: string;
+}) => {
   const currentYear = new Date().getFullYear();
   return (
     <div
-      className={`${authenticated ? 'hidden' : 'block bg-primary text-black'} border-t lg:block`}
+      className={`${authenticated ? 'hidden' : 'block bg-primary text-black'} border-t lg:block ${className}`}
     >
       <Container className="flex flex-col items-center justify-between gap-y-6 py-6 md:flex-row">
         <div>

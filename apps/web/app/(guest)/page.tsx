@@ -21,7 +21,7 @@ function Home() {
 
   return (
     <>
-      <Container className="relative flex w-full flex-col items-center justify-center space-y-10 bg-cover pb-20 pt-36 xl:pb-32 xl:pt-44">
+      <Container className="relative flex w-full flex-col items-center justify-center space-y-10 bg-cover pb-20 pt-16 xl:pb-32 xl:pt-24">
         <h1 className="relative z-10 text-center text-3xl font-bold !leading-tight md:text-5xl xl:text-6xl">
           Dive into events starting here.
           <br className="hidden md:block" />

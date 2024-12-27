@@ -20,7 +20,9 @@ const Guest = () => {
 
   return (
     <>
-      <nav className={`fixed z-30 h-20 w-full py-5 ${isScrolled ? 'border-b bg-background' : ''}`}>
+      <nav
+        className={`sticky top-0 z-30 h-20 w-full py-5 ${isScrolled ? 'border-b bg-background' : ''}`}
+      >
         <Container className="mx-auto flex justify-between">
           <Link href="/">
             <Logo />

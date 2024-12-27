@@ -1,0 +1,115 @@
+import Image from 'next/image';
+import { MapPinIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { IEvent } from '@/types/event';
+import dayjs from 'dayjs';
+import GetTicketsButton from './GetTicketsButton';
+import AvatarGroup from './AvatarGroup';
+
+const EventDetail = ({ event }: { event: IEvent }) => {
+  const formattedStartDate = dayjs(event.startTime).format('dddd, MMMM D');
+  const formattedStartTime = dayjs(event.startTime).format('h:mm A');
+  const formattedEndTime = dayjs(event.endTime).format('h:mm A');
+
+  return (
+    <main>
+      <div className="relative w-full overflow-hidden">
+        <Image
+          src="/images/event-detail-mobile.svg"
+          alt=""
+          objectFit="cover"
+          priority
+          layout="fill"
+          className="absolute inset-0 hidden h-full w-full scale-110 object-cover blur-md md:block"
+        />
+        <div className="relative mx-auto h-[300px] w-full object-cover sm:h-[350px] sm:w-[600px] md:h-[400px] md:w-[800px] lg:h-[600px] lg:w-[970px]">
+          <Image
+            src="/images/event-detail-mobile.svg"
+            layout="fill"
+            objectFit="cover"
+            priority
+            alt="event-detail-desktop"
+          />
+        </div>
+      </div>
+      <article className="my-6 flex flex-col items-start md:my-12">
+        <p className="mb-4 inline-block rounded-full bg-primary px-4 py-2 text-sm capitalize text-white">
+          {event?.category} Event
+        </p>
+        <p className="text-2xl font-bold md:text-4xl">{event?.name}</p>
+      </article>
+      <section className="flex flex-col-reverse items-start justify-between gap-8 md:flex-row">
+        <section className="mt-6 w-full md:mt-0 md:w-[60%]">
+          <section className="mb-6 flex items-center">
+            <div className="mr-[20px] rounded-[8px] bg-dark-500 p-3">
+              <CalendarDaysIcon className="h-[24px] w-[24px]" />
+            </div>
+            <article className="font-bold">
+              <p>{formattedStartDate}</p>
+              <p className="text-sm text-secondary">
+                {formattedStartTime} - {formattedEndTime}
+              </p>
+            </article>
+          </section>
+          <section className="flex items-center">
+            <div className="mr-[20px] rounded-[8px] bg-dark-500 p-3">
+              <MapPinIcon className="h-[24px] w-[24px]" />
+            </div>
+            <article className="font-bold">
+              <p>Location</p>
+              <p className="text-sm text-secondary">
+                {event?.venueType === 'physical'
+                  ? event?.venueAddress || 'Location not specified'
+                  : event?.venueUrl || 'URL not specified'}
+              </p>
+            </article>
+          </section>
+          <section className="mt-6 p-3 pl-0">
+            <p className="font-semibold">Hosted By</p>
+            <div className="mt-3 flex items-center">
+              <Image
+                src="/images/user-avatar-bald-beard.svg"
+                alt="Host Avatar"
+                width={48}
+                height={48}
+                className="rounded-full"
+              />
+              <p className="ml-3 text-sm font-medium text-secondary">Quireverse, Anime Community</p>
+            </div>
+          </section>
+          <article className="mt-12">
+            <h2 className="text-2xl font-bold">About Event</h2>
+            <div
+              className="mt-4"
+              dangerouslySetInnerHTML={{
+                __html: event.description || '<p>Description not available.</p>',
+              }}
+            />
+          </article>
+        </section>
+        <section className="w-full md:w-[481px]">
+          <section className="w-full rounded-lg bg-dark-900 p-6 shadow-lg md:w-[481px]">
+            <h2 className="text-xl font-bold">Registration</h2>
+            <p className="mt-2 font-semibold">20 Seats are Remaining.</p>
+            <div className="flex items-center pb-2 pt-4">
+              <AvatarGroup />
+              <p className="ml-3 text-sm font-semibold">402 going</p>
+            </div>
+            {event?.hostPermissionRequired && (
+              <section className="mt-4 flex items-center">
+                <CheckBadgeIcon className="mr-2.5 size-6 text-green-500" />
+                <article className="flex flex-col">
+                  <p className="font-semibold">Required Approval</p>
+                  <p className="text-sm text-secondary">Needs host permission to join event</p>
+                </article>
+              </section>
+            )}
+            <GetTicketsButton eventId={event.id} />
+          </section>
+        </section>
+      </section>
+    </main>
+  );
+};
+
+export default EventDetail;

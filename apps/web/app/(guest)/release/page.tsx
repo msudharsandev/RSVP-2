@@ -21,7 +21,7 @@ const ReleasePage = () => {
   return (
     <Container asChild>
       <main className="max-w-6xl">
-        <header className="flex flex-col items-start justify-between gap-8 pb-20 pt-40 md:flex-row md:items-end">
+        <header className="flex flex-col items-start justify-between gap-8 pb-20 pt-20 md:flex-row md:items-end">
           <div className="max-w-xl space-y-4">
             <h2 className="text-4xl font-semibold">Changelog</h2>
             <p className="text-lg text-secondary md:text-xl">

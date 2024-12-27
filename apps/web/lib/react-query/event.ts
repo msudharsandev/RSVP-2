@@ -19,3 +19,15 @@ export const useCreateEvent = () => {
     },
   });
 };
+
+export const useCreateAttendee = () => {
+  return useMutation({
+    mutationFn: eventAPI.createAttendee,
+    onSuccess: () => {
+      toast.success('Attendee created successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data.message || 'An error occurred');
+    },
+  });
+};

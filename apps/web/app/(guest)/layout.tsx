@@ -1,5 +1,4 @@
 import Guest from '@/components/common/header/Guest';
-import Footer from '@/components/common/FooterNonAuthenticated';
 import React, { Suspense } from 'react';
 import LegalStrip from '@/components/common/LegalStrip';
 
@@ -12,8 +11,7 @@ const GuestLayout = ({
     <Suspense>
       <Guest />
       {children}
-      <Footer className="mt-24" />
-      <LegalStrip authenticated={false} />
+      <LegalStrip authenticated={false} className="mt-24" />
     </Suspense>
   );
 };

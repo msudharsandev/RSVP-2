@@ -1,3 +1,4 @@
+import { VenueType } from '@/types/event';
 import { combineDateAndTime } from '@/utils/time';
 import { z } from 'zod';
 
@@ -89,7 +90,7 @@ export type CreateEventSubmissionType = {
   category: string;
   description: string;
   eventImageId: string;
-  venueType: 'physical' | 'virtual';
+  venueType: VenueType;
   venueAddress?: string;
   venueUrl?: string;
   hostPermissionRequired: boolean;
