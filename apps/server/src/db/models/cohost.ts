@@ -1,5 +1,5 @@
 import { prisma } from '../connection';
-import { Cohost } from '@prisma/client';
+import { Cohost, Role } from '@prisma/client';
 
 export class CohostRepository {
   static async getHosts(eventId: string): Promise<Cohost[]> {
@@ -9,11 +9,16 @@ export class CohostRepository {
     });
   }
 
-  static async addHost(userId: number, eventId: string): Promise<Cohost> {
+  static async addHost(
+    userId: number,
+    eventId: string,
+    role: Role = Role.ReadOnly
+  ): Promise<Cohost> {
     return await prisma.cohost.create({
       data: {
         userId,
         eventId,
+        role,
       },
     });
   }

@@ -1,25 +1,23 @@
-import { Events } from '@/db/models/events';
-import catchAsync from '@/utils/catchAsync';
 import { Role } from '@prisma/client';
+import { CohostRepository } from '@/db/models/cohost';
 import { AuthenticatedRequest } from './authMiddleware';
+import catchAsync from '@/utils/catchAsync';
 
-export type HostRole = Role | 'Admin';
+interface EventIdRequest
+  extends AuthenticatedRequest<{ eventId?: string }, {}, { eventId?: string }> {}
 
-export const eventManageMiddleware = (role: HostRole[]) => {
-  return catchAsync(async (req: AuthenticatedRequest<{ eventId?: string }, {}, {}>, res, next) => {
-    const eventId = req.params.eventId;
-    const userId = req.userId;
+export const eventManageMiddleware = (allowedRoles: Role[]) => {
+  return catchAsync(async (req: EventIdRequest, res, next) => {
+    const userId = req.userId as number;
+    const eventId = req.params.eventId || req.body.eventId;
 
     if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
 
-    const event = await Events.findById(eventId);
+    const hasAccess = await CohostRepository.checkHostForEvent(userId, eventId);
+    if (!hasAccess) {
+      return res.status(403).json({ message: 'Unauthorized access' });
+    }
 
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-
-    const containsAdmin = role.includes('Admin');
-
-    if (containsAdmin && event?.creatorId === userId) return next();
-
-    return res.status(403).json({ message: 'You are not authorized to perform this action' });
+    return next();
   });
 };

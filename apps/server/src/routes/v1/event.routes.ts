@@ -26,12 +26,6 @@ import {
   qrTokenSchema,
 } from '@/validations/attendee.validation';
 
-import {
-  canAccessAttendeeById,
-  canAccessAttendeeByQrToken,
-  canVerifyQrToken,
-} from '@/middleware/eventAuthMiddleware';
-
 import authMiddleware from '@/middleware/authMiddleware';
 import { eventManageMiddleware } from '@/middleware/hostMiddleware';
 import { validate } from '@/middleware/validate';
@@ -40,6 +34,7 @@ import {
   eventsPlannedByUserReqSchema,
 } from '@/validations/event.validation';
 import { createNotification, getNotification } from '@/controllers/update.controller';
+import { Role } from '@prisma/client';
 
 const eventRouter: Router = Router();
 
@@ -58,7 +53,7 @@ eventRouter.delete(
   '/:eventId',
   authMiddleware,
   validate({ params: eventAttendeeReqSchema }),
-  eventManageMiddleware(['Admin']),
+  eventManageMiddleware([Role.Creator]),
   deleteEvent
 );
 eventRouter.get('/', allPlannedEvents);
@@ -96,21 +91,20 @@ eventRouter.get(
   '/attendee/:attendeeId',
   authMiddleware,
   validate({ params: attendeeIdSchema }),
-  canAccessAttendeeById,
   getAttendeeDetails
 );
 eventRouter.post(
   '/attendee/verify',
   authMiddleware,
   validate({ body: verifyQrTokenPayloadSchema }),
-  canVerifyQrToken,
+  eventManageMiddleware([Role.Creator, Role.Manager]),
   verifyQrToken
 );
 eventRouter.get(
   '/:eventId/attendee/qr/:qrToken',
   authMiddleware,
   validate({ params: qrTokenSchema }),
-  canAccessAttendeeByQrToken,
+  eventManageMiddleware([Role.Creator, Role.Manager]),
   getAttendeeByQrToken
 );
 export { eventRouter };

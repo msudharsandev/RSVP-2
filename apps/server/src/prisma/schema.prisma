@@ -62,9 +62,10 @@ enum Status {
 }
 
 enum Role {
-  Manager   @map("1")
-  ReadOnly  @map("2")
-  Celebrity @map("3")
+  Creator @map("1")
+  Manager @map("2")
+  ReadOnly @map("3")
+  Celebrity @map("4")
 }
 
 model Event {
