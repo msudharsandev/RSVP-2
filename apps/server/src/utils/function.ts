@@ -15,3 +15,9 @@ export function sluggify(title: string): string {
 
   return `${baseSlug}-${timestamp}`;
 }
+
+export function generateUsernameByEmail(email: string): string {
+  const username = email.split('@')[0];
+  const sanitizedUsername = username?.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || '';
+  return sanitizedUsername;
+}

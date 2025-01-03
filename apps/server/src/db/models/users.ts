@@ -1,6 +1,7 @@
 import { generateAccessToken } from '@/utils/jwt';
 import { prisma } from '../connection';
 import { randomUUID } from 'crypto';
+import { generateUsernameByEmail } from '@/utils/function';
 
 export class Users {
   static async findById(id: number) {
@@ -9,7 +10,6 @@ export class Users {
     });
     return user;
   }
-
   static async userExists(email: string) {
     const user = await prisma.users.findUnique({
       where: { primary_email: email },
@@ -22,11 +22,11 @@ export class Users {
     if (userExists) {
       throw new Error('User already exists');
     }
-
+    const username = generateUsernameByEmail(email);
     const newUser = await prisma.users.create({
       data: {
         primary_email: email,
-        full_name: '',
+        full_name: username,
       },
     });
 
