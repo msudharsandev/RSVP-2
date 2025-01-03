@@ -7,10 +7,12 @@ import { useVerifySignin } from '@/lib/react-query/auth';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 function Home() {
   const searchParams = useSearchParams();
   const { mutate } = useVerifySignin();
+  const router = useRouter();
 
   useEffect(() => {
     const token = searchParams.get('token');
@@ -30,8 +32,9 @@ function Home() {
         </h1>
         <Button
           variant={'gradient'}
-          className="text-md relative z-10 h-auto py-3 md:px-9 md:py-4 md:text-lg"
+          className="text-md relative z-10 h-auto cursor-pointer py-3 md:px-9 md:py-4 md:text-lg"
           size={'lg'}
+          onClick={() => router.push('/create-event')}
         >
           Host a Event
         </Button>

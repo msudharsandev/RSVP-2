@@ -38,12 +38,12 @@ const FooterNonAuthenticated = ({ className }: PropsWithClassName) => {
               <SigninDialog variant="signin">
                 <span>Sign In</span>
               </SigninDialog>
-              <Link href="/release">Help</Link>
+              <Link href="http://help.rsvp.kim" target="_blank">
+                Help
+              </Link>
             </div>
             <div className="flex flex-col gap-y-4 text-sm font-medium">
-              <Link href="/">RSVP</Link>
               <Link href="/about">About</Link>
-              <Link href="https://github.com/TeamShiksha">Github</Link>
             </div>
           </div>
         </Container>

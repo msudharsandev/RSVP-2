@@ -10,8 +10,8 @@ import useScroll from '@/hooks/useScroll';
 import SigninDialog from '@/components/auth/SigninDialog';
 
 const navItemsWithoutSignup = [
-  { name: 'Find Events', href: '/search' },
-  { name: 'Help Center', href: '/help' },
+  { name: 'Find Events', href: '/discover', target: false },
+  { name: 'Help Center', href: 'http://help.rsvp.kim', target: true },
 ];
 
 const Guest = () => {
@@ -29,7 +29,7 @@ const Guest = () => {
           </Link>
           <div className="hidden gap-14 md:flex">
             {navItemsWithoutSignup.map((item) => (
-              <Link href={item.href} key={item.name}>
+              <Link href={item.href} key={item.name} target={item.target ? '_blank' : ''}>
                 <Button className="text-md text-white" variant={'link'}>
                   {item.name}
                 </Button>
