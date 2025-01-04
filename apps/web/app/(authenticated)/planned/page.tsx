@@ -3,10 +3,49 @@
 import Container from '@/components/common/Container';
 import Timeline from '@/components/planned-events/Timeline';
 import NullScreen from '@/components/common/NullScreen';
-
+import { eventAPI } from '@/lib/axios/event-API';
+import { notFound } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { IEvent } from '@/types/event';
 
 const PlannedEvents = () => {
+  const searchParams = useSearchParams();
+  const params: Record<string, string | undefined> = Object.fromEntries(
+    searchParams.entries()
+  );
+
+  const today = new Date();
+  const { data: events, isLoading, isError } = useQuery<IEvent[] | null>({
+    queryKey: ['events', params],
+    queryFn: () => eventAPI.getEventsBySearchParams(params),
+  });
+
+  const upcomingEvents = events
+    ?.filter((event) => new Date(event.endTime) >= today)
+    .sort((event1, event2) => new Date(event1.startTime).getTime() - new Date(event2.startTime).getTime());
+
+  const pastEvents = events
+    ?.filter((event) => new Date(event.endTime) < today)
+    .sort((event1, event2) => new Date(event2.startTime).getTime() - new Date(event1.startTime).getTime());
+
+  if (isLoading) {
+    return (
+      <Container className="container-main pt-8">
+        <h1 className="text-primary-500">Loading event details...</h1>
+      </Container>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Container className="container-main pt-8">
+        <h1 className="text-red-500">Error loading event details. Please try again later.</h1>
+      </Container>
+    );
+  }
+
   return (
     <Tabs defaultValue="upcoming">
       <Container asChild>
@@ -27,11 +66,11 @@ const PlannedEvents = () => {
           </section>
 
           <TabsContent value="upcoming">
-            <Timeline />
+            <Timeline events={upcomingEvents} />
           </TabsContent>
 
           <TabsContent value="past">
-            <NullScreen />
+            <Timeline events={pastEvents} />
           </TabsContent>
         </main>
       </Container>

@@ -2,10 +2,11 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import eventImageSrc from '@/public/images/demo-event-image.png';
 import { Icons } from '../common/Icon';
+import { IEvent } from '@/types/event';
 
 interface Event {
   title: string;
-  host: string;
+  category: string;
   time: string;
   location: string;
   attendees: string;
@@ -17,44 +18,60 @@ interface DateGroup {
   events: Event[];
 }
 
-const timelineData: DateGroup[] = [
-  {
-    date: 'Aug 16 2024',
-    events: [
-      {
-        title: 'Comic Con 2024, Banglore',
-        host: 'Hosted By - Quireverse, Anime Community',
-        time: '10:00 AM, 12 May 2024',
-        location: 'Banglore, Karnataka',
-        attendees: '402 going',
-        isFree: true,
-      },
-      {
-        title: 'Anime Meetup 2024',
-        host: 'Hosted By - Anime Lovers Club',
-        time: '2:00 PM, 12 May 2024',
-        location: 'Banglore, Karnataka',
-        attendees: '200 going',
-        isFree: false,
-      },
-    ],
-  },
-  {
-    date: 'Aug 17 2024',
-    events: [
-      {
-        title: 'Cosplay Competition',
-        host: 'Hosted By - Cosplay Central',
-        time: '11:00 AM, 13 May 2024',
-        location: 'Banglore, Karnataka',
-        attendees: '150 going',
-        isFree: true,
-      },
-    ],
-  },
-];
+const transformEventsToTimelineData = (events: IEvent[]) => {
+  const groupedEvents = events.reduce((acc: { [key: string]: Event[] }, event) => {
+    const date = new Date(event.startTime).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
 
-export default function ComicConTimeline() {
+    const formattedEvent: Event = {
+      title: event.name,
+      category: `${event.category}`,
+      time: `${new Date(event.startTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}, 
+        ${new Date(event.startTime).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        })}`,
+      location: event.venueType === 'physical' ? event.venueAddress || 'Location TBD' : event.venueUrl || 'Virtual Event',
+      attendees: `${event.capacity} going`,
+      isFree: !event.hostPermissionRequired,
+    };
+
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(formattedEvent);
+    return acc;
+  }, {});
+
+  const timelineData = Object.keys(groupedEvents).map((date) => ({
+    date,
+    events: groupedEvents[date],
+  }));
+  return timelineData;
+};
+
+const ComicConTimeline = ({ events }: { events: IEvent[] | null }) => {
+
+  if(events===null || events.length===0) {
+    return (
+      <div className="text-center py-8">
+        <h2 className="text-2xl font-semibold text-gray-600">
+          No Events Found
+        </h2>
+        <p className="mt-4 text-gray-600">
+          It seems like there are no events matching your search criteria at the moment. 
+          Please try adjusting your filters or check back later for more updates.
+        </p>
+      </div>
+    );
+  }
+
+  const timelineData = events ? transformEventsToTimelineData(events) : [];
+  
   return (
     <div className="bg-dark mx-auto max-w-[70rem] text-white md:w-[90%]">
       <div className="relative md:pl-24">
@@ -90,7 +107,7 @@ export default function ComicConTimeline() {
                         <CardTitle className="text-xl font-bold leading-[25.2px] tracking-tight">
                           {event.title}
                         </CardTitle>
-                        <p className="text-base font-semibold leading-[19.6px]">{event.host}</p>
+                        <p className="text-base font-semibold leading-[19.6px]">{event.category}</p>
                       </CardHeader>
 
                       <CardContent className="flex flex-col gap-1 p-0 pt-2">
@@ -136,3 +153,5 @@ export default function ComicConTimeline() {
     </div>
   );
 }
+
+export default ComicConTimeline;
