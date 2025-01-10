@@ -10,7 +10,7 @@ export class CohostRepository {
   }
 
   static async addHost(
-    userId: number,
+    userId: string,
     eventId: string,
     role: Role = Role.ReadOnly
   ): Promise<Cohost> {
@@ -23,13 +23,13 @@ export class CohostRepository {
     });
   }
 
-  static async removeHost(userId: number, eventId: string): Promise<Cohost> {
+  static async removeHost(userId: string, eventId: string): Promise<Cohost> {
     return await prisma.cohost.delete({
       where: { userId },
     });
   }
 
-  static async checkHostForEvent(userId: number, eventId: string): Promise<boolean> {
+  static async checkHostForEvent(userId: string, eventId: string): Promise<boolean> {
     const cohost = await prisma.cohost.findFirst({
       where: {
         userId,
@@ -39,7 +39,7 @@ export class CohostRepository {
     return cohost !== null;
   }
 
-  static async checkCreatorForEvent(userId: number, eventId: string): Promise<boolean> {
+  static async checkCreatorForEvent(userId: string, eventId: string): Promise<boolean> {
     const creator = await prisma.cohost.findFirst({
       where: {
         userId,

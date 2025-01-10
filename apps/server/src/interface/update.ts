@@ -1,6 +1,6 @@
 export interface IUpdate {
   id?: string;
-  userId: number;
+  userId: string;
   eventId: string;
   content: string;
   createdAt?: Date;

@@ -50,7 +50,7 @@ export class Attendees {
     });
   }
 
-  static async findByUserIdAndEventId(userId: number, eventId: string) {
+  static async findByUserIdAndEventId(userId: string, eventId: string) {
     return await prisma.attendee.findFirst({
       where: {
         userId,

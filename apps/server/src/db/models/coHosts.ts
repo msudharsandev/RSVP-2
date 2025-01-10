@@ -49,7 +49,7 @@ export class Cohosts {
     });
   }
 
-  static async findByUserIdAndEventId(userId: number, eventId: string) {
+  static async findByUserIdAndEventId(userId: string, eventId: string) {
     return await prisma.cohost.findFirst({
       where: {
         userId,

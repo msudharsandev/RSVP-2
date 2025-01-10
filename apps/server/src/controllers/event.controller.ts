@@ -77,7 +77,7 @@ export const createEvent = catchAsync(
   async (req: AuthenticatedRequest<{}, {}, createEventBody>, res) => {
     const data = req.body;
 
-    const userId = req.userId || 1;
+    const userId = req.userId;
     if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
 
     const getUserData = await Users.findById(userId);
@@ -137,7 +137,8 @@ export const plannedByUser = catchAsync(async (req: AuthenticatedRequest<{}, {},
     eventsPlannedByUserReqSchema.parse(req.query);
 
   const userId = req.userId;
-  const existingUser = await Users.findById(userId as number);
+  if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+  const existingUser = await Users.findById(userId);
 
   if (existingUser) {
     const plannedEvents = await Events.plannedEvents({
@@ -233,6 +234,8 @@ export const createAttendee = catchAsync(
 export const getAttendeeDetails = catchAsync(
   async (req: AuthenticatedRequest<{ attendeeId?: string }, {}, {}>, res) => {
     const userId = req.userId;
+    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+
     const attendeeId = req.params.attendeeId;
 
     if (!attendeeId) return res.status(400).json({ message: 'Attendee ID is required' });
@@ -329,7 +332,9 @@ export const verifyQrToken = catchAsync(
 export const softDeleteAttendee = catchAsync(
   async (req: AuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;
+    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
     const userId = req.userId;
+    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
 
     const attendee = await Attendees.findByUserIdAndEventId(userId, eventId);
     if (!attendee) {

@@ -1,7 +1,7 @@
 import { VenueType } from '@prisma/client';
 
 export interface CreateEventDto {
-  creatorId: number;
+  creatorId: string;
   name: string;
   slug: string;
   category?: string;
@@ -19,7 +19,7 @@ export interface CreateEventDto {
 }
 
 export interface IEventFilters {
-  userId?: number;
+  userId?: string;
   search?: string;
   category?: string;
   fromDate: Date;

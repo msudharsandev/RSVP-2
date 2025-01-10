@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { generateUsernameByEmail } from '@/utils/function';
 
 export class Users {
-  static async findById(id: number) {
+  static async findById(id: string) {
     const user = await prisma.users.findUnique({
       where: { id },
     });
@@ -33,7 +33,7 @@ export class Users {
     return newUser;
   }
 
-  static async createMagicLink(userId: number): Promise<string> {
+  static async createMagicLink(userId: string): Promise<string> {
     const tokenId = randomUUID();
     const token = generateAccessToken({ userId, tokenId });
 
@@ -62,21 +62,21 @@ export class Users {
     return user;
   }
 
-  static async completeProfile(id: number): Promise<void> {
+  static async completeProfile(id: string): Promise<void> {
     await prisma.users.update({
       where: { id },
       data: { is_completed: true },
     });
   }
 
-  static async updateProfile(id: number, data: any) {
+  static async updateProfile(id: string, data: any) {
     return await prisma.users.update({
       where: { id },
       data: data,
     });
   }
 
-  static async updateRefreshToken(userId: number, refreshToken: string | null): Promise<void> {
+  static async updateRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
     await prisma.users.update({
       where: { id: userId },
       data: { refreshToken },

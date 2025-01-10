@@ -8,7 +8,7 @@ interface EventIdRequest
 
 export const eventManageMiddleware = (allowedRoles: Role[]) => {
   return catchAsync(async (req: EventIdRequest, res, next) => {
-    const userId = req.userId as number;
+    const userId = req.userId as string;
     const eventId = req.params.eventId || req.body.eventId;
 
     if (!eventId) return res.status(400).json({ message: 'Event ID is required' });

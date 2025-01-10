@@ -8,7 +8,7 @@ export interface AuthenticatedRequest<
   ResBody = {},
   ReqBody = { accessToken?: string; refreshToken?: string },
 > extends Request<P, ResBody, ReqBody> {
-  userId?: number;
+  userId?: string;
 }
 
 /**
