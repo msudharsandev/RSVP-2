@@ -1,22 +1,22 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { type Editor as EditorType } from '@tiptap/react';
 import { Toggle } from '@/components/ui/toggle';
+import { type Editor as EditorType } from '@tiptap/react';
+import clsx from 'clsx';
 import {
   Bold,
-  Strikethrough,
-  Italic,
-  List,
-  ListOrdered,
   Heading1,
   Heading2,
-  Link as LinkIcon,
-  TextQuote as Quote,
-  Minus,
   Image as ImageIcon,
+  Italic,
+  Link as LinkIcon,
+  List,
+  ListOrdered,
+  Minus,
+  TextQuote as Quote,
+  Strikethrough,
   Youtube as YoutubeIcon,
 } from 'lucide-react';
-import clsx from 'clsx';
+import { useState } from 'react';
 
 const Editor = ({ editor }: { editor: EditorType | null }) => {
   const [url, setUrl] = useState('');

@@ -1,14 +1,21 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import QrScanner from 'qr-scanner';
 import { IAttendee } from '@/types/attendee';
+import QrScanner from 'qr-scanner';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { dummyAttendee } from '@/app/(authenticated)/scanner/page';
 
 interface QRScannerProps {
   onScan: (data: IAttendee) => void;
 }
+
+const dummyAttendee = {
+  name: 'Chandresh Patidar',
+  imageUrl: 'https://github.com/shadcn.png',
+  event: 'Comic Con,24 July 2024',
+  qrToken: 'X7F-2K3',
+  isCheckedIn: false,
+};
 
 const QRScanner = ({ onScan }: QRScannerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);

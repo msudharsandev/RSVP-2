@@ -12,14 +12,6 @@ import QRScanner from '@/components/scanner/QRScanner';
 import TicketInput from '@/components/scanner/TicketInput';
 import AttendeeDetails from '@/components/scanner/AttendeeDetails';
 
-export const dummyAttendee = {
-  name: 'Chandresh Patidar',
-  imageUrl: 'https://github.com/shadcn.png',
-  event: 'Comic Con,24 July 2024',
-  qrToken: 'X7F-2K3',
-  isCheckedIn: false,
-};
-
 const ScannerPage = () => {
   const [attendeeData, setAttendeeData] = useState<IAttendee | null>(null);
 

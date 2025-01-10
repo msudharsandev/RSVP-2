@@ -6,11 +6,14 @@ import { cn } from '@/lib/utils';
 import Container from './Container';
 import Link from 'next/link';
 import SigninDialog from '../auth/SigninDialog';
+import { Button } from '../ui/button';
 
 const FooterNonAuthenticated = ({ className }: PropsWithClassName) => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer data-testid="footer" className={cn('footer', className)}>
-      <div className="bg-black px-11 py-10 lg:py-20">
+      <div className="bg-black px-11 py-8">
         <Container className="flex flex-col justify-between sm:flex-row">
           <div>
             <Logo className="mb-4 h-10 w-fit" />
@@ -32,18 +35,27 @@ const FooterNonAuthenticated = ({ className }: PropsWithClassName) => {
                 data-testid="team-shiksha-logo"
               />
             </div>
+
+            <p className="mt-4 text-sm text-secondary">
+              © {currentYear} Team Shiksha. All rights reserved.
+            </p>
           </div>
-          <div className="mt-16 flex flex-col gap-x-28 gap-y-9 md:flex-row lg:mt-auto">
+          <div className="flex flex-col gap-x-28 gap-y-9 md:flex-row lg:mt-auto">
             <div className="flex flex-col gap-y-4 text-sm font-medium">
               <SigninDialog variant="signin">
-                <span>Sign In</span>
+                <Button variant="link" className="h-fit px-0 py-0 hover:underline">
+                  Sign In
+                </Button>
               </SigninDialog>
-              <Link href="http://help.rsvp.kim" target="_blank">
-                Help
-              </Link>
+              <Link href="/release">Help</Link>
+              <Link href="/release">About</Link>
             </div>
+
+            <div className="flex flex-col gap-y-4 text-sm font-medium"></div>
             <div className="flex flex-col gap-y-4 text-sm font-medium">
-              <Link href="/about">About</Link>
+              <Link href="/">RSVP</Link>
+              <Link href="/privacy-policy">Terms of Service</Link>
+              <Link href="/terms-and-conditions">Privacy Policy</Link>
             </div>
           </div>
         </Container>

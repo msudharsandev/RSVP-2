@@ -23,10 +23,8 @@ export const createEventFormSchema = z
       required_error: 'To time is required',
     }),
     description: z.string(),
-    venueType: z.enum(['physical', 'virtual'] as const),
-    location: z.string().min(2, {
-      message: 'Location must be at least 2 characters.',
-    }),
+    venueType: z.enum(['physical', 'virtual', 'later'] as const),
+    location: z.string().optional(),
     hostPermissionRequired: z.boolean(),
     capacity: z.coerce
       .number({
@@ -36,18 +34,21 @@ export const createEventFormSchema = z
       .int()
       .positive()
       .min(1, { message: 'Capacity should be at least 1' }),
-    eventImageId: z.string().max(256),
+    eventImageId: z.object({
+      file: z.string().nullable(),
+      url: z.string().nullable(),
+    }),
     fromDateTime: z.string().optional(),
     toDateTime: z.string().optional(),
   })
   .refine(
     (data) => {
       if (data.venueType === 'physical') {
-        return data.location.length > 0;
+        return data.location && data.location.length > 0;
       }
       if (data.venueType === 'virtual') {
         try {
-          new URL(data.location);
+          new URL(data.location || '');
           return true;
         } catch {
           return false;

@@ -1,20 +1,53 @@
+import { CreateEventFormType } from '@/lib/zod/event';
 import { CalendarIcon, MapPinIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
-import { UseFormWatch } from 'react-hook-form';
+import { X } from 'lucide-react';
 import { ReactNode } from 'react';
-import { CreateEventFormType } from '@/lib/zod/event';
+import { useFormContext } from 'react-hook-form';
+import { Button } from '../ui/button';
+import ImageUploadDialog from './ImageUploadDialog';
 
 type EventPreviewProps = {
-  watch: UseFormWatch<CreateEventFormType>;
   className?: string;
   children?: ReactNode;
 };
 
-const EventPreview = ({ watch, className, children }: EventPreviewProps) => {
+const EventPreview = ({ className, children }: EventPreviewProps) => {
+  const { watch, setValue } = useFormContext<CreateEventFormType>();
+  const image = watch('eventImageId');
+
+  const removeImage = () => {
+    setValue('eventImageId', {
+      file: '',
+      url: '',
+    });
+  };
+
   return (
     <section className={className}>
+      {image.file && (
+        <figure className="relative mx-auto mb-4 aspect-square md:w-3/4">
+          <img
+            src={image.file}
+            alt="Event Image"
+            className="aspect-square overflow-clip rounded-lg object-cover"
+          />
+          <Button
+            className="absolute -right-2 -top-2 z-10 hidden bg-opacity-80 hover:bg-destructive hover:bg-opacity-100 hover:text-white md:flex"
+            onClick={removeImage}
+            variant="secondary"
+            size="icon"
+            radius="sm"
+          >
+            <X size={18} />
+          </Button>
+        </figure>
+      )}
       {children}
-      <div className="mb-6 flex gap-3.5 lg:mb-[50px]">
+      <h2 className="mb-4 line-clamp-2 text-left text-4xl font-semibold text-white">
+        {watch('name') || '-'}
+      </h2>
+      <div className="mb-6 flex gap-3.5 lg:mb-4">
         <MapPinIcon className="mt-[3px] size-6 shrink-0" />
         <p className="line-clamp-2 text-[1.125rem]/[1.5rem] font-medium text-white">
           {watch('location') || '-'}
@@ -35,6 +68,13 @@ const EventPreview = ({ watch, className, children }: EventPreviewProps) => {
           <span className="ml-1 font-medium">{watch('toTime') || '-'}</span>
         </div>
       </section>
+      {!image.file && (
+        <ImageUploadDialog>
+          <Button type="button" variant="secondary" radius="sm" className="mt-4 w-full">
+            Add Image
+          </Button>
+        </ImageUploadDialog>
+      )}
     </section>
   );
 };

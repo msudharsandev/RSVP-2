@@ -1,3 +1,5 @@
+import { Upload } from 'lucide-react';
+
 type IconProps = React.HTMLAttributes<SVGElement>;
 
 export const Icons = {
@@ -230,6 +232,94 @@ export const Icons = {
         d="M24.04 34.351L24.11 34.391L24.138 34.407C24.249 34.467 24.3733 34.4985 24.4995 34.4985C24.6257 34.4985 24.75 34.467 24.861 34.407L24.889 34.392L24.96 34.351C25.3511 34.1191 25.7328 33.8716 26.104 33.609C27.0651 32.9305 27.963 32.1667 28.787 31.327C30.731 29.337 32.75 26.347 32.75 22.5C32.75 20.312 31.8808 18.2135 30.3336 16.6664C28.7865 15.1192 26.688 14.25 24.5 14.25C22.312 14.25 20.2135 15.1192 18.6664 16.6664C17.1192 18.2135 16.25 20.312 16.25 22.5C16.25 26.346 18.27 29.337 20.213 31.327C21.0366 32.1667 21.9343 32.9304 22.895 33.609C23.2666 33.8716 23.6485 34.1191 24.04 34.351ZM24.5 25.5C25.2956 25.5 26.0587 25.1839 26.6213 24.6213C27.1839 24.0587 27.5 23.2956 27.5 22.5C27.5 21.7044 27.1839 20.9413 26.6213 20.3787C26.0587 19.8161 25.2956 19.5 24.5 19.5C23.7044 19.5 22.9413 19.8161 22.3787 20.3787C21.8161 20.9413 21.5 21.7044 21.5 22.5C21.5 23.2956 21.8161 24.0587 22.3787 24.6213C22.9413 25.1839 23.7044 25.5 24.5 25.5Z"
         fill="white"
       />
+    </svg>
+  ),
+  upload: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="44"
+      height="44"
+      fill="none"
+      viewBox="0 0 44 44"
+      {...props}
+    >
+      <g stroke="#D0D0D0" filter="url(#filter0_d_2250_7024)">
+        <rect width="39" height="39" x="2.5" y="1.5" rx="7.5"></rect>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.667"
+          d="M18.667 24.333 22 21m0 0 3.334 3.333M22 21v7.5m6.667-3.548a4.583 4.583 0 0 0-2.917-8.12.52.52 0 0 1-.445-.25 6.25 6.25 0 1 0-9.816 7.58"
+        ></path>
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_2250_7024"
+          width="44"
+          height="44"
+          x="0"
+          y="0"
+          colorInterpolationFilters="sRGB"
+          filterUnits="userSpaceOnUse"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood>
+          <feColorMatrix
+            in="SourceAlpha"
+            result="hardAlpha"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+          ></feColorMatrix>
+          <feOffset dy="1"></feOffset>
+          <feGaussianBlur stdDeviation="1"></feGaussianBlur>
+          <feColorMatrix values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.05 0"></feColorMatrix>
+          <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_2250_7024"></feBlend>
+          <feBlend in="SourceGraphic" in2="effect1_dropShadow_2250_7024" result="shape"></feBlend>
+        </filter>
+      </defs>
+    </svg>
+  ),
+  alert: (props: IconProps) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="45"
+      height="45"
+      fill="none"
+      viewBox="0 0 45 45"
+      {...props}
+    >
+      <g filter="url(#filter0_d_2246_4533)">
+        <rect width="40" height="40" x="2.5" y="1.178" fill="#0F0F10" rx="8"></rect>
+        <rect width="39" height="39" x="3" y="1.678" stroke="#9CA3AF" rx="7.5"></rect>
+        <path
+          stroke="#9CA3AF"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.667"
+          d="M22.5 17.845v3.333m0 3.333h.008m8.325-3.333a8.333 8.333 0 1 1-16.666 0 8.333 8.333 0 0 1 16.666 0"
+        ></path>
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_2246_4533"
+          width="44"
+          height="44"
+          x="0.5"
+          y="0.178"
+          colorInterpolationFilters="sRGB"
+          filterUnits="userSpaceOnUse"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood>
+          <feColorMatrix
+            in="SourceAlpha"
+            result="hardAlpha"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+          ></feColorMatrix>
+          <feOffset dy="1"></feOffset>
+          <feGaussianBlur stdDeviation="1"></feGaussianBlur>
+          <feColorMatrix values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.05 0"></feColorMatrix>
+          <feBlend in2="BackgroundImageFix" result="effect1_dropShadow_2246_4533"></feBlend>
+          <feBlend in="SourceGraphic" in2="effect1_dropShadow_2246_4533" result="shape"></feBlend>
+        </filter>
+      </defs>
     </svg>
   ),
 };

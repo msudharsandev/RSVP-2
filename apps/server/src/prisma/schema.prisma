@@ -52,6 +52,7 @@ model Update {
 enum VenueType {
   physical
   virtual
+  later
 }
 
 enum Status {

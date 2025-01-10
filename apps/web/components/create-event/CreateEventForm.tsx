@@ -1,31 +1,32 @@
 'use client';
 
-import FormInput from '../common/form/FormInput';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
+import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from '@/components/ui/drawer';
-import FormGroupSelect from '../common/form/FormSelect';
-import FormDatePicker from '../common/form/FormDatePicker';
-import { eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
-import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
-import { Separator } from '../ui/separator';
-import EventPreview from './EventPreview';
-import { BuildingOfficeIcon, LinkIcon } from '@heroicons/react/16/solid';
-import FormSwitch from '../common/form/FormSwitch';
-import Tiptap from '../ui/tiptap';
-import FormCombobox from '../common/form/FormCombobox';
-import { createEventFormSchema, CreateEventFormType } from '@/lib/zod/event';
 import { useCreateEvent } from '@/lib/react-query/event';
+import {
+  createEventFormSchema,
+  CreateEventFormType,
+  CreateEventSubmissionType,
+} from '@/lib/zod/event';
+import { eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
 import { combineDateAndTime } from '@/utils/time';
+import { BuildingOfficeIcon, LinkIcon } from '@heroicons/react/16/solid';
+import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import { Clock1 } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import FormCombobox from '../common/form/FormCombobox';
+import FormDatePicker from '../common/form/FormDatePicker';
+import FormInput from '../common/form/FormInput';
+import FormGroupSelect from '../common/form/FormSelect';
+import FormSwitch from '../common/form/FormSwitch';
+import FormImageUpload from '../common/form/FormUploadImage';
+import { Separator } from '../ui/separator';
+import Tiptap from '../ui/tiptap';
+import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
+import EventPreview from './EventPreview';
+import { fileFromUrl } from '@/lib/utils';
 
 const CreateEventForm = () => {
   const { mutate } = useCreateEvent();
@@ -43,11 +44,14 @@ const CreateEventForm = () => {
       toTime: '20:00',
       toDate: new Date(),
       capacity: 20,
-      eventImageId: '123',
+      eventImageId: {
+        url: '',
+        file: '',
+      },
     },
   });
 
-  function onSubmit(data: CreateEventFormType) {
+  async function onSubmit(data: CreateEventFormType) {
     const {
       name,
       category,
@@ -62,11 +66,12 @@ const CreateEventForm = () => {
       toTime,
       toDate,
     } = data;
-    const submissionData = {
+
+    const submissionData: CreateEventSubmissionType = {
       name,
       category,
       description,
-      eventImageId,
+      eventImageId: eventImageId.url ?? '',
       venueType,
       venueAddress: venueType === 'physical' ? location : undefined,
       venueUrl: venueType === 'virtual' ? location : undefined,
@@ -76,8 +81,16 @@ const CreateEventForm = () => {
       endTime: combineDateAndTime(toDate, toTime),
       eventDate: fromDate,
     };
-    mutate(submissionData);
+
+    if (eventImageId.file && eventImageId.url) {
+      const imageFile = fileFromUrl(eventImageId.file, 'event-image');
+      await axios.put(eventImageId.url, imageFile);
+      mutate(submissionData);
+    }
   }
+  const venueType = form.watch('venueType');
+
+  console.log('form', form.formState.errors);
 
   return (
     <>
@@ -85,13 +98,18 @@ const CreateEventForm = () => {
         <p className="font-medium text-secondary">Manage your profile settings</p>
       </div>
       <Separator className="my-9 bg-separator" />
-      <h3 className="mb-8 font-semibold text-white">Basic Details</h3>
       <Form {...form}>
         <section className="flex items-start justify-between gap-20">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex max-w-[585px] grow flex-col gap-[1.125rem]"
           >
+            <FormImageUpload
+              control={form.control}
+              name="eventImageId"
+              className="md:hidden"
+              label="Event Image"
+            />
             <FormInput label="Event Name" name="name" control={form.control} />
             <FormCombobox
               control={form.control}
@@ -166,7 +184,7 @@ const CreateEventForm = () => {
                       onValueChange={(value) => {
                         if (value) field.onChange(value);
                       }}
-                      className="justify-start gap-3 py-2"
+                      className="flex-wrap justify-start gap-3 py-2"
                     >
                       <ToggleGroupItem
                         value="physical"
@@ -184,30 +202,37 @@ const CreateEventForm = () => {
                         <LinkIcon className="size-4" />
                         Online
                       </ToggleGroupItem>
+                      <ToggleGroupItem
+                        value="later"
+                        aria-label="Toggle decideLater"
+                        className="h-6 items-center gap-1 rounded-[1.25rem] bg-gray-100 px-3 text-xs/[1.25rem] text-slate-800 data-[state=on]:bg-primary data-[state=on]:text-white"
+                      >
+                        <Clock1 className="size-4" />
+                        Decide Later
+                      </ToggleGroupItem>
                     </ToggleGroup>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormInput
-                name="location"
-                control={form.control}
-                placeholder={form.watch('venueType') === 'physical' ? 'Address' : 'Event Link'}
-                className="mt-2"
-              />
+              {venueType !== 'later' && (
+                <FormInput
+                  name="location"
+                  control={form.control}
+                  placeholder={venueType === 'physical' ? 'Address' : 'Event Link'}
+                  className="mt-2"
+                />
+              )}
             </div>
-            <section className="mb-3.5 mt-[18px]">
-              <h3 className="mb-8 font-semibold text-white">Joining Details</h3>
-              <FormSwitch
-                control={form.control}
-                name="hostPermissionRequired"
-                className="!mt-1 data-[state=checked]:bg-[linear-gradient(188deg,#AC6AFF_53.34%,#DF7364_116.65%)]"
-                thumbClassName="bg-white"
-                containerClassName="flex flex-col lg:flex-row justify-between lg:items-end gap-3"
-                label="Required Approval"
-                description="Needs host permission to join event"
-              />
-            </section>
+            <FormSwitch
+              control={form.control}
+              name="hostPermissionRequired"
+              className="!mt-1 data-[state=checked]:bg-[linear-gradient(188deg,#AC6AFF_53.34%,#DF7364_116.65%)]"
+              thumbClassName="bg-white"
+              containerClassName="flex flex-col lg:flex-row justify-between lg:items-end gap-3"
+              label="Required Approval"
+              description="Needs host permission to join event"
+            />
             <FormInput
               control={form.control}
               label="Capacity"
@@ -222,27 +247,19 @@ const CreateEventForm = () => {
                 </Button>
               </DrawerTrigger>
               <DrawerContent className="bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 pb-[28px] lg:hidden">
-                <DrawerHeader className="mb-2 pl-0">
-                  <DrawerTitle className="text-left text-4xl text-white">
-                    {form.watch('name') || '-'}
-                  </DrawerTitle>
-                  <DrawerDescription />
-                </DrawerHeader>
-                <EventPreview watch={form.watch} />
+                <EventPreview />
               </DrawerContent>
             </Drawer>
+            {form.formState.errors.eventImageId && (
+              <p className="hidden text-sm font-medium text-destructive lg:block">
+                {form.formState.errors.eventImageId.message}
+              </p>
+            )}
             <Button className="m mt-2 min-h-11 w-full rounded-[1.25rem] text-base font-semibold text-white">
               Create Event
             </Button>
           </form>
-          <EventPreview
-            watch={form.watch}
-            className="sticky top-28 hidden w-full max-w-[424px] rounded-[1.25rem] bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 pb-[28px] pt-8 lg:block"
-          >
-            <h2 className="mb-[86px] line-clamp-2 text-left text-4xl font-semibold text-white">
-              {form.watch('name') || '-'}
-            </h2>
-          </EventPreview>
+          <EventPreview className="sticky top-28 hidden w-full max-w-[424px] rounded-[1.25rem] bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 pb-[28px] pt-8 lg:block" />
         </section>
       </Form>
     </>

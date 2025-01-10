@@ -18,7 +18,7 @@ import FormProvider from '../ui/form-provider';
 
 interface CommunicationProps {
   eventId: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 interface CommunicationMessage {

@@ -1,4 +1,4 @@
-import { IEventResponse } from '@/types/event';
+import { IEvent, IEventResponse } from '@/types/event';
 import { CreateEventSubmissionType } from '../zod/event';
 import { CommunicationForm } from '../zod/communication';
 import api from './instance';
@@ -30,7 +30,7 @@ export const eventAPI = {
   ): Promise<IEvent[]> => {
     const queryString = new URLSearchParams(searchParams as Record<string, string>).toString();
     const url = queryString ? `/event/user?${queryString}` : `/event/user`;
-    const response = await api.get(url);
+    const response = await api.get(url, { params: searchParams });
     return response.data.data.events;
   },
 };

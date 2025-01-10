@@ -30,7 +30,7 @@ export const signin = catchAsync(async (req: Request<{}, {}, SigninRequestBody>,
     recipient: email,
     body: {
       email,
-      magicLink: `${config.CLIENT_URL}/signin?token=${token}`,
+      magicLink: `${config.CLIENT_URL}?token=${token}`,
     },
   });
 

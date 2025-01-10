@@ -28,6 +28,7 @@ const Tiptap = ({
   const [editorInFocus, setEditorInFocus] = useState(false);
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Heading.configure({
@@ -93,7 +94,7 @@ const Tiptap = ({
     >
       <Editor editor={editor} />
       <EditorContent editor={editor} />
-      <p>
+      <p className="text-right text-xs text-secondary">
         {editor.storage.characterCount.characters()} / {limit} characters
       </p>
     </div>

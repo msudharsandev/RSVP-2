@@ -4,6 +4,7 @@ import { Update } from '@/db/models/update';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
 import { userUpdateSchema } from '@/validations/event.validation';
 import catchAsync from '@/utils/catchAsync';
+import generatePresignedUrl from '@/utils/s3';
 import { Users } from '@/db/models/users';
 
 type createNotificationBody = z.infer<typeof userUpdateSchema>;
@@ -48,6 +49,12 @@ export const createNotification = catchAsync(
     return res.status(201).json(notificationDeta);
   }
 );
+
+export const uploadEventImage = catchAsync(async (req: AuthenticatedRequest<{}, {}, {}>, res) => {
+  const fileName = req.query.filename;
+  const response = await generatePresignedUrl(fileName as string);
+  return res.status(200).json(response);
+});
 
 export const getNotification = catchAsync(
   async (req: AuthenticatedRequest<{ eventId?: string }, {}>, res) => {

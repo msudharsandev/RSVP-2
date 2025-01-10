@@ -24,7 +24,7 @@ export const EventSchema = z.object({
   category: z.string().max(256),
   description: z.string().max(512),
   eventImageId: z.string().max(256),
-  venueType: z.enum(['physical', 'virtual']),
+  venueType: z.enum(['physical', 'virtual', 'later']),
   venueAddress: z.string().max(256).optional(),
   venueUrl: z.string().url().max(256).optional(),
   hostPermissionRequired: z.boolean(),
@@ -41,6 +41,9 @@ export const CreateEventSchema = EventSchema.strict().refine(
     }
     if (data.venueType === 'virtual') {
       return data.venueUrl !== null && data.venueAddress == null;
+    }
+    if (data.venueType === 'later') {
+      return data.venueUrl == null && data.venueAddress == null;
     }
     return false;
   },

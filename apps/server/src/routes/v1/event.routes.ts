@@ -34,6 +34,12 @@ import {
   eventAttendeeReqSchema,
   eventsPlannedByUserReqSchema,
 } from '@/validations/event.validation';
+import {
+  createNotification,
+  getNotification,
+  uploadEventImage,
+} from '@/controllers/update.controller';
+import upload from '@/middleware/multerUploadMiddleware';
 import { createNotification, getNotification } from '@/controllers/update.controller';
 import { Role } from '@prisma/client';
 
@@ -68,6 +74,8 @@ eventRouter.get(
   plannedByUser
 );
 
+eventRouter.get('/upload-image', uploadEventImage);
+
 eventRouter.post(
   '/:eventId/attendees',
   authMiddleware,
@@ -101,6 +109,7 @@ eventRouter.post(
   eventManageMiddleware([Role.Creator, Role.Manager]),
   verifyQrToken
 );
+
 eventRouter.get(
   '/:eventId/attendee/qr/:qrToken',
   authMiddleware,

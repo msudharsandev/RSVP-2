@@ -4,3 +4,9 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const fileFromUrl = async (url: string, filename: string): Promise<File> => {
+  const blob = await fetch(url).then((r) => r.blob());
+  URL.revokeObjectURL(url);
+  return new File([blob], filename);
+};

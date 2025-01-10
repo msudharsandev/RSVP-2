@@ -50,7 +50,7 @@ const ManageEventPage = () => {
             <GuestManageSection />
           </TabsContent>
           <TabsContent className="mt-6" value="communication">
-            <Communication eventId={params.id} />
+            <Communication eventId={params.id!.toString()} />
           </TabsContent>
           <TabsContent className="mt-6" value="more">
             <MoreSection />

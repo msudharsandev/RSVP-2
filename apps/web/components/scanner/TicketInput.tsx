@@ -1,10 +1,6 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { IAttendee } from '@/types/attendee';
-import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
-import { dummyAttendee } from '@/app/(authenticated)/scanner/page';
 import {
   Form,
   FormControl,
@@ -13,10 +9,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { IAttendee } from '@/types/attendee';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 
+const dummyAttendee = {
+  name: 'Chandresh Patidar',
+  imageUrl: 'https://github.com/shadcn.png',
+  event: 'Comic Con,24 July 2024',
+  qrToken: 'X7F-2K3',
+  isCheckedIn: false,
+};
 interface TicketInputProps {
   onSubmit: (data: IAttendee) => void;
 }
