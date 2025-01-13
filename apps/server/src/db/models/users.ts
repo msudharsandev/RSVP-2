@@ -10,6 +10,14 @@ export class Users {
     });
     return user;
   }
+
+  static async findAllByIds(ids: string[]) {
+    const users = await prisma.users.findMany({
+      where: { id: { in: ids } },
+    });
+    return users;
+  }
+
   static async userExists(email: string) {
     const user = await prisma.users.findUnique({
       where: { primary_email: email },

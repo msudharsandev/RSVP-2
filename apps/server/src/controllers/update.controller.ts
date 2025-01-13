@@ -6,6 +6,9 @@ import { userUpdateSchema } from '@/validations/event.validation';
 import catchAsync from '@/utils/catchAsync';
 import generatePresignedUrl from '@/utils/s3';
 import { Users } from '@/db/models/users';
+import axios from 'axios';
+import config from '@/config/config';
+import { Attendees } from '@/db/models/attendees';
 
 type createNotificationBody = z.infer<typeof userUpdateSchema>;
 
@@ -13,6 +16,7 @@ export const createNotification = catchAsync(
   async (req: AuthenticatedRequest<{ eventId?: string }, {}, createNotificationBody>, res) => {
     const data = req.body;
     const param = req.params;
+    const RSVP_SUBJECT_MSG = 'Updates from your event';
 
     const event = await Events.findById(param.eventId as string);
     console.log('event details:', event);
@@ -46,6 +50,44 @@ export const createNotification = catchAsync(
         email: getUserDetails?.primary_email,
       },
     };
+
+    const attendeeList = await Attendees.findByEventId(param.eventId as string);
+
+    const attendeeIds = attendeeList
+      .filter((attendee) => attendee.userId !== notificationDeta.user.id)
+      .map((user) => String(user.userId));
+
+    const usersList = await Users.findAllByIds(attendeeIds);
+
+    let emailData = JSON.stringify({
+      id: config.RSVP_UPDATE_EMAIL_CODE,
+      subject: RSVP_SUBJECT_MSG,
+      recipient: notificationDeta.user.email,
+      body: {
+        eventName: event.name,
+        updatesText: notificationDeta.content,
+        updatesLink: `https://www.rsvp.kim/v1/event/${notificationDeta.eventId}/communication`,
+      },
+      bcc: usersList.map((user) => user.primary_email),
+    });
+
+    let axiosConfig = {
+      method: 'post',
+      url: `${config.EMAIL_API_URL}/email`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: config.EMAIL_TOKEN,
+      },
+      data: emailData,
+    };
+
+    const emailResponse = await axios.request(axiosConfig);
+    if (emailResponse.status === 200) {
+      console.log(JSON.stringify(emailResponse.data));
+    } else {
+      console.log(emailResponse);
+    }
+
     return res.status(201).json(notificationDeta);
   }
 );

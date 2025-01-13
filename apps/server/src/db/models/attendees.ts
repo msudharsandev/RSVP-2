@@ -59,6 +59,12 @@ export class Attendees {
     });
   }
 
+  static async findByEventId(eventId: string) {
+    return await prisma.attendee.findMany({
+      where: { eventId },
+    });
+  }
+
   static async countAttendees(eventId: string) {
     return await prisma.attendee.count({ where: { eventId } });
   }

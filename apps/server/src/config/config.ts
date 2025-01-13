@@ -12,6 +12,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(8000),
   QR_SECRET_KEY: z.string(),
   EMAIL_TOKEN: z.string(),
+  EMAIL_API_URL: z.string().url(),
+  RSVP_UPDATE_EMAIL_CODE: z.string().url(),
 });
 
 const envVars = envSchema.safeParse(process.env);
@@ -30,6 +32,8 @@ const config = {
   PORT: envVars.data.PORT,
   QR_SECRET_KEY: envVars.data.QR_SECRET_KEY,
   EMAIL_TOKEN: envVars.data.EMAIL_TOKEN,
+  EMAIL_API_URL: envVars.data.EMAIL_API_URL,
+  RSVP_UPDATE_EMAIL_CODE: envVars.data.RSVP_UPDATE_EMAIL_CODE,
 };
 
 export default config;
