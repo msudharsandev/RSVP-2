@@ -24,6 +24,10 @@ export const eventAPI = {
     return api.post(`event/${eventId}/attendees`);
   },
 
+  softDeleteAttendee: async (eventId: string) => {
+    return api.delete(`event/${eventId}/attendee`);
+  },
+
   getAttendee: async ({ eventId, userId }: { eventId: string; userId: string }) => {
     return api.get(`event/${eventId}/attendees/${userId}`);
   },

@@ -32,6 +32,18 @@ export const useCreateAttendee = () => {
   });
 };
 
+export const useSoftDeleteAttendee = () => {
+  return useMutation<AxiosResponse, AxiosError<ErrorResponse>, string>({
+    mutationFn: eventAPI.softDeleteAttendee,
+    onSuccess: () => {
+      toast.success('Registration cancelled successfully');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data.message || 'Failed to cancel registration');
+    },
+  });
+};
+
 export const useGetEventDetails = () => {
   return useMutation<AxiosResponse, AxiosError<ErrorResponse>, string>({
     mutationFn: eventAPI.getEventById,
