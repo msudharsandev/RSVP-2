@@ -13,7 +13,7 @@ const envSchema = z.object({
   QR_SECRET_KEY: z.string(),
   EMAIL_TOKEN: z.string(),
   EMAIL_API_URL: z.string().url(),
-  RSVP_UPDATE_EMAIL_CODE: z.string().url(),
+  RSVP_UPDATE_EMAIL_CODE: z.string(),
 });
 
 const envVars = envSchema.safeParse(process.env);
