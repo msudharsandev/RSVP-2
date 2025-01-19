@@ -19,14 +19,14 @@ export const createNotification = catchAsync(
     const RSVP_SUBJECT_MSG = 'Updates from your event';
 
     const event = await Events.findById(param.eventId as string);
-    console.log('event details:', event);
+    // console.log('event details:', event);
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
 
     const getUserDetails = await Users.findById(event.creatorId);
 
-    console.log('user exists', getUserDetails);
+    // console.log('user exists', getUserDetails);
 
     if (!getUserDetails?.id) {
       return res.status(404).json({ message: 'User not found' });
@@ -60,7 +60,7 @@ export const createNotification = catchAsync(
     const usersList = await Users.findAllByIds(attendeeIds);
 
     let emailData = JSON.stringify({
-      id: config.RSVP_UPDATE_EMAIL_CODE,
+      id: 6,
       subject: RSVP_SUBJECT_MSG,
       recipient: notificationDeta.user.email,
       body: {
@@ -81,12 +81,13 @@ export const createNotification = catchAsync(
       data: emailData,
     };
 
-    const emailResponse = await axios.request(axiosConfig);
-    if (emailResponse.status === 200) {
-      console.log(JSON.stringify(emailResponse.data));
-    } else {
-      console.log(emailResponse);
-    }
+    // const emailResponse = await axios.request(axiosConfig);
+    // if (emailResponse.status === 200) {
+    //   console.log(JSON.stringify(emailResponse.data));
+    // } else {
+    //   console.log(emailResponse);
+    // }
+    console.log(JSON.stringify(axiosConfig, null, 2));
 
     return res.status(201).json(notificationDeta);
   }
@@ -129,7 +130,7 @@ export const getNotification = catchAsync(
       },
     }));
 
-    console.log('notifications', eventNotifications);
+    // console.log('notifications', eventNotifications);
 
     if (!notifications) {
       return res.status(404).json({ message: 'Notification not found' });

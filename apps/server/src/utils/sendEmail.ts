@@ -16,12 +16,13 @@ class EmailService {
     try {
       const response = await axios.post(this.emailUrl, emailData, {
         headers: {
-          Authorization: `Bearer ${config.EMAIL_TOKEN}`,
+          Authorization: `${config.EMAIL_TOKEN}`,
         },
       });
       return response.data;
     } catch (error) {
       logger.error(`Error sending email: ${JSON.stringify(error)}`);
+      console.log(JSON.stringify(error, null, 2));
       // throw new Error(`Error sending email: ${error.message}`);
     }
   }

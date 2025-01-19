@@ -30,6 +30,10 @@ import { fileFromUrl } from '@/lib/utils';
 
 const CreateEventForm = () => {
   const { mutate } = useCreateEvent();
+  const allowedDate = new Date();
+  allowedDate.setHours(0, 0, 0, 0);
+  allowedDate.setDate(allowedDate.getDate() + 1);
+
   const form = useForm<CreateEventFormType>({
     resolver: zodResolver(createEventFormSchema),
     defaultValues: {
@@ -40,12 +44,12 @@ const CreateEventForm = () => {
       location: '',
       hostPermissionRequired: false,
       fromTime: '17:00',
-      fromDate: new Date(),
+      fromDate: allowedDate,
       toTime: '20:00',
-      toDate: new Date(),
+      toDate: allowedDate,
       capacity: 20,
       eventImageId: {
-        url: 'https://www.angroos.com/wp-content/uploads/2024/01/Birthday-cake-with-lit-candles.jpg',
+        url: '',
         file: '',
       },
     },
@@ -66,7 +70,6 @@ const CreateEventForm = () => {
       toTime,
       toDate,
     } = data;
-    console.log('data');
 
     const submissionData: CreateEventSubmissionType = {
       name,
@@ -137,7 +140,8 @@ const CreateEventForm = () => {
                 control={form.control}
                 name="fromDate"
                 iconClassName="opacity-100"
-                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                // disabled={(date) => date <= new Date(new Date().setHours(0, 0, 0, 0))}
+                disabled={(date) => date < allowedDate}
               />
             </div>
             {form.formState.errors.fromDateTime && (

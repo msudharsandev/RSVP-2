@@ -26,7 +26,7 @@ const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees
     <main>
       <div className="relative w-full overflow-hidden">
         <Image
-          src="/images/event-detail-mobile.svg"
+          src={event.eventImageId ?? '/images/event-detail-mobile.svg'}
           alt=""
           objectFit="cover"
           priority
@@ -35,7 +35,8 @@ const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees
         />
         <div className="relative mx-auto h-[300px] w-full object-cover sm:h-[350px] sm:w-[600px] md:h-[400px] md:w-[800px] lg:h-[600px] lg:w-[970px]">
           <Image
-            src="/images/event-detail-mobile.svg"
+            // src="/images/event-detail-mobile.svg"
+            src={event.eventImageId ?? '/images/event-detail-mobile.svg'}
             layout="fill"
             objectFit="cover"
             priority
@@ -45,7 +46,9 @@ const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees
       </div>
       <article className="my-6 flex flex-col items-start md:my-12">
         {event.category ? (
-          <Badge className="px-4 py-2 text-sm font-normal text-white">{event?.category}</Badge>
+          <Badge className="mb-2 px-4 py-2 text-sm font-normal capitalize text-white">
+            {event?.category}
+          </Badge>
         ) : null}
         <p className="text-2xl font-bold md:text-4xl">{event?.name}</p>
       </article>
@@ -101,15 +104,17 @@ const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees
                 </div>
               ))}
           </section>
-          <article className="mt-12">
-            <h2 className="text-2xl font-bold">About Event</h2>
-            <div
-              className="mt-4"
-              dangerouslySetInnerHTML={{
-                __html: event.description || '<p>Description not available.</p>',
-              }}
-            />
-          </article>
+          {event.description !== '' ? (
+            <article className="mt-12">
+              <h2 className="text-2xl font-bold">About Event</h2>
+              <div
+                className="mt-4"
+                dangerouslySetInnerHTML={{
+                  __html: event.description || '<p>Description not available.</p>',
+                }}
+              />
+            </article>
+          ) : null}
         </section>
         <section className="w-full md:w-[481px]">
           <section className="w-full rounded-lg bg-dark-900 p-6 shadow-lg md:w-[481px]">

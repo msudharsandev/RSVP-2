@@ -33,7 +33,8 @@ export const createEventFormSchema = z
       })
       .int()
       .positive()
-      .min(1, { message: 'Capacity should be at least 1' }),
+      .min(1, { message: 'Capacity should be at least 1' })
+      .max(100, { message: 'Capacity should be at most 100' }),
     eventImageId: z.object({
       file: z.string().nullable(),
       url: z.string().nullable(),
