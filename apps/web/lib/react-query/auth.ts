@@ -1,7 +1,7 @@
 'use client';
 
 import { IUser } from '@/types/user';
-import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, UseQueryResult, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { authAPI, SigninPayload, VerifySigninPayload } from '../axios/auth-API';
@@ -47,5 +47,22 @@ export const useCurrentUser = (): UseQueryResult<AxiosResponse, any> => {
     queryKey: ['me'],
     queryFn: authAPI.currentUser,
     retry: 0,
+  });
+};
+
+export const useSignout = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: authAPI.signout,
+    onSuccess: () => {
+      queryClient.clear();
+      router.push('/');
+      router.refresh();
+    },
+    onError: (error) => {
+      console.error('Logout error:', error);
+    },
   });
 };

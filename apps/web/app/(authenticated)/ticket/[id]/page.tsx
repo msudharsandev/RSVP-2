@@ -17,7 +17,7 @@ const TicketPage = () => {
   const { data: attendeeData, mutate: fetchAttendeeData } = useGetAttendeeDetails();
 
   useEffect(() => {
-    if (id) fetchEventData(id);
+    if (typeof id === 'string') fetchEventData(id);
   }, [id, fetchEventData]);
 
   useEffect(() => {

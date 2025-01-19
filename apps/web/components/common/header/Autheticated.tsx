@@ -23,10 +23,18 @@ import { AvatarFallback } from '@radix-ui/react-avatar';
 import Container from '../Container';
 import { Icons } from '../Icon';
 import useScroll from '@/hooks/useScroll';
+import { useCurrentUser, useSignout } from '@/lib/react-query/auth';
 
 const Autheticated = () => {
   const isScrolled = useScroll();
+  const { mutate } = useSignout();
+  const { data: userData } = useCurrentUser();
 
+  const handleLogout = () => {
+    if (userData?.data?.data?.id) {
+      mutate({ userId: userData.data.data.id });
+    }
+  };
   return (
     <>
       <nav
@@ -76,12 +84,14 @@ const Autheticated = () => {
                 >
                   <DropdownMenuLabel className="text-base">My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer rounded-xl">
-                    <UserIcon className="mr-3 h-6 w-6" />
-                    <span className="text-base">Profile</span>
-                  </DropdownMenuItem>
+                  <Link href="/profile">
+                    <DropdownMenuItem className="cursor-pointer rounded-xl">
+                      <UserIcon className="mr-3 h-6 w-6" />
+                      <span className="text-base">Profile</span>
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer rounded-xl">
+                  <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={handleLogout}>
                     <ArrowRightEndOnRectangleIcon className="mr-3 h-6 w-6 text-destructive" />
                     <span className="text-base text-destructive">Sign Out</span>
                   </DropdownMenuItem>
