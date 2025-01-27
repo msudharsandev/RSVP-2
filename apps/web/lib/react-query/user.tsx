@@ -10,10 +10,10 @@ export const useProfileUpdate = () => {
     mutationFn: userAPI.updateProfile,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['me'] });
-      toast('Profile updated successfully');
+      toast.success('Profile updated successfully');
     },
     onError: ({ message }) => {
-      toast(message);
+      toast.error(message);
     },
   });
 };

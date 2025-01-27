@@ -40,7 +40,11 @@ const ProfileForm = ({ user }: Props) => {
   };
 
   const onSubmit = (data: ProfileFormType) => {
-    mutate(data);
+    mutate(data, {
+      onSuccess: () => {
+        form.reset(form.getValues());
+      },
+    });
   };
 
   const profilePictureUrl = useMemo(() => {

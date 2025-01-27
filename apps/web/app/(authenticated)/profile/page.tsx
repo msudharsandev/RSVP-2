@@ -61,8 +61,7 @@ const ProfilePage = () => {
           Download your personal data
         </h2>
         <p className="mb-6 mt-1 text-sm text-secondary">
-          We believe in transparency and giving you full control over your personal information.
-          That&apos;s why we offer the option to download your data directly from our app.
+          This feature is coming soon. In case of urgent requirements, contact support@rsvp.kim.
         </p>
         <Button className="w-fit whitespace-nowrap rounded-[6px] text-sm/[24px]" disabled>
           <Download className="mr-2.5" size={20} /> Download
@@ -74,13 +73,14 @@ const ProfilePage = () => {
           Delete my account
         </h2>
         <p className="mb-6 mt-1 text-sm text-secondary">
-          If you no longer wish to use RSVP, you can permanently delete your account.
+          If you no longer wish to use RSVP, you can deactivate your account. Your account will be
+          permanently deleted after 6 months of inactivity.
         </p>
         <Button
           variant="destructive"
           className="w-fit whitespace-nowrap rounded-[6px] text-sm/[24px]"
         >
-          Delete My Account
+          Deactivate My Account
         </Button>
       </section>
     </Container>

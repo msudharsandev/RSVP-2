@@ -27,7 +27,14 @@ const PhoneNumberForm = ({ user }: Props) => {
 
   const onSubmit = async (data: PhoneNumberFormType) => {
     let contact = data.contact ?? undefined;
-    mutate({ contact });
+    mutate(
+      { contact },
+      {
+        onSuccess: () => {
+          form.reset(form.getValues());
+        },
+      }
+    );
   };
 
   return (
