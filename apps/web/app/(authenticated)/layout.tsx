@@ -1,5 +1,5 @@
-import Autheticated from '@/components/common/header/Autheticated';
 import React from 'react';
+import Autheticated from '@/components/common/header/Autheticated';
 
 const AuthenticatedLayout = ({
   children,

@@ -138,7 +138,10 @@ const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees
                 </article>
               </section>
             )}
-            <GetTicketsButton eventId={event.id} />
+            <GetTicketsButton
+              eventId={event.id}
+              isPermissionRequired={event?.hostPermissionRequired}
+            />
           </section>
         </section>
       </section>

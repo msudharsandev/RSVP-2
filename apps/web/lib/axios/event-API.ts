@@ -47,4 +47,9 @@ export const eventAPI = {
     const response = await api.get(url, { params: searchParams });
     return response.data.data.events;
   },
+
+  cancelEvent: async (eventId: string) => {
+    const response = await api.delete(`/event/${eventId}/attendee`);
+    return response.data;
+  },
 };

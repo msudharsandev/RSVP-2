@@ -70,3 +70,15 @@ export const useGetAttendeeDetails = () => {
     }
   );
 };
+
+export const useCancelEvent = () => {
+  return useMutation<AxiosResponse, AxiosError<ErrorResponse>, { eventId: string }>({
+    mutationFn: ({ eventId }) => eventAPI.cancelEvent(eventId),
+    onSuccess: () => {
+      toast.success('Event cancelled successfully');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data.message || 'Failed to cancel event');
+    },
+  });
+};

@@ -2,22 +2,27 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/lib/react-query/auth';
-import { useGetAttendeeDetails, useGetEventDetails } from '@/lib/react-query/event';
+import { useCancelEvent, useGetAttendeeDetails, useGetEventDetails } from '@/lib/react-query/event';
 import { notFound, useParams } from 'next/navigation';
 import QRCode from 'react-qr-code';
 import TicketPageSkeleton from '@/components/event-detail/TicketPageSkeleton';
-const TicketPage = () => {
-  const { id } = useParams();
-  if (!id) return notFound();
+import { MapPinIcon } from '@heroicons/react/24/solid';
+import { Presentation } from 'lucide-react';
 
+const TicketPage = () => {
   const [loading, setLoading] = useState(true);
 
   const { data: userData } = useCurrentUser();
   const { data: eventData, mutate: fetchEventData } = useGetEventDetails();
   const { data: attendeeData, mutate: fetchAttendeeData } = useGetAttendeeDetails();
+  const { mutate: cancelEvent } = useCancelEvent();
+
+  const { id } = useParams();
 
   useEffect(() => {
-    if (typeof id === 'string') fetchEventData(id);
+    if (id) {
+      fetchEventData(id);
+    }
   }, [id, fetchEventData]);
 
   useEffect(() => {
@@ -34,6 +39,10 @@ const TicketPage = () => {
     }
   }, [eventData, attendeeData]);
 
+  if (!id || typeof id !== 'string') {
+    return notFound();
+  }
+
   if (loading) {
     return <TicketPageSkeleton />;
   }
@@ -47,19 +56,43 @@ const TicketPage = () => {
     ? new Date(eventData?.data?.event?.startTime).toISOString().split('T')[0]
     : 'TBD';
 
+  const handleEventCancel = () => {
+    if (typeof id === 'string') {
+      cancelEvent({ eventId: id });
+    }
+  };
+
   return (
     <div className="container-main my-10">
       <header className="text-4xl font-bold md:text-5xl md:leading-[67px]">
         <p>See you there on</p>
-        <span>{eventName}</span>
+        <span className="text-primary">{eventName}</span>
       </header>
       <div className="my-6 flex flex-col items-center gap-x-10 md:flex-row">
         <div className="mb-6 w-full font-medium md:m-auto md:w-1/2">
           <p dangerouslySetInnerHTML={{ __html: eventDescription }} />
         </div>
         <div className="flex w-full flex-col items-center justify-between gap-x-10 gap-y-3 md:w-1/2 md:flex-row">
-          <Button className="h-12 w-full rounded-[6px] md:w-1/2">See Direction</Button>
-          <Button className="h-12 w-full rounded-[6px] border bg-dark-900 md:w-1/2">Share</Button>
+          <Button className="h-12 w-full rounded-[6px] md:w-1/2">
+            {eventData?.data?.event?.venueType === 'virtual' ? (
+              <>
+                <Presentation className="mr-2 size-6" />
+                See Meeting
+              </>
+            ) : eventData?.data?.event?.venueType === 'physical' ? (
+              <>
+                <MapPinIcon className="mr-2 size-6" />
+                Get Directions
+              </>
+            ) : null}
+          </Button>
+          <Button
+            className="h-12 w-full rounded-[6px] border bg-dark-900 md:w-1/2"
+            variant="destructive"
+            onClick={handleEventCancel}
+          >
+            Cancel ticket
+          </Button>
         </div>
       </div>
       <section className="relative my-20 flex w-full flex-col items-stretch justify-between text-dark-500 md:h-[368px] md:flex-row">

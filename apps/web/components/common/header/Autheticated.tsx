@@ -24,11 +24,16 @@ import Container from '../Container';
 import { Icons } from '../Icon';
 import useScroll from '@/hooks/useScroll';
 import { useCurrentUser, useSignout } from '@/lib/react-query/auth';
+import { userAvatarOptions } from '@/utils/constants';
 
 const Autheticated = () => {
   const isScrolled = useScroll();
   const { mutate } = useSignout();
   const { data: userData } = useCurrentUser();
+
+  const profileIcon = userAvatarOptions.find(
+    (option) => option.id === userData?.data?.data?.profile_icon
+  );
 
   const handleLogout = () => {
     if (userData?.data?.data?.id) {
@@ -72,7 +77,7 @@ const Autheticated = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger data-testid="profile-dropdown-button">
                   <Avatar>
-                    <AvatarImage src="https://github.com/shadcn.png" alt="profile image" />
+                    <AvatarImage src={profileIcon?.src} alt="profile image" />
                     <AvatarFallback>P</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>

@@ -101,8 +101,22 @@ export class Events {
   }
 
   static async delete(eventId: string) {
-    await prisma.event.delete({
-      where: { id: eventId },
+    return await prisma.$transaction(async (tx) => {
+      await tx.attendee.deleteMany({
+        where: { eventId },
+      });
+
+      await tx.cohost.deleteMany({
+        where: { eventId },
+      });
+
+      await tx.update.deleteMany({
+        where: { eventId },
+      });
+
+      return await tx.event.delete({
+        where: { id: eventId },
+      });
     });
   }
 

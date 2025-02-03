@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -8,10 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import Image from 'next/image';
 import { Icons } from '../common/Icon';
 import FormInput from '../common/form/FormInput';
 import FormProvider from '../ui/form-provider';
@@ -28,8 +29,11 @@ interface SigninDialogProps {
 }
 
 const SigninDialog: React.FC<SigninDialogProps> = ({ children, variant }) => {
-  const [isEmailSent, setIsEmailSent] = useState(false);
   const { mutate, isPending } = useSignInMutation();
+  const [isEmailSent, setIsEmailSent] = useState(false);
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
+
+  const router = useRouter();
 
   const form = useForm<SignInFormType>({
     resolver: zodResolver(signInFormSchema),
@@ -39,16 +43,30 @@ const SigninDialog: React.FC<SigninDialogProps> = ({ children, variant }) => {
     mode: 'onSubmit',
   });
 
+  let timer: NodeJS.Timeout;
+
   async function onSubmit(values: SignInFormType) {
     mutate(values, {
       onSuccess: () => {
         setIsEmailSent(true);
+        if (isEmailSent) {
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => {
+            setIsResendDisabled(false);
+          }, 120000);
+        }
       },
     });
   }
 
   const handleClose = (open: boolean) => {
     if (!open) setIsEmailSent(false);
+  };
+
+  const handleResend = () => {
+    if (!isResendDisabled) {
+      router.push('/');
+    }
   };
 
   const title = variant === 'signin' ? 'Sign In to Your Account' : 'Sign Up for an Account';
@@ -101,8 +119,12 @@ const SigninDialog: React.FC<SigninDialogProps> = ({ children, variant }) => {
             />
             <p className="mt-6 text-3xl font-semibold">Check your email!</p>
             <p className="mt-3 text-center">{`We've just sent an email to you at ${email}. Click to verify.`}</p>
-            <Button className="mt-10 w-full bg-primary px-4 py-[10px] font-semibold text-white">
-              Click to resend
+            <Button
+              className="mt-10 w-full bg-primary px-4 py-[10px] font-semibold text-white"
+              disabled={isResendDisabled}
+              onClick={handleResend}
+            >
+              {isResendDisabled ? 'Please wait 2 minutes...' : 'Click to resend'}
             </Button>
           </div>
         )}
