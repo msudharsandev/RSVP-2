@@ -11,6 +11,10 @@ export class Events {
     });
   }
 
+  static async findAllEvents() {
+    return await prisma.event.findMany({});
+  }
+
   static async findUnique(where: Prisma.EventWhereUniqueInput) {
     return await prisma.event.findUnique({
       where,
@@ -120,62 +124,77 @@ export class Events {
     });
   }
 
-  static async findAllEvents() {
-    const events = await prisma.event.findMany({
-      orderBy: {
-        Attendee: {
-          _count: 'desc',
+  static async findEvents({
+    page,
+    limit,
+    category,
+    sortby,
+    venueAddress,
+    query,
+    order,
+    startDate,
+    endDate,
+  }: {
+    page: number;
+    limit: number;
+    category?: string;
+    sortby?: string;
+    venueAddress?: string;
+    query?: string;
+    order?: 'asc' | 'desc';
+    startDate?: string;
+    endDate?: string;
+  }) {
+    if (limit <= 0) {
+      return [];
+    }
+
+    if (page <= 0) {
+      page = 1;
+    }
+
+    const filters: any = {};
+
+    if (category) {
+      filters.category = category;
+    }
+
+    if (venueAddress) {
+      filters.venueAddress = venueAddress;
+    }
+
+    if (query) {
+      filters.name = {
+        contains: query,
+      };
+    }
+
+    try {
+      const totalEvents = await prisma.event.count({ where: filters });
+
+      const totalPages = Math.ceil(totalEvents / limit);
+
+      if (totalPages === 0 || page > totalPages) {
+        return [];
+      }
+
+      if (sortby == undefined) {
+        sortby = 'createdAt';
+      }
+
+      const events = await prisma.event.findMany({
+        where: filters,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: {
+          [sortby]: 'desc',
         },
-      },
-    });
-    return events;
-  }
+      });
 
-  static async filterByCategory(category: string) {
-    const events = await prisma.event.findMany({
-      where: {
-        category: category,
-      },
-    });
-
-    return events;
-  }
-
-  static async filterByDate(startDate: string, endDate: string) {
-    const events = await prisma.event.findMany({
-      where: {
-        eventDate: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
-        },
-      },
-      orderBy: {
-        eventDate: 'desc',
-      },
-    });
-
-    return events;
-  }
-
-  static async filterByAttendes() {
-    const events = await prisma.event.findMany({
-      orderBy: {
-        Attendee: {
-          _count: 'desc',
-        },
-      },
-    });
-
-    return events;
-  }
-
-  static async filterByLocation(venueAddress: string) {
-    const events = await prisma.event.findMany({
-      where: {
-        venueAddress: venueAddress,
-      },
-    });
-
-    return events;
+      return events;
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      throw new Error('Failed to fetch events. Please try again later.');
+    }
   }
 }

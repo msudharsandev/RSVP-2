@@ -49,39 +49,42 @@ export const getEventById = catchAsync(
   }
 );
 
-export const allPlannedEvents = catchAsync(async (req, res) => {
-  const getEventsData = await Events.findAllEvents();
-  if (getEventsData.length != 0) {
-    return res.status(200).json({ message: 'All Events Data', data: getEventsData });
-  } else {
-    return res.status(200).json({ data: [] });
-  }
-});
-
 export const filterEvents = catchAsync(async (req, res) => {
   try {
-    const { category, startDate, endDate, location, attendees } = req.query;
+    const { category, sortBy, location, searchParam, page, limit, order } = req.query;
+    const pageNumber = page && !isNaN(Number(page)) ? parseInt(page as string, 10) : 1;
+    const limitNumber = limit && !isNaN(Number(limit)) ? parseInt(limit as string, 10) : 10;
+    const events = await Events.findEvents({
+      page: pageNumber,
+      limit: limitNumber,
+      category: category as string,
+      sortby: sortBy as string,
+      venueAddress: location as string,
+      query: searchParam as string,
+      order: order as 'asc' | 'desc',
+    });
 
-    if (!category && !startDate && !endDate && !location && !attendees) {
-      return res
-        .status(400)
-        .json({ message: 'Please provide at least one query parameter to filter events.' });
-    }
+    const total_events = await Events.findAllEvents();
+    const total_page = Math.ceil(total_events.length / limitNumber);
+    const metadata = {
+      page: pageNumber,
+      page_count: total_page,
+      current_page_count: events.length,
+      links: {
+        self: `/events?page=${pageNumber}&limit=${limitNumber}`,
+        next:
+          pageNumber < total_page ? `/events?page=${pageNumber + 1}&limit=${limitNumber}` : null,
+        previous: pageNumber > 1 ? `/events?page=${pageNumber - 1}&limit=${limitNumber}` : null,
+        first: `/events?page=1&limit=${limitNumber}`,
+        last: `/events?page=${total_page}&limit=${limitNumber}`,
+      },
+    };
 
-    const filters: any = {};
-    let getEventsData: any = [];
-
-    if (category) {
-      getEventsData = await Events.filterByCategory(category as string);
-    } else if (startDate && endDate) {
-      getEventsData = await Events.filterByDate(startDate as string, endDate as string);
-    } else if (location) {
-      getEventsData = await Events.filterByLocation(location as string);
-    } else if (attendees) {
-      getEventsData = await Events.filterByAttendes();
-    }
-
-    return res.status(200).json({ message: 'All Events Data', data: getEventsData });
+    return res.status(200).json({
+      message: 'Filtered Events Data',
+      data: events,
+      metadata,
+    });
   } catch (e: any) {
     return res.status(502).json({
       message: 'There was an error processing your request.',

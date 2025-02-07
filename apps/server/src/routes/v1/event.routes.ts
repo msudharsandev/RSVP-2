@@ -9,7 +9,6 @@ import {
   getAttendeeByQrToken,
   getEventBySlug,
   updateEvent,
-  allPlannedEvents,
   filterEvents,
   softDeleteAttendee,
   getEventById,
@@ -50,6 +49,7 @@ eventRouter.get('/slug/:slug', validate({ params: getEventBySlugSchema }), getEv
 eventRouter.post('/', authMiddleware, validate({ body: CreateEventSchema }), createEvent);
 
 eventRouter.get('/upload-image', uploadEventImage);
+eventRouter.get('/filter', filterEvents);
 
 eventRouter.get('/:eventId', authMiddleware, getEventById);
 
@@ -67,9 +67,6 @@ eventRouter.delete(
   eventManageMiddleware([Role.Creator]),
   deleteEvent
 );
-eventRouter.get('/', allPlannedEvents);
-
-eventRouter.get('/filter', authMiddleware, filterEvents);
 
 eventRouter.get(
   '/user',
