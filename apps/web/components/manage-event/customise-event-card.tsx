@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   CardContent,
@@ -9,8 +10,12 @@ import {
 import { CalendarIcon, MapPinIcon } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '../ui/button';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 
 const CustomiseEventCard = ({ className }: PropsWithClassName) => {
+  const eventId = useParams().id!.toString();
+
   return (
     <Card className={className}>
       <CardHeader>
@@ -57,9 +62,11 @@ const CustomiseEventCard = ({ className }: PropsWithClassName) => {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col gap-4 sm:flex-row">
-        <Button className="w-full sm:flex-1" radius="sm" variant="tertiary">
-          Edit Event
-        </Button>
+        <Link href={`/events/${eventId}/edit`} className="w-full sm:flex-1">
+          <Button className="w-full sm:flex-1" radius="sm" variant="tertiary">
+            Edit Event
+          </Button>
+        </Link>
         <Button className="w-full sm:flex-1" radius="sm" variant="tertiary">
           Share Event
         </Button>

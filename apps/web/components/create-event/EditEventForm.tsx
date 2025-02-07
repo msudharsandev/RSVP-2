@@ -1,38 +1,29 @@
 'use client';
 
-import { useCreateEvent } from '@/lib/react-query/event';
+import {
+  useCreateEvent,
+  useGetEventById,
+  useGetEventDetails,
+  useUpdateEvent,
+} from '@/lib/react-query/event';
 import { fileFromUrl } from '@/lib/utils';
 import { CreateEventFormType, CreateEventSubmissionType } from '@/lib/zod/event';
 import { combineDateAndTime } from '@/utils/time';
 import axios from 'axios';
 import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
+import { useParams } from 'next/navigation';
+import dayjs from 'dayjs';
+import { UpdateEventSubmissionType } from '@/lib/axios/event-API';
 
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
 allowedDate.setDate(allowedDate.getDate() + 1);
 
-const defaultValues: CreateEventFormType = {
-  name: '',
-  category: '',
-  description: '',
-  venueType: 'physical',
-  location: '',
-  hostPermissionRequired: false,
-  fromTime: '17:00',
-  fromDate: allowedDate,
-  toTime: '20:00',
-  toDate: allowedDate,
-  capacity: 20,
-  eventImageId: {
-    signedUrl: '',
-    file: '',
-    url: '',
-  },
-};
-
-const CreateEventForm = () => {
-  const { mutate, isPending } = useCreateEvent();
+const EditEventForm = () => {
+  const eventId = useParams().id as string;
+  const { data, isLoading } = useGetEventById(eventId);
+  const { mutate, isPending } = useUpdateEvent();
 
   async function onSubmit(data: CreateEventFormType) {
     const {
@@ -50,7 +41,8 @@ const CreateEventForm = () => {
       toDate,
     } = data;
 
-    const submissionData: CreateEventSubmissionType = {
+    const submissionData: UpdateEventSubmissionType = {
+      id: eventId,
       name,
       category,
       description,
@@ -65,15 +57,45 @@ const CreateEventForm = () => {
       eventDate: fromDate,
     };
 
+    // Upload image if it's a new image
     if (eventImageId.file && eventImageId.signedUrl) {
       const imageFile = await fileFromUrl(eventImageId.file, 'event-image');
-      await axios.put(eventImageId.signedUrl, imageFile);
-      mutate(submissionData);
+      try {
+        await axios.put(eventImageId.signedUrl, imageFile);
+      } catch (error) {
+        console.error('Error uploading image', error);
+      }
     }
-    // remove this later
+
+    // If the image is not changed, we don't need to upload it again
+    else if (eventImageId.file) {
+      submissionData.eventImageId = eventImageId.file;
+    }
     mutate(submissionData);
   }
 
+  const defaultValues: CreateEventFormType = {
+    name: data?.name ?? '',
+    category: data?.category ?? '',
+    description: data?.description ?? '',
+    venueType: data?.venueType ?? 'physical',
+    location: data?.venueAddress ?? '',
+    hostPermissionRequired: data?.hostPermissionRequired ?? false,
+    fromTime: dayjs(data?.startTime).format('HH:mm'),
+    fromDate: data?.eventDate ?? allowedDate,
+    toTime: dayjs(data?.endTime).format('HH:mm'),
+    toDate: data?.endTime ?? allowedDate,
+    capacity: data?.capacity ?? 0,
+    eventImageId: {
+      signedUrl: '',
+      file: data?.eventImageId ?? '',
+      url: '',
+    },
+  };
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>
@@ -86,4 +108,4 @@ const CreateEventForm = () => {
   );
 };
 
-export default CreateEventForm;
+export default EditEventForm;

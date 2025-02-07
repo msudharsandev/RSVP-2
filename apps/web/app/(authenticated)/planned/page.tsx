@@ -7,6 +7,7 @@ import { eventAPI } from '@/lib/axios/event-API';
 import { IEvent } from '@/types/event';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 const PlannedEvents = () => {
   const searchParams = useSearchParams();
@@ -84,4 +85,10 @@ const PlannedEvents = () => {
   );
 };
 
-export default PlannedEvents;
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PlannedEvents />
+    </Suspense>
+  );
+}

@@ -10,13 +10,13 @@ export const createEventFormSchema = z
     category: z.string({
       required_error: 'Please select a category.',
     }),
-    fromDate: z.date({
+    fromDate: z.coerce.date({
       required_error: 'From date is required',
     }),
     fromTime: z.string({
       required_error: 'From time is required',
     }),
-    toDate: z.date({
+    toDate: z.coerce.date({
       required_error: 'To date is required',
     }),
     toTime: z.string({
@@ -68,6 +68,15 @@ export const createEventFormSchema = z
     const fromDateTime = combineDateAndTime(data.fromDate, data.fromTime);
     const toDateTime = combineDateAndTime(data.toDate, data.toTime);
     const now = new Date();
+
+    const image = data.eventImageId.file || data.eventImageId.url;
+    if (!image) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Event image is required',
+        path: ['eventImageId'],
+      });
+    }
 
     if (fromDateTime <= now) {
       ctx.addIssue({

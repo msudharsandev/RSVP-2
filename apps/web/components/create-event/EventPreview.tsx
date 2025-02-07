@@ -19,6 +19,7 @@ const EventPreview = ({ className, children, venueType }: EventPreviewProps) => 
 
   const removeImage = () => {
     setValue('eventImageId', {
+      signedUrl: '',
       file: '',
       url: '',
     });

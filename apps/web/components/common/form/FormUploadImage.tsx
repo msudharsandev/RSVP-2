@@ -37,7 +37,6 @@ function FormImageUpload<
 
   const handleSave = async (file: File) => {
     setIsUploading(true);
-    const formData = new FormData();
     try {
       const response = await api.get('/event/upload-image', { params: { filename: file.name } });
       const signedUrl = response.data.signedUrl;
@@ -53,6 +52,7 @@ function FormImageUpload<
     }
   };
 
+  console.log('value', value);
   return (
     <FormField
       control={control}

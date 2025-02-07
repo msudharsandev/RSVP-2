@@ -2,8 +2,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import { toast } from 'sonner';
 import { CreateEventSubmissionType } from '../zod/event';
-import { eventAPI } from '../axios/event-API';
+import { eventAPI, UpdateEventSubmissionType } from '../axios/event-API';
 import { useRouter } from 'next/navigation';
+import { IEvent } from '@/types/event';
 
 interface ErrorResponse {
   message?: string;
@@ -33,6 +34,18 @@ export const useCreateEvent = () => {
   });
 };
 
+export const useUpdateEvent = () => {
+  return useMutation<AxiosResponse, AxiosError<ErrorResponse>, UpdateEventSubmissionType>({
+    mutationFn: eventAPI.updateEvent,
+    onSuccess: () => {
+      toast.success('Event updated successfully');
+    },
+    onError: (error) => {
+      toast.error(error.response?.data.message || 'An error occurred');
+    },
+  });
+};
+
 export const useCreateAttendee = () => {
   return useMutation<AxiosResponse, AxiosError<ErrorResponse>, string>({
     mutationFn: eventAPI.createAttendee,
@@ -53,6 +66,16 @@ export const useSoftDeleteAttendee = () => {
     },
     onError: (error) => {
       toast.error(error.response?.data.message || 'Failed to cancel registration');
+    },
+  });
+};
+
+export const useGetEventById = (id: string) => {
+  return useQuery<IEvent, AxiosError<ErrorResponse>>({
+    queryKey: ['event', 'id', id],
+    queryFn: async () => {
+      const response = await eventAPI.getEventById(id);
+      return response.data.event;
     },
   });
 };

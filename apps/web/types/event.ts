@@ -35,7 +35,7 @@ export interface IEventResponse {
 }
 
 export interface IEventCard {
-  className?: PropsWithClassName;
+  className?: string;
   event: IEvent | null;
 }
 

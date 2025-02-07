@@ -17,9 +17,9 @@ const PopularSection = () => {
         </Button>
       </header>
       <div className="grid grid-cols-4 gap-10 sm:grid-cols-8 xl:grid-cols-12">
-        <EventCard className="col-span-4" />
-        <EventCard className="col-span-4" />
-        <EventCard className="col-span-4" />
+        <EventCard className="col-span-4" event={null} />
+        <EventCard className="col-span-4" event={null} />
+        <EventCard className="col-span-4" event={null} />
       </div>
       <Button
         variant="link"

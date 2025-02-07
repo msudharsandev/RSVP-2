@@ -1,5 +1,5 @@
-import CreateEventForm from '@/components/create-event/CreateEventForm';
 import Container from '@/components/common/Container';
+import CreateEventForm from '@/components/create-event/CreateEventForm';
 
 const CreateEventPage = () => {
   return (

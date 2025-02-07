@@ -1,34 +1,13 @@
 import { cn } from '@/lib/utils';
+import { IEventCard } from '@/types/event.ts';
 import { CheckCircleIcon } from '@heroicons/react/16/solid';
+import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
+import dayjs from 'dayjs';
 import Image from 'next/image';
 import { Button } from '../ui/button';
-import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
-import { useRouter } from 'next/navigation';
-import { IEventCard } from '@/types/event.ts';
-import dayjs from 'dayjs';
-
-export enum EventCardType {
-  MANAGE_EVENT = 'MANAGE_EVENT',
-  VIEW_SLUG = 'VIEW_SLUG',
-}
+import Link from 'next/link';
 
 const EventCard = ({ className, event }: IEventCard) => {
-  const router = useRouter();
-
-  const handleBtnClick = ({ id, type }: { id?: string; type: string }) => {
-    if (!id) return;
-    switch (type) {
-      case EventCardType.MANAGE_EVENT:
-        router.push(`/events/${id}/manage`);
-        break;
-      case EventCardType.VIEW_SLUG:
-        router.push(`/${id}`);
-        break;
-      default:
-        break;
-    }
-  };
-
   return (
     <article
       className={cn('space-y-2.5 rounded-[10px] border border-dark-500 bg-dark-900 p-3', className)}
@@ -57,28 +36,16 @@ const EventCard = ({ className, event }: IEventCard) => {
           <span>{event?.numberOfAttendees} going</span>
         </div>
       </section>
-      <Button
-        onClick={() => {
-          handleBtnClick({ id: event?.id, type: EventCardType.MANAGE_EVENT });
-        }}
-        variant="tertiary"
-        radius="default"
-        className="w-full border-primary"
-      >
-        Manage <ArrowUpRightIcon className="ml-2 h-4 w-4" />
-      </Button>
-      {event && (
-        <Button
-          onClick={() => {
-            handleBtnClick({ id: event?.slug, type: EventCardType.VIEW_SLUG });
-          }}
-          variant="tertiary"
-          radius="default"
-          className="w-full border-primary"
-        >
+      <Link href={`/events/${event?.id}/manage`} passHref className="block">
+        <Button variant="tertiary" radius="default" className="w-full border-primary">
+          Manage <ArrowUpRightIcon className="ml-2 h-4 w-4" />
+        </Button>
+      </Link>
+      <Link href={`/${event?.slug}`} passHref className="block">
+        <Button variant="tertiary" radius="default" className="w-full border-primary">
           Public View <ArrowUpRightIcon className="ml-2 h-4 w-4" />
         </Button>
-      )}
+      </Link>
     </article>
   );
 };

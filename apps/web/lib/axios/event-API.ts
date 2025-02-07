@@ -3,9 +3,15 @@ import { CreateEventSubmissionType } from '../zod/event';
 import { CommunicationForm } from '../zod/communication';
 import api from './instance';
 
+export type UpdateEventSubmissionType = CreateEventSubmissionType & { id: string };
+
 export const eventAPI = {
   createEvent: async (payload: CreateEventSubmissionType) => {
     return api.post('/event', payload);
+  },
+  updateEvent: async (payload: UpdateEventSubmissionType) => {
+    const { id, ...rest } = payload;
+    return api.patch(`/event/${payload.id}`, rest);
   },
 
   getEventById: async (eventId: string) => api.get(`/event/${eventId}`),
