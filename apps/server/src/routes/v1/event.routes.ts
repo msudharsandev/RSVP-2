@@ -3,15 +3,12 @@ import {
   createAttendee,
   createEvent,
   deleteEvent,
-  filterEvents,
   getAttendeeByQrToken,
   getAttendeeDetails,
   getAttendees,
   getAttendeesExcelSheet,
-  getEventById,
   getEventBySlug,
   plannedByUser,
-  updateEvent,
   filterEvents,
   softDeleteAttendee,
   getEventById,
@@ -20,12 +17,7 @@ import {
   updateEvent,
   verifyQrToken,
 } from '@/controllers/event.controller';
-import {
-  attendeeParamsSchema,
-  attendeePayloadSchema,
-  qrTokenSchema,
-  verifyQrTokenPayloadSchema,
-} from '@/validations/attendee.validation';
+
 import {
   attendeesQuerySchema,
   CreateEventSchema,
@@ -66,14 +58,9 @@ eventRouter.get('/slug/:slug', validate({ params: getEventBySlugSchema }), getEv
 
 eventRouter.post('/', authMiddleware, validate({ body: CreateEventSchema }), createEvent);
 
-
-
-eventRouter.get('/popular', validate({query:eventLimitSchema}), getPopularEvents);
-
-eventRouter.get('/upload-image', uploadEventImage);
+eventRouter.get('/popular', validate({ query: eventLimitSchema }), getPopularEvents);
 
 eventRouter.get('/filter', filterEvents);
-
 
 eventRouter.get('/:eventId', authMiddleware, getEventById);
 

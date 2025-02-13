@@ -1,11 +1,39 @@
 import { prisma } from '../connection';
-import { Cohost, Role } from '@prisma/client';
+import { Cohost, Role, Prisma } from '@prisma/client';
 
 export class CohostRepository {
+  static async findById(id: string): Promise<Cohost | null> {
+    return await prisma.cohost.findUnique({
+      where: { id },
+    });
+  }
+
+  static async findByEventId(eventId: string) {
+    return await prisma.cohost.findMany({
+      where: { eventId },
+      select: {
+        role: true,
+        user: {
+          select: {
+            id: true,
+            full_name: true,
+            profile_icon: true,
+            primary_email: true,
+          },
+        },
+      },
+    });
+  }
   static async getHosts(eventId: string): Promise<Cohost[]> {
     return await prisma.cohost.findMany({
       where: { eventId },
       include: { user: true },
+    });
+  }
+
+  static async create(data: Prisma.CohostCreateManyInput): Promise<Cohost> {
+    return await prisma.cohost.create({
+      data,
     });
   }
 
@@ -23,9 +51,31 @@ export class CohostRepository {
     });
   }
 
+  static async update(id: string, data: Prisma.CohostUpdateInput): Promise<Cohost> {
+    return await prisma.cohost.update({
+      where: { id },
+      data,
+    });
+  }
+
   static async removeHost(userId: string, eventId: string): Promise<Cohost> {
     return await prisma.cohost.delete({
       where: { userId },
+    });
+  }
+
+  static async delete(id: string): Promise<Cohost> {
+    return await prisma.cohost.delete({
+      where: { id },
+    });
+  }
+
+  static async findByUserIdAndEventId(userId: string, eventId: string): Promise<Cohost | null> {
+    return await prisma.cohost.findFirst({
+      where: {
+        userId,
+        eventId,
+      },
     });
   }
 
@@ -34,6 +84,7 @@ export class CohostRepository {
       where: {
         userId,
         eventId,
+        role: Role.Manager,
       },
     });
     return cohost !== null;

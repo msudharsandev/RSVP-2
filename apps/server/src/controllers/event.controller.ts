@@ -14,7 +14,6 @@ import {
   verifyQrTokenPayloadSchema,
 } from '@/validations/attendee.validation';
 import {
-  CreateEventSchema,
   eventLimitSchema,
   attendeesQuerySchema,
   CreateEventSchema,
@@ -89,7 +88,6 @@ export const allPlannedEvents = catchAsync(async (req, res) => {
     return res.status(200).json({ data: [] });
   }
 });
-
 
 export const filterEvents = catchAsync(async (req, res) => {
   try {

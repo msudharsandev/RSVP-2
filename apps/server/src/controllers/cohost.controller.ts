@@ -1,4 +1,4 @@
-import { Cohosts } from '@/db/models/coHosts';
+import { CohostRepository } from '@/db/models/cohost';
 import { Events } from '@/db/models/events';
 import { Users } from '@/db/models/users';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
@@ -11,7 +11,7 @@ export const getEventHosts = catchAsync(
     const { eventId } = req.params;
     if (!eventId) return res.status(400).json({ message: 'Event Id is required' });
 
-    const hosts = await Cohosts.findByEventId(eventId);
+    const hosts = await CohostRepository.findByEventId(eventId);
 
     if (!hosts) return res.status(404).json({ message: 'No hosts found' });
 
@@ -40,11 +40,11 @@ export const createEventHost = catchAsync(
 
     if (!user) return res.status(404).json({ message: 'User does not exists' });
 
-    const hostExists = await Cohosts.findByUserIdAndEventId(user.id, eventId);
+    const hostExists = await CohostRepository.findByUserIdAndEventId(user.id, eventId);
 
     if (hostExists) return res.status(400).json({ message: 'Host already exists' });
 
-    const host = await Cohosts.create({ eventId, userId: user.id, role });
+    const host = await CohostRepository.create({ eventId, userId: user.id, role });
 
     return res.status(201).json({ message: 'success', data: host });
   }

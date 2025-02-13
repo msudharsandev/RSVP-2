@@ -82,12 +82,12 @@ export const eventParamsSchema = z.object({
 
 export const eventLimitSchema = z.object({
   limit: z.coerce.number().gte(1).default(3),
+});
 
-  export const attendeesQuerySchema = z.object({
+export const attendeesQuerySchema = z.object({
   ...paginationParamsSchema.shape,
   hasAttended: z.preprocess((val) => {
     if (val === 'false') return false;
     return z.coerce.boolean().parse(val);
   }, z.boolean().optional()),
-
 });
