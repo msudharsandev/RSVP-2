@@ -20,11 +20,11 @@ type Attendee = {
   email: string;
   status: 'Active' | 'Inactive';
 };
-interface ConfirmCoHostProps {
+type ConfirmCoHostProps = {
   selectedCoHost: Attendee;
   isConfirmationDialogOpen: boolean;
   setIsConfirmationDialogOpen: (isOpen: boolean) => void;
-}
+};
 const ConfirmCoHost = ({
   selectedCoHost,
   isConfirmationDialogOpen,

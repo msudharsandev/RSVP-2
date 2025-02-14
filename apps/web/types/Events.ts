@@ -1,3 +1,5 @@
+import { VenueType } from './event';
+
 export class Event {
   id: string;
   creatorId: string;
@@ -9,7 +11,7 @@ export class Event {
   eventDate: Date;
   description?: string;
   eventImageId?: string;
-  venueType: string; // Adjust type if `VenueType` is an enum
+  venueType?: VenueType;
   venueAddress?: string;
   venueUrl?: string;
   hostPermissionRequired: boolean;
@@ -34,7 +36,7 @@ export class Event {
     this.eventDate = data.eventDate ? new Date(data.eventDate) : new Date();
     this.description = data.description;
     this.eventImageId = data.eventImageId;
-    this.venueType = data.venueType ?? '';
+    this.venueType = data.venueType;
     this.venueAddress = data.venueAddress;
     this.venueUrl = data.venueUrl;
     this.hostPermissionRequired = data.hostPermissionRequired ?? false;

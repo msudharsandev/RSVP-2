@@ -23,9 +23,9 @@ const dummyAttendee = {
   qrToken: 'X7F-2K3',
   isCheckedIn: false,
 };
-interface TicketInputProps {
+type TicketInputProps = {
   onSubmit: (data: IAttendee) => void;
-}
+};
 
 const FormSchema = z.object({
   ticketNumber: z.string().length(6),

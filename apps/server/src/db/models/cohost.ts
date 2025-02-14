@@ -59,8 +59,19 @@ export class CohostRepository {
   }
 
   static async removeHost(userId: string, eventId: string): Promise<Cohost> {
+    const cohost = await prisma.cohost.findFirst({
+      where: {
+        userId,
+        eventId,
+      },
+    });
+    if (!cohost) {
+      throw new Error('Cohost not found');
+    }
     return await prisma.cohost.delete({
-      where: { userId },
+      where: {
+        id: cohost.id,
+      },
     });
   }
 

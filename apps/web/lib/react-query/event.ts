@@ -1,15 +1,15 @@
+import { Attendee } from '@/types/attendee';
+import { Event } from '@/types/Events';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { CreateEventSubmissionType } from '../zod/event';
 import {
   eventAPI,
   GetAttendeeByEventIdParams,
   UpdateEventSubmissionType,
 } from '../axios/event-API';
-import { Attendee } from '@/types/attendee';
-import { IEvent } from '@/types/event';
-import { useRouter } from 'next/navigation';
+import { CreateEventSubmissionType } from '../zod/event';
 
 interface ErrorResponse {
   message?: string;
@@ -76,11 +76,10 @@ export const useDeleteEventMutation = () => {
 };
 
 export const useGetEventById = (eventId: string) => {
-  return useQuery<{ event: IEvent; totalAttendees: number }, AxiosError<ErrorResponse>>({
+  return useQuery<{ event: Event; totalAttendees: number }, AxiosError<ErrorResponse>>({
     queryFn: async () => {
       const response = await eventAPI.getEventById(eventId);
-      const data = response.data;
-      return { event: response.data.event, totalAttendees: data.totalAttendees };
+      return { event: response.event, totalAttendees: response.totalAttendees };
     },
     queryKey: ['attendees', eventId],
   });
@@ -141,26 +140,13 @@ export const useSoftDeleteAttendee = () => {
   });
 };
 
-export const useGetEventById = (id: string) => {
-  return useQuery<IEvent, AxiosError<ErrorResponse>>({
-    queryKey: ['event', 'id', id],
-    queryFn: async () => {
-      const response = await eventAPI.getEventById(id);
-      return response.event;
-    },
+export const useGetAttendeeDetails = (eventId: string) => {
+  return useQuery({
+    queryKey: ['event', eventId, 'ticket'],
+    queryFn: () => eventAPI.getAttendee(eventId),
+    retry: 1,
+    enabled: !!eventId,
   });
-};
-
-export const useGetEventDetails = () => {
-  return useMutation<AxiosResponse, AxiosError<ErrorResponse>, string>({
-    mutationFn: eventAPI.getEventById,
-  });
-};
-
-export const useGetAttendeeDetails = () => {
-  return useMutation<AxiosResponse, AxiosError<ErrorResponse>, { eventId: string; userId: string }>(
-    { mutationFn: eventAPI.getAttendee }
-  );
 };
 
 export const useCancelEvent = () => {

@@ -5,9 +5,9 @@ import QrScanner from 'qr-scanner';
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
-interface QRScannerProps {
+type QRScannerProps = {
   onScan: (data: IAttendee) => void;
-}
+};
 
 const dummyAttendee = {
   name: 'Chandresh Patidar',
@@ -25,7 +25,7 @@ const QRScanner = ({ onScan }: QRScannerProps) => {
 
     const qrScanner = new QrScanner(
       videoRef.current,
-      (result) => {
+      () => {
         onScan(dummyAttendee);
       },
       {

@@ -130,7 +130,7 @@ eventRouter.get(
   getNotification
 );
 eventRouter.get(
-  '/:eventId/attendees/:userId',
+  '/:eventId/attendees/ticket',
   authMiddleware,
   validate({ params: attendeeParamsSchema }),
   getAttendeeDetails

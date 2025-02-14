@@ -8,12 +8,12 @@ import {
 } from '@/components/ui/pagination';
 import React from 'react';
 
-interface PaginationProps {
+type PaginationProps = {
   currentPage: number;
   totalPages: number;
   onChange: (page: number) => void;
   className?: string;
-}
+};
 
 const TablePagination: React.FC<PaginationProps> = ({
   currentPage,

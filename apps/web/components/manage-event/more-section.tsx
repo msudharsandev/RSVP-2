@@ -1,11 +1,11 @@
 'use client';
 
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useDeleteEventMutation, useEditEventSlug } from '@/lib/react-query/event';
+import { useForm } from 'react-hook-form';
 import FormInput from '../common/form/FormInput';
 import { Button } from '../ui/button';
 import FormProvider from '../ui/form-provider';
 import { Separator } from '../ui/separator';
-import { useDeleteEventMutation, useEditEventSlug } from '@/lib/react-query/event';
 
 const MoreSection = ({ eventId, slug }: { eventId: string; slug: string }) => {
   const { mutate, isPending } = useEditEventSlug();

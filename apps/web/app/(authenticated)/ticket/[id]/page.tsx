@@ -1,59 +1,36 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import TicketPageSkeleton from '@/components/event-detail/TicketPageSkeleton';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/lib/react-query/auth';
-import { useGetAttendeeDetails, useEventQuery, useCancelEvent, useGetEventDetails } from '@/lib/react-query/event';
-import { notFound, useParams } from 'next/navigation';
-import QRCode from 'react-qr-code';
-import TicketPageSkeleton from '@/components/event-detail/TicketPageSkeleton';
+import { useCancelEvent, useGetAttendeeDetails, useGetEventById } from '@/lib/react-query/event';
 import { MapPinIcon } from '@heroicons/react/24/solid';
 import { Presentation } from 'lucide-react';
+import { notFound, useParams } from 'next/navigation';
+import { useState } from 'react';
+import QRCode from 'react-qr-code';
 
 const TicketPage = () => {
-  const [loading, setLoading] = useState(true);
-
-  const { data: userData } = useCurrentUser();
-  const { data: eventData, mutate: fetchEventData } = useEventQuery();
-  const { data: attendeeData, mutate: fetchAttendeeData } = useGetAttendeeDetails();
-  const { mutate: cancelEvent } = useCancelEvent();
-
+  const [loading] = useState(true);
   const { id } = useParams();
 
-  useEffect(() => {
-    if (id) {
-      fetchEventData(id.toString());
-    }
-  }, [id, fetchEventData]);
+  if (typeof id !== 'string') notFound();
 
-  useEffect(() => {
-    const eventId = eventData?.data?.event?.id;
-    const userId = userData?.data?.data?.id;
-    if (eventId && userId) {
-      fetchAttendeeData({ eventId, userId });
-    }
-  }, [eventData, userData, fetchAttendeeData]);
-
-  useEffect(() => {
-    if (eventData && attendeeData) {
-      setLoading(false);
-    }
-  }, [eventData, attendeeData]);
-
-  if (!id || typeof id !== 'string') {
-    return notFound();
-  }
+  const { data: userData } = useCurrentUser();
+  const { data: attendeeData } = useGetAttendeeDetails(id);
+  const { data: eventData } = useGetEventById(id);
+  const { mutate: cancelEvent } = useCancelEvent();
 
   if (loading) {
     return <TicketPageSkeleton />;
   }
 
-  const qrToken = attendeeData?.data?.qrToken || '';
+  const qrToken = attendeeData?.qrToken || '';
   const confirmationCode = `${qrToken?.slice(0, 3)} - ${qrToken?.slice(3, 6)}`;
-  const attendeeName = userData?.data?.data?.full_name || 'Guest';
-  const eventName = eventData?.data?.event?.name || 'Event';
-  const eventDescription = eventData?.data?.event?.description || '';
-  const eventDate = eventData?.data?.event?.startTime
-    ? new Date(eventData?.data?.event?.startTime).toISOString().split('T')[0]
+  const attendeeName = userData?.data?.full_name || 'Guest';
+  const eventName = eventData?.event?.name || 'Event';
+  const eventDescription = eventData?.event?.description || '';
+  const eventDate = eventData?.event?.startTime
+    ? new Date(eventData?.event?.startTime).toISOString().split('T')[0]
     : 'TBD';
 
   const handleEventCancel = () => {
@@ -74,12 +51,12 @@ const TicketPage = () => {
         </div>
         <div className="flex w-full flex-col items-center justify-between gap-x-10 gap-y-3 md:w-1/2 md:flex-row">
           <Button className="h-12 w-full rounded-[6px] md:w-1/2">
-            {eventData?.data?.event?.venueType === 'virtual' ? (
+            {eventData?.event?.venueType === 'virtual' ? (
               <>
                 <Presentation className="mr-2 size-6" />
                 See Meeting
               </>
-            ) : eventData?.data?.event?.venueType === 'physical' ? (
+            ) : eventData?.event?.venueType === 'physical' ? (
               <>
                 <MapPinIcon className="mr-2 size-6" />
                 Get Directions

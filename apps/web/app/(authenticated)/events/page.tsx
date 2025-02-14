@@ -1,15 +1,8 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import NullScreen from '@/components/common/NullScreen';
-import { useGetEvent } from '@/lib/react-query/event.ts';
 import Container from '@/components/common/Container.tsx';
 import EventCard from '@/components/common/EventCard.tsx';
-import { IEvent } from '@/types/event.ts';
-import { CheckIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import NullScreen from '@/components/common/NullScreen';
 import { Button } from '@/components/ui/button.tsx';
-import { cn } from '@/lib/utils.ts';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
-import { locationName } from '@/utils/constants.ts';
 import {
   Command,
   CommandEmpty,
@@ -17,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command.tsx';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
 import {
   Select,
   SelectContent,
@@ -26,6 +20,12 @@ import {
   SelectValue,
 } from '@/components/ui/select.tsx';
 import useDebounce from '@/hooks/useDebounce';
+import { useGetEvent } from '@/lib/react-query/event.ts';
+import { cn } from '@/lib/utils.ts';
+import { IEvent } from '@/types/event.ts';
+import { locationName } from '@/utils/constants.ts';
+import { CheckIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
 
 interface HandleSearchEvent {
   target: {
@@ -38,7 +38,7 @@ const Events = () => {
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(true);
+  const [isFilterOpen] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [filteredEvents, setFilteredEvents] = useState<IEvent[] | undefined>(event);
 
