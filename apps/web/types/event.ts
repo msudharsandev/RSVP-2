@@ -37,6 +37,7 @@ export interface IEventResponse {
 export interface IEventCard {
   className?: string;
   event: IEvent | null;
+  type?: 'manage';
 }
 
 export type VenueType = 'physical' | 'virtual' | 'later';

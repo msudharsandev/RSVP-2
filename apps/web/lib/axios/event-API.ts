@@ -22,12 +22,10 @@ export const eventAPI = {
   },
 
   getEventById: async (eventId: string) =>
-    api
-      .get(`/event/${eventId}`)
-      .then((res) => ({
-        totalAttendees: res.data.totalAttendees as number,
-        event: new Event(res.data.event),
-      })),
+    api.get(`/event/${eventId}`).then((res) => ({
+      totalAttendees: res.data.totalAttendees as number,
+      event: new Event(res.data.event),
+    })),
 
   editEventSlug: async (payload: { eventId: string; slug: string }) =>
     api.patch(`/event/${payload.eventId}/slug`, payload),
@@ -93,5 +91,12 @@ export const eventAPI = {
   cancelEvent: async (eventId: string) => {
     const response = await api.delete(`/event/${eventId}/attendee`);
     return response.data;
+  },
+
+  getPopularEvents: async (limit?: number) => {
+    const response = await api.get('/event/popular', {
+      params: { limit },
+    });
+    return response.data.data;
   },
 };

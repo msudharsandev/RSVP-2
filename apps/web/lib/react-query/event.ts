@@ -156,3 +156,10 @@ export const useCancelEvent = () => {
     onError: () => toast.error('An error occurred'),
   });
 };
+
+export const usePopularEvents = (limit?: number) => {
+  return useQuery({
+    queryKey: ['popular-events', limit],
+    queryFn: () => eventAPI.getPopularEvents(limit),
+  });
+};

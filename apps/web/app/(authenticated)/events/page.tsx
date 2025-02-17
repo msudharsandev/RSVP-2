@@ -176,7 +176,7 @@ const Events = () => {
         </section>
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredEvents?.map((eventData: IEvent) => (
-            <EventCard event={eventData} key={eventData.id} />
+            <EventCard event={eventData} key={eventData.id} type="manage" />
           ))}
         </div>
       </main>

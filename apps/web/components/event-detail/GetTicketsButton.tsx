@@ -67,9 +67,17 @@ const GetTicketsButton = ({ eventId, isPermissionRequired }: GetTicketsButtonPro
     );
   }
 
+  if (isPermissionRequired) {
+    return (
+      <Button className="mt-4 w-full cursor-auto rounded-full px-4 py-2" variant="outline">
+        Waiting for Approval
+      </Button>
+    );
+  }
+
   return (
     <Button className="mt-4 w-full rounded-full px-4 py-2" onClick={handleGetTickets}>
-      {isPermissionRequired ? 'Waiting for Approval' : 'Get Tickets'}
+      Get Tickets
     </Button>
   );
 };
