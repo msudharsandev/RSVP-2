@@ -4,7 +4,9 @@ import { Users } from '@/db/models/users';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
 import catchAsync from '@/utils/catchAsync';
 import { addCohostSchema } from '@/validations/cohost.validation';
+import { Role } from '@prisma/client';
 import z from 'zod';
+import { API_MESSAGES } from '../constants/apiMessages';
 
 export const getEventHosts = catchAsync(
   async (req: AuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
@@ -47,5 +49,51 @@ export const createEventHost = catchAsync(
     const host = await CohostRepository.create({ eventId, userId: user.id, role });
 
     return res.status(201).json({ message: 'success', data: host });
+  }
+);
+
+export const removeEventCohost = catchAsync(
+  async (
+    req: AuthenticatedRequest<
+      { eventId?: string; cohostUserId?: string },
+      {},
+      CreateEventHostRequest
+    >,
+    res
+  ) => {
+    const userId = req.userId;
+    const { eventId, cohostUserId } = req.params;
+
+    if (!eventId || !cohostUserId)
+      return res.status(400).json({ message: 'Event Id and cohost user is required' });
+
+    const isUserCreator = await CohostRepository.checkCreatorForEvent(userId as string, eventId);
+    const isUserMod =
+      (await CohostRepository.hasRole(userId as string, eventId, Role.Manager)) || isUserCreator;
+
+    if (!isUserMod)
+      return res.status(400).json({
+        message: API_MESSAGES.COHOST.REMOVE.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED,
+      });
+
+    const isCohostMod =
+      (await CohostRepository.checkCreatorForEvent(cohostUserId, eventId)) ||
+      (await CohostRepository.hasRole(cohostUserId, eventId, Role.Manager));
+
+    if (!isUserCreator && isCohostMod)
+      return res.status(400).json({
+        message: API_MESSAGES.COHOST.REMOVE.INSUFFICIENT_PERMS_CREATOR_REQUIRED,
+      });
+
+    const deletedCohost = await CohostRepository.removeHost(cohostUserId, eventId);
+    if (!deletedCohost) {
+      return res.status(400).json({
+        message: API_MESSAGES.COHOST.REMOVE.FAILED,
+      });
+    } else {
+      return res.status(200).json({
+        message: API_MESSAGES.COHOST.REMOVE.SUCCESS,
+      });
+    }
   }
 );

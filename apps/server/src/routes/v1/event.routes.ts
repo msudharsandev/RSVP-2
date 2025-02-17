@@ -50,7 +50,6 @@ import {
   eventsPlannedByUserReqSchema,
 } from '@/validations/event.validation';
 import { Role } from '@prisma/client';
-import { paginationParamsSchema } from '@/validations/pagination.validation';
 
 const eventRouter: Router = Router();
 

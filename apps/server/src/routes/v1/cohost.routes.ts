@@ -1,4 +1,4 @@
-import { createEventHost, getEventHosts } from '@/controllers/cohost.controller';
+import { createEventHost, getEventHosts, removeEventCohost } from '@/controllers/cohost.controller';
 import authMiddleware from '@/middleware/authMiddleware';
 import { validate } from '@/middleware/validate';
 import { addCohostSchema } from '@/validations/cohost.validation';
@@ -13,6 +13,9 @@ cohostRouter.get(
   validate({ params: eventParamsSchema }),
   getEventHosts
 );
+
+// TODO: Migrate this route under /event/:eventId/cohost/:cohostUserId
+cohostRouter.delete('/events/:eventId/:cohostUserId', authMiddleware, removeEventCohost);
 
 cohostRouter.post('/', authMiddleware, validate({ body: addCohostSchema }), createEventHost);
 

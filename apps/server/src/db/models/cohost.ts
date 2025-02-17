@@ -58,21 +58,12 @@ export class CohostRepository {
     });
   }
 
-  static async removeHost(userId: string, eventId: string): Promise<Cohost> {
-    const cohost = await prisma.cohost.findFirst({
-      where: {
-        userId,
-        eventId,
-      },
+  static async removeHost(userId: string, eventId: string): Promise<boolean> {
+    const deletedCohost = await prisma.cohost.deleteMany({
+      where: { userId, eventId },
     });
-    if (!cohost) {
-      throw new Error('Cohost not found');
-    }
-    return await prisma.cohost.delete({
-      where: {
-        id: cohost.id,
-      },
-    });
+
+    return deletedCohost.count > 0; // if any of the records are deleted return true
   }
 
   static async delete(id: string): Promise<Cohost> {
@@ -110,5 +101,22 @@ export class CohostRepository {
       },
     });
     return creator !== null;
+  }
+
+  static async hasRole(userId: string, eventId: string, role: Role): Promise<boolean> {
+    const cohost = await prisma.cohost.findFirst({
+      where: {
+        userId,
+        eventId,
+      },
+      select: {
+        role: true,
+      },
+    });
+    if (!cohost) {
+      return false;
+    }
+
+    return cohost.role === role;
   }
 }
