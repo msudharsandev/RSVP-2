@@ -65,6 +65,12 @@ eventRouter.get('/popular', validate({ query: eventLimitSchema }), getPopularEve
 
 eventRouter.get('/filter', filterEvents);
 
+eventRouter.get(
+  '/user',
+  authMiddleware,
+  validate({ query: eventsPlannedByUserReqSchema }),
+  plannedByUser
+);
 eventRouter.get('/:eventId', authMiddleware, getEventById);
 
 eventRouter.patch(
@@ -83,12 +89,6 @@ eventRouter.delete(
   deleteEvent
 );
 
-eventRouter.get(
-  '/user',
-  authMiddleware,
-  validate({ query: eventsPlannedByUserReqSchema }),
-  plannedByUser
-);
 
 eventRouter.patch(
   '/:id/slug',

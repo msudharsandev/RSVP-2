@@ -25,7 +25,7 @@ const Card = ({ className, event, type }: IEventCard) => {
       </figure>
       <section className="flex flex-col">
         <span className="text-xl font-bold">{event?.name}</span>
-        <span className="mb-3 font-semibold">Hosted By - {event?.host || 'Unknown Host'}</span>
+        <span className="mb-3 font-semibold">Hosted By - {event?.creator?.full_name}</span>
         <span className="font-bold">
           {event?.startTime ? dayjs(event.startTime).format('HH:mm A, DD MMM YYYY') : ''}
         </span>

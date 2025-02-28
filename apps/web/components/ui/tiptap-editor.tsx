@@ -148,8 +148,14 @@ const Editor = ({ editor }: { editor: EditorType | null }) => {
           'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground',
           editor.isActive('link') ? 'bg-primary text-primary-foreground' : ''
         )}
-        onPressedChange={() =>
-          editor.commands.setLink({ href: prompt('Enter the URL', url) || '' })
+        onPressedChange={() =>{
+          let inputUrl = prompt('Enter the URL', url) || '';
+          if (!inputUrl.startsWith('http://') && !inputUrl.startsWith('https://')) {
+          inputUrl = `https://${inputUrl}`;
+          }
+          editor.commands.setLink({ href: inputUrl });
+        }
+          
         }
       >
         <LinkIcon className="h-4 w-4" />

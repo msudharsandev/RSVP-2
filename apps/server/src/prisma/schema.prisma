@@ -22,7 +22,7 @@ model Users {
   twitter                     String?    @db.VarChar(256)
   instagram                   String?    @db.VarChar(256)
   website                     String?    @db.VarChar(256)
-  profile_icon                String?    @db.VarChar(256)
+  profile_icon                String?    @db.VarChar(256)@default("1")
   event_participation_enabled Boolean    @default(false)
   created_at                  DateTime   @default(now())
   updated_at                  DateTime   @default(now()) @updatedAt

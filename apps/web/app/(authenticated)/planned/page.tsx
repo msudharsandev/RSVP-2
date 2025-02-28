@@ -1,10 +1,12 @@
 'use client';
 
 import Container from '@/components/common/Container';
+import NoResults from '@/components/common/NoResults';
 import Timeline from '@/components/planned-events/Timeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { eventAPI } from '@/lib/axios/event-API';
 import { IEvent } from '@/types/event';
+import { NO_PLANNED_EVENTS_MESSAGE, NO_PLANNED_EVENTS_TITLE } from '@/utils/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -53,7 +55,7 @@ const PlannedEvents = () => {
     );
   }
 
-  return (
+  return events?.length != 0 ? (
     <Tabs defaultValue="upcoming">
       <Container asChild>
         <main className="mt-8 flex select-none flex-col justify-start md:justify-normal">
@@ -80,6 +82,10 @@ const PlannedEvents = () => {
         </main>
       </Container>
     </Tabs>
+  ) : (
+    <section className="mx-auto my-48 w-full max-w-[352px] text-center">
+      <NoResults title={NO_PLANNED_EVENTS_TITLE} message={NO_PLANNED_EVENTS_MESSAGE} />
+    </section>
   );
 };
 
@@ -89,5 +95,4 @@ export default function Page() {
       <PlannedEvents />
     </Suspense>
   );
-};
-
+}

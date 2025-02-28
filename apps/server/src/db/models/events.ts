@@ -12,7 +12,15 @@ export class Events {
   }
 
   static async findAllEvents() {
-    return await prisma.event.findMany({});
+    return await prisma.event.findMany({
+      include: {
+        creator: {
+          select: {
+            full_name: true,
+          },
+        },
+      },
+    });
   }
 
   static async findUnique(where: Prisma.EventWhereUniqueInput) {
@@ -126,6 +134,11 @@ export class Events {
         isActive: true,
       },
       include: {
+        creator: {
+          select: {
+            full_name: true,
+          },
+        },
         Attendee: true,
       },
       orderBy: {

@@ -1,6 +1,7 @@
 'use client';
 import Container from '@/components/common/Container.tsx';
 import EventCard from '@/components/common/EventCard.tsx';
+import NoResults from '@/components/common/NoResults';
 import NullScreen from '@/components/common/NullScreen';
 import { Button } from '@/components/ui/button.tsx';
 import {
@@ -23,7 +24,7 @@ import useDebounce from '@/hooks/useDebounce';
 import { useGetEvent } from '@/lib/react-query/event.ts';
 import { cn } from '@/lib/utils.ts';
 import { IEvent } from '@/types/event.ts';
-import { locationName } from '@/utils/constants.ts';
+import { locationName, NO_EVENT_TITLE, NO_EVENTS_MESSAGE } from '@/utils/constants.ts';
 import { CheckIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 
@@ -58,7 +59,8 @@ const Events = () => {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error.message}</div>;
-  return event ? (
+
+  return event?.length != 0 ? (
     <Container className="min-h-screen space-y-8 py-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row">
         <div className="space-y-2">
@@ -182,7 +184,9 @@ const Events = () => {
       </main>
     </Container>
   ) : (
-    <NullScreen />
+    <section className="mx-auto my-48 w-full max-w-[352px] text-center">
+      <NoResults title={NO_EVENT_TITLE} message={NO_EVENTS_MESSAGE} />
+    </section>
   );
 };
 

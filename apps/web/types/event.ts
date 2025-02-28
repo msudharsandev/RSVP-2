@@ -20,8 +20,11 @@ export interface IEvent {
   numberOfAttendees?: number;
   host?: string;
   Cohost: ICohost[];
+  creator: Creator;
 }
-
+export interface Creator {
+  full_name: string;
+}
 export interface ICohost {
   user: {
     profile_icon: string;

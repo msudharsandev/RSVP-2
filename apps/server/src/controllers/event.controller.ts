@@ -216,7 +216,7 @@ export const plannedByUser = catchAsync(async (req: AuthenticatedRequest<{}, {},
     });
     res.status(200).json({ message: 'success', data: plannedEvents });
   } else {
-    res.status(404).json({ message: 'user not found' });
+    res.status(404).json({ data: [] });
   }
 });
 
