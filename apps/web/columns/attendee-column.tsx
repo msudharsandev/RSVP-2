@@ -51,10 +51,19 @@ const attendeeColumns: ColumnDef<Attendee>[] = [
     },
   },
   {
+    accessorKey: 'hasAttended',
+    header: 'Ticket ID',
+    cell: ({ row }) => (
+      <Badge variant={row.original.hasAttended ? 'success' : 'destructive'}>
+        {row.original.hasAttended ? 'Attended' : 'Not Attended'}
+      </Badge>
+    ),
+  },
+  {
     accessorKey: 'ticketId',
     header: 'Ticket ID',
     cell: ({ row }) => {
-      const ticketId = row.original.qrToken;
+      const ticketId = row.original.qrToken.toUpperCase();
       return ticketId;
     },
   },
@@ -88,6 +97,7 @@ const AllowedGuestColumn = ({ attendee }: { attendee: Attendee }) => {
   const [isToggled, setIsToggled] = useState(attendee.allowedStatus);
 
   const handleCheckedChange = (checked: boolean) => {
+    console.log('checked', checked);
     setIsToggled(checked);
     mutate({
       eventId: attendee.eventId,

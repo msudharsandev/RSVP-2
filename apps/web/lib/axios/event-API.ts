@@ -1,5 +1,5 @@
 import { Event } from '@/types/Events';
-import { IAttendee } from '@/types/attendee';
+import { Attendee } from '@/types/attendee';
 import { IEvent, IEventResponse } from '@/types/event';
 import { CommunicationForm } from '../zod/communication';
 import { CreateEventSubmissionType } from '../zod/event';
@@ -71,7 +71,23 @@ export const eventAPI = {
   },
 
   getAttendee: async (eventId: string) => {
-    return api.get(`event/${eventId}/attendees`).then((res) => res.data as IAttendee);
+    return api.get(`event/${eventId}/attendees/ticket`).then((res) => res.data as Attendee);
+  },
+
+  verifyAttendee: async (payload: { eventId: string; attendeeId: string }) => {
+    return api.patch(`event/${payload.eventId}/attendee/${payload.attendeeId}/verify`, payload);
+  },
+
+  getAttendeeByTicketCode: async ({
+    eventId,
+    ticketCode,
+  }: {
+    ticketCode: string;
+    eventId: string;
+  }) => {
+    return api
+      .get(`/event/${eventId}/attendee/qr/${ticketCode}`)
+      .then((res) => res.data as Attendee);
   },
 
   getAttendeeTicketDetail: async (eventId: string) => {

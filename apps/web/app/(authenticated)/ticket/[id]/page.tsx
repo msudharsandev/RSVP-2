@@ -1,28 +1,21 @@
 'use client';
-import TicketPageSkeleton from '@/components/event-detail/TicketPageSkeleton';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/lib/react-query/auth';
 import { useCancelEvent, useGetAttendeeDetails, useGetEventById } from '@/lib/react-query/event';
 import { MapPinIcon } from '@heroicons/react/24/solid';
 import { Presentation } from 'lucide-react';
 import { notFound, useParams } from 'next/navigation';
-import { useState } from 'react';
 import QRCode from 'react-qr-code';
 
 const TicketPage = () => {
-  const [loading] = useState(true);
   const { id } = useParams();
 
   if (typeof id !== 'string') notFound();
 
   const { data: userData } = useCurrentUser();
-  const { data: attendeeData } = useGetAttendeeDetails(id);
-  const { data: eventData } = useGetEventById(id);
+  const { data: attendeeData, isLoading: isAttendeeLoading } = useGetAttendeeDetails(id);
+  const { data: eventData, isLoading: isEventLoading } = useGetEventById(id);
   const { mutate: cancelEvent } = useCancelEvent();
-
-  if (loading) {
-    return <TicketPageSkeleton />;
-  }
 
   const qrToken = attendeeData?.qrToken || '';
   const confirmationCode = `${qrToken?.slice(0, 3)} - ${qrToken?.slice(3, 6)}`;
@@ -39,6 +32,8 @@ const TicketPage = () => {
     }
   };
 
+  const loading = isAttendeeLoading || isEventLoading;
+
   return (
     <div className="container-main my-10">
       <header className="text-4xl font-bold md:text-5xl md:leading-[67px]">
@@ -50,19 +45,17 @@ const TicketPage = () => {
           <p dangerouslySetInnerHTML={{ __html: eventDescription }} />
         </div>
         <div className="flex w-full flex-col items-center justify-between gap-x-10 gap-y-3 md:w-1/2 md:flex-row">
-          <Button className="h-12 w-full rounded-[6px] md:w-1/2">
-            {eventData?.event?.venueType === 'virtual' ? (
-              <>
-                <Presentation className="mr-2 size-6" />
-                See Meeting
-              </>
-            ) : eventData?.event?.venueType === 'physical' ? (
-              <>
-                <MapPinIcon className="mr-2 size-6" />
-                Get Directions
-              </>
-            ) : null}
-          </Button>
+          {eventData?.event?.venueType === 'virtual' ? (
+            <Button className="h-12 w-full rounded-[6px] md:w-1/2">
+              <Presentation className="mr-2 size-6" />
+              See Meeting
+            </Button>
+          ) : eventData?.event?.venueType === 'physical' ? (
+            <Button className="h-12 w-full rounded-[6px] md:w-1/2">
+              <MapPinIcon className="mr-2 size-6" />
+              Get Directions
+            </Button>
+          ) : null}
           <Button
             className="h-12 w-full rounded-[6px] border bg-dark-900 md:w-1/2"
             variant="destructive"
@@ -103,7 +96,7 @@ const TicketPage = () => {
             </div>
             <div>
               <p className="font-bold">CONFIRMATION CODE</p>
-              <p className="mt-3 text-4xl font-bold md:text-5xl">{confirmationCode}</p>
+              <p className="mt-3 text-4xl font-bold uppercase md:text-5xl">{confirmationCode}</p>
             </div>
           </div>
         </div>

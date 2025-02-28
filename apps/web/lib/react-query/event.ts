@@ -16,18 +16,11 @@ interface ErrorResponse {
 }
 
 const EVENTS_QUERY_KEY = 'events';
-
-export const useEventQuery = (id: string) => {
-  return useQuery({
-    queryKey: [EVENTS_QUERY_KEY, id],
-    queryFn: () => eventAPI.getEventById(id),
-    enabled: !!id,
-  });
-};
+const ATTENDEE_QUERY_KEY = 'attendees';
 
 export const useGetEvent = () => {
   return useQuery({
-    queryKey: ['event'],
+    queryKey: [EVENTS_QUERY_KEY],
     queryFn: () => eventAPI.getEvent(),
   });
 };
@@ -38,14 +31,27 @@ export const useCreateEvent = () => {
     mutationFn: eventAPI.createEvent,
     onSuccess: ({ data }) => {
       toast.success('Event created successfully');
-      console.log(data);
       const url = `/${data.event.slug}`;
-      // console.log(url);
       router.push(url);
     },
     onError: (error) => {
       toast.error(error.response?.data.message || 'An error occurred');
     },
+  });
+};
+
+export const useGetAttendeeByTicketCode = ({
+  ticketCode,
+  eventId,
+}: {
+  ticketCode: string;
+  eventId: string;
+}) => {
+  return useQuery({
+    queryKey: [EVENTS_QUERY_KEY, eventId, ATTENDEE_QUERY_KEY, ticketCode],
+    queryFn: () => eventAPI.getAttendeeByTicketCode({ eventId, ticketCode }),
+    retry: 1,
+    enabled: !!(ticketCode && eventId),
   });
 };
 
@@ -75,13 +81,16 @@ export const useDeleteEventMutation = () => {
   });
 };
 
-export const useGetEventById = (eventId: string) => {
+export const useGetEventById = (eventId?: string) => {
   return useQuery<{ event: Event; totalAttendees: number }, AxiosError<ErrorResponse>>({
-    queryFn: async () => {
-      const response = await eventAPI.getEventById(eventId);
-      return { event: response.event, totalAttendees: response.totalAttendees };
-    },
-    queryKey: ['attendees', eventId],
+    queryFn: eventId
+      ? async () => {
+          const response = await eventAPI.getEventById(eventId);
+          return { event: response.event, totalAttendees: response.totalAttendees };
+        }
+      : undefined,
+    enabled: !!eventId,
+    queryKey: [EVENTS_QUERY_KEY, eventId],
   });
 };
 
@@ -149,6 +158,15 @@ export const useGetAttendeeDetails = (eventId: string) => {
   });
 };
 
+export const useVerifyAttendee = () => {
+  return useMutation<
+    AxiosResponse,
+    AxiosError<ErrorResponse>,
+    { eventId: string; attendeeId: string }
+  >({
+    mutationFn: eventAPI.verifyAttendee,
+  });
+};
 export const useGetAttendeeTicketDetails = (eventId: string) => {
   return useQuery({
     queryKey: ['event', eventId, 'ticket'],

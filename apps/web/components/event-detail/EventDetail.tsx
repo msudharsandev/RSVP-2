@@ -23,21 +23,6 @@ const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees
     return profileUrl?.src ?? userAvatarOptions[0]?.src!;
   };
 
-  const trimVenue = (venue: string): JSX.Element | string => {
-    if (!venue) return 'Venue not specified';
-
-    const isValidUrl = venue.match(/^https?:\/\//);
-    const displayText = isValidUrl && venue.length > 50 ? `${venue.substring(0, 50)}...` : venue;
-
-    return isValidUrl ? (
-      <a href={venue} target="_blank" rel="noopener noreferrer">
-        {displayText}
-      </a>
-    ) : (
-      'Venue not specified'
-    );
-  };
-
   return (
     <main>
       <div className="relative w-full overflow-hidden">

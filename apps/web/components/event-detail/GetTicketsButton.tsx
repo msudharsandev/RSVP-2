@@ -46,9 +46,11 @@ const GetTicketsButton = ({ eventId, isPermissionRequired }: GetTicketsButtonPro
   if ((isSuccess || attendeeDataSuccess) && !cancelRegistrationSuccess) {
     return (
       <div className="flex w-full flex-col gap-4">
-        <Button variant="subtle" className="mt-4 w-full rounded-full px-4 py-2">
-          <Link href={`/ticket/${eventId}`}>Show Tickets</Link>
-        </Button>
+        <Link href={`/ticket/${eventId}`}>
+          <Button variant="subtle" className="mt-4 w-full rounded-full px-4 py-2">
+            Show Tickets
+          </Button>
+        </Link>
         <Button
           variant="destructive"
           className="w-full rounded-full px-4 py-2"

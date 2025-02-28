@@ -52,9 +52,18 @@ export class Attendees {
     });
   }
 
-  static async findByQrToken(qrToken: string) {
+  static async findByQrToken(qrToken: string, eventId?: string) {
     return await prisma.attendee.findUnique({
-      where: { qrToken },
+      where: { qrToken, eventId },
+      include: {
+        user: {
+          select: {
+            full_name: true,
+            primary_email: true,
+            contact: true,
+          },
+        },
+      },
     });
   }
 

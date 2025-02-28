@@ -7,19 +7,19 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { useGetEventById } from '@/lib/react-query/event';
+import { formatDateTime } from '@/lib/utils';
 import { CalendarIcon, MapPinIcon } from 'lucide-react';
 import Image from 'next/image';
-import { Button } from '../ui/button';
-import { useEventQuery } from '@/lib/react-query/event';
-import { useParams, notFound } from 'next/navigation';
-import { formatDateTime } from '@/lib/utils';
 import Link from 'next/link';
+import { notFound, useParams } from 'next/navigation';
+import { Button } from '../ui/button';
 
 const CustomiseEventCard = ({ className }: PropsWithClassName) => {
   const { id } = useParams();
   if (typeof id !== 'string') notFound();
 
-  const { data, isSuccess } = useEventQuery(id);
+  const { data, isSuccess } = useGetEventById(id);
   if (!isSuccess) return notFound();
 
   const { event } = data;

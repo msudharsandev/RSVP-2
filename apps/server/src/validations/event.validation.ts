@@ -115,6 +115,7 @@ export const attendeesQuerySchema = z.object({
   ...paginationParamsSchema.shape,
   hasAttended: z.preprocess((val) => {
     if (val === 'false') return false;
-    return z.coerce.boolean().parse(val);
+    if (val === 'true') return true;
+    return undefined;
   }, z.boolean().optional()),
 });

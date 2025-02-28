@@ -60,12 +60,6 @@ const ProfilePictureEditPopover = ({ control }: Props) => {
             )}
           />
         </div>
-        <Button
-          onClick={() => setIsDialogOpen(false)}
-          className="ml-auto mt-3 h-9 rounded-[6px] text-sm font-semibold text-white"
-        >
-          Save
-        </Button>
       </DialogContent>
     </Dialog>
   );

@@ -1,23 +1,23 @@
 'use client';
 
 import Container from '@/components/common/Container';
-import { Button } from '@/components/ui/button';
-import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import OverviewSection from '@/components/manage-event/overview-section';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import Communication from '@/components/manage-event/Communication';
 import GuestManageSection from '@/components/manage-event/guest-manage-section';
 import MoreSection from '@/components/manage-event/more-section';
-import Communication from '@/components/manage-event/Communication';
-import { notFound, useParams } from 'next/navigation';
-import { useEventQuery } from '@/lib/react-query/event';
+import OverviewSection from '@/components/manage-event/overview-section';
+import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGetEventById } from '@/lib/react-query/event';
+import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
+import { notFound, useParams } from 'next/navigation';
 
 const ManageEventPage = () => {
   const { id } = useParams();
   if (typeof id !== 'string') notFound();
 
-  const { data, isLoading, isSuccess, status } = useEventQuery(id);
+  const { data, isLoading, isSuccess, status } = useGetEventById(id);
 
   if (isLoading) return <div>Loading...</div>;
   if (status === 'error') return notFound();

@@ -6,6 +6,7 @@ import { useGetAttendeeExcelByEventId, useGetEventById } from '@/lib/react-query
 import { useParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export const EventHeroSection = () => {
   const [isDownload, setIsDownload] = React.useState(false);
@@ -60,15 +61,19 @@ export const EventHeroSection = () => {
         </Card>
 
         <div className="grid w-full flex-[3] grid-cols-1 gap-6 sm:grid-cols-2">
-          <div className="flex h-[96px] w-full items-center rounded-lg bg-green-900 p-4">
-            <div className="flex h-[64px] w-[64px] items-center justify-center rounded-lg bg-white">
-              <Icons.qrcode className="text-xl" />
+          <Link href={`/events/${eventId}/manage/verify`}>
+            <div className="flex h-[96px] w-full items-center rounded-lg bg-green-900 p-4">
+              <div className="flex h-[64px] w-[64px] items-center justify-center rounded-lg bg-white">
+                <Icons.qrcode className="text-xl" />
+              </div>
+              <div className="ml-5">
+                <h3 className="font-bold text-white">Check In Guest</h3>
+                <p className="text-sm text-gray-200">
+                  Your {percentage}% of seats have been booked.
+                </p>
+              </div>
             </div>
-            <div className="ml-5">
-              <h3 className="font-bold text-white">Check In Guest</h3>
-              <p className="text-sm text-gray-200">Your 80% of seats have been booked.</p>
-            </div>
-          </div>
+          </Link>
 
           <button
             onClick={downloadExcel}

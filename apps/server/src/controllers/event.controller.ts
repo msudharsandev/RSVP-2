@@ -1,33 +1,31 @@
 import config from '@/config/config';
+import { API_MESSAGES } from '@/constants/apiMessages';
 import { Attendees } from '@/db/models/attendees';
+import { CohostRepository } from '@/db/models/cohost';
 import { Events } from '@/db/models/events';
 import { Users } from '@/db/models/users';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
 import catchAsync from '@/utils/catchAsync';
 import { sluggify } from '@/utils/function';
-import * as XLSX from 'xlsx';
 import EmailService from '@/utils/sendEmail';
-import { CohostRepository } from '@/db/models/cohost';
 import {
   attendeePayloadSchema,
   editSlugSchema,
-  verifyQrTokenPayloadSchema,
+  verifyQrTokenParamsSchema,
 } from '@/validations/attendee.validation';
 import {
-  eventLimitSchema,
   attendeesQuerySchema,
   CreateEventSchema,
+  eventLimitSchema,
   eventsPlannedByUserReqSchema,
 } from '@/validations/event.validation';
 import { createHash, randomUUID } from 'crypto';
+import * as XLSX from 'xlsx';
 import z from 'zod';
-import { PaginationParams } from '@/validations/pagination.validation';
-import { Role } from '@prisma/client';
-import { API_MESSAGES } from '@/constants/apiMessages';
 
 type createEventBody = z.infer<typeof CreateEventSchema>;
 type CreateAttendeeBody = z.infer<typeof attendeePayloadSchema>;
-type verifyQrTokenPayloadBody = z.infer<typeof verifyQrTokenPayloadSchema>;
+type verifyQrTokenParamsBody = z.infer<typeof verifyQrTokenParamsSchema>;
 
 export const getEventBySlug = catchAsync(
   async (req: AuthenticatedRequest<{ slug?: string }, {}, {}>, res) => {
@@ -380,7 +378,7 @@ export const getAttendeesExcelSheet = catchAsync(
 );
 
 export const getAttendeeDetails = catchAsync(
-  async (req: AuthenticatedRequest<{ eventId?: string; userId?: string }, {}, {}>, res) => {
+  async (req: AuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const userId = req.userId;
     const eventId = req.params.eventId;
 
@@ -389,6 +387,7 @@ export const getAttendeeDetails = catchAsync(
     if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
 
     const attendee = await Attendees.findByUserIdAndEventId(userId, eventId);
+
     if (!attendee) {
       return res.status(404).json({ message: 'Attendee not found' });
     }
@@ -455,26 +454,29 @@ export const getAttendeeByQrToken = catchAsync(
 
     if (!qrToken) return res.status(400).json({ message: 'QR Token is required' });
 
-    const attendee = await Attendees.findByQrToken(qrToken);
+    const attendee = await Attendees.findByQrToken(qrToken, eventId);
     if (!attendee) {
       return res.status(404).json({ message: 'Attendee not found' });
     }
 
-    if (attendee.eventId !== eventId) {
-      return res.status(400).json({ message: 'Invalid event ID for this QR token' });
-    }
     return res.status(200).json(attendee);
   }
 );
 
 export const verifyQrToken = catchAsync(
-  async (req: AuthenticatedRequest<{}, {}, verifyQrTokenPayloadBody>, res, next) => {
+  async (
+    req: AuthenticatedRequest<{ eventId?: string; attendeeId?: string }, {}, {}>,
+    res,
+    next
+  ) => {
     const userId = req.userId;
-    const { qrToken, eventId } = req.body;
+    const { attendeeId, eventId } = req.params;
+    if (!attendeeId || !eventId)
+      return res.status(400).json({ message: 'Attendee ID and Event ID is required' });
 
     if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
 
-    const attendee = await Attendees.findByQrToken(qrToken);
+    const attendee = await Attendees.findById(attendeeId);
     if (!attendee) {
       return res.status(404).json({ message: 'Attendee not found' });
     }
@@ -507,6 +509,7 @@ export const verifyQrToken = catchAsync(
 
     const verificationStartTime = new Date(eventStartTime);
     verificationStartTime.setHours(eventStartTime.getHours() - 1);
+
 
     if (currentTime < verificationStartTime) {
       return res.status(400).json({

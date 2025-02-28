@@ -1,43 +1,41 @@
 import {
   allPlannedEvents,
+  checkAllowStatus,
   createAttendee,
   createEvent,
   deleteEvent,
+  editEventSlug,
+  filterEvents,
   getAttendeeByQrToken,
   getAttendeeDetails,
   getAttendees,
   getAttendeesExcelSheet,
-  getEventBySlug,
-  plannedByUser,
-  filterEvents,
-  softDeleteAttendee,
   getEventById,
-  editEventSlug,
+  getEventBySlug,
   getPopularEvents,
+  plannedByUser,
+  softDeleteAttendee,
+  updateAttendeeAllowStatus,
   updateEvent,
   verifyQrToken,
-  checkAllowStatus,
-  updateAttendeeAllowStatus,
 } from '@/controllers/event.controller';
 
 import {
+  attendeeParamsSchema,
+  attendeePayloadSchema,
+  idParamsSchema,
+  qrTokenSchema,
+  verifyQrTokenParamsSchema,
+} from '@/validations/attendee.validation';
+import {
   attendeesQuerySchema,
   CreateEventSchema,
+  eventLimitSchema,
   eventParamsSchema,
   getEventBySlugSchema,
   userUpdateSchema,
-  eventLimitSchema,
 } from '@/validations/event.validation';
-import {
-  attendeePayloadSchema,
-  attendeeParamsSchema,
-  attendeeIdSchema,
-  verifyQrTokenPayloadSchema,
-  qrTokenSchema,
-  idParamsSchema,
-  editSlugSchema,
-} from '@/validations/attendee.validation';
-import e, { Router } from 'express';
+import { Router } from 'express';
 
 import {
   createNotification,
@@ -58,6 +56,7 @@ const eventRouter: Router = Router();
 eventRouter.get('/upload-image', uploadEventImage);
 
 eventRouter.get('/slug/:slug', validate({ params: getEventBySlugSchema }), getEventBySlug);
+
 eventRouter.get('/', allPlannedEvents);
 
 eventRouter.post('/', authMiddleware, validate({ body: CreateEventSchema }), createEvent);
@@ -142,10 +141,10 @@ eventRouter.get(
   validate({ params: attendeeParamsSchema }),
   getAttendeeDetails
 );
-eventRouter.post(
-  '/attendee/verify',
+eventRouter.patch(
+  '/:eventId/attendee/:attendeeId/verify',
   authMiddleware,
-  validate({ body: verifyQrTokenPayloadSchema }),
+  validate({ params: verifyQrTokenParamsSchema }),
   eventManageMiddleware([Role.Creator, Role.Manager]),
   verifyQrToken
 );

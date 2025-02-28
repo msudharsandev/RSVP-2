@@ -1,3 +1,4 @@
+import { Event } from './Events';
 import { IUser } from './user';
 
 export enum Status {
@@ -9,13 +10,6 @@ export enum Status {
   Invited = '5',
 }
 
-export interface IAttendee {
-  name: string;
-  event: string;
-  qrToken: string;
-  imageUrl: string;
-  isCheckedIn: boolean;
-}
 export class Attendee {
   id: string;
   userId: string;
