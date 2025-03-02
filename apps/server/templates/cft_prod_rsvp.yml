@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Description: |
   This CloudFormation template creates resources for the RSVP project in a production environment.
   It provisions an S3 bucket to store event assets and an IAM user with specific permissions to access only this bucket.
@@ -9,20 +9,20 @@ Description: |
 Parameters:
   AllowedCorsOrigin:
     Type: String
-    Description: "Enter the allowed CORS origin (e.g., https://example.com)"
+    Description: 'Enter the allowed CORS origin (e.g., https://example.com)'
 
 Resources:
   IAMUser:
     Type: AWS::IAM::User
     DeletionPolicy: Retain
     Properties:
-      UserName: !Sub "rsvp-user-prod-${AWS::AccountId}"
+      UserName: !Sub 'rsvp-user-prod-${AWS::AccountId}'
 
   S3Bucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
     Properties:
-      BucketName: !Sub "rsvp-prod-${AWS::AccountId}-${AWS::Region}"
+      BucketName: !Sub 'rsvp-prod-${AWS::AccountId}-${AWS::Region}'
       AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: false
@@ -34,11 +34,11 @@ Resources:
           - AllowedOrigins:
               - !Ref AllowedCorsOrigin
             AllowedMethods:
-              - "GET"
-              - "PUT"
-              - "DELETE"
+              - 'GET'
+              - 'PUT'
+              - 'DELETE'
             AllowedHeaders:
-              - "*"
+              - '*'
 
   S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -46,18 +46,18 @@ Resources:
     Properties:
       Bucket: !Ref S3Bucket
       PolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
-            Action: "s3:GetObject"
-            Resource: !Sub "${S3Bucket.Arn}/*"
-            Principal: "*"
+            Action: 's3:GetObject'
+            Resource: !Sub '${S3Bucket.Arn}/*'
+            Principal: '*'
           - Effect: Allow
             Action:
-              - "s3:GetObject"
-              - "s3:PutObject"
-              - "s3:DeleteObject"
-            Resource: !Sub "${S3Bucket.Arn}/*"
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:DeleteObject'
+            Resource: !Sub '${S3Bucket.Arn}/*'
             Principal:
               AWS: !GetAtt IAMUser.Arn
 
@@ -65,18 +65,18 @@ Resources:
     Type: AWS::IAM::Policy
     DeletionPolicy: Retain
     Properties:
-      PolicyName: "RSVPBucketAccessPolicy"
+      PolicyName: 'RSVPBucketAccessPolicy'
       Users:
         - !Ref IAMUser
       PolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Action:
-              - "s3:GetObject"
-              - "s3:PutObject"
-              - "s3:DeleteObject"
-            Resource: !Sub "arn:aws:s3:::${S3Bucket}/*"
+              - 's3:GetObject'
+              - 's3:PutObject'
+              - 's3:DeleteObject'
+            Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
 
   IAMAccessKey:
     Type: AWS::IAM::AccessKey
@@ -86,17 +86,17 @@ Resources:
 
 Outputs:
   AWSAccessKey:
-    Value: !Sub "AWS_ACCESS_KEY=${IAMAccessKey}"
-    Description: "AWS Access Key for the IAM User"
+    Value: !Sub 'AWS_ACCESS_KEY=${IAMAccessKey}'
+    Description: 'AWS Access Key for the IAM User'
 
   AWSSecretKey:
-    Value: !Sub "AWS_SECRET_KEY=${IAMAccessKey.SecretAccessKey}"
-    Description: "AWS Secret Key for the IAM User"
+    Value: !Sub 'AWS_SECRET_KEY=${IAMAccessKey.SecretAccessKey}'
+    Description: 'AWS Secret Key for the IAM User'
 
   AWSRegion:
-    Value: !Sub "AWS_REGION=${AWS::Region}"
-    Description: "AWS Region where the bucket is created"
+    Value: !Sub 'AWS_REGION=${AWS::Region}'
+    Description: 'AWS Region where the bucket is created'
 
   AWSBucketName:
-    Value: !Sub "AWS_BUCKET_NAME=${S3Bucket}"
-    Description: "Name of the created S3 bucket"
+    Value: !Sub 'AWS_BUCKET_NAME=${S3Bucket}'
+    Description: 'Name of the created S3 bucket'
