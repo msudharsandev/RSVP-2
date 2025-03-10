@@ -6,7 +6,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo run format",
-    "prepare": "husky"
+    "test": "turbo run test"
   },
   "devDependencies": {
     "husky": "^9.1.6",
