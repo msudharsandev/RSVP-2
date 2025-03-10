@@ -167,6 +167,12 @@ export class Events {
     });
   }
 
+  static async cancel(eventId: string, creatorId: string) {
+    return await prisma.event.update({
+      where: { id: eventId, creatorId },
+      data: { isCancelled: true },
+    });
+  }
   static async delete(eventId: string, creatorId: string) {
     return await prisma.event.update({
       where: { id: eventId, creatorId },

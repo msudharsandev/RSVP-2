@@ -12,6 +12,13 @@ export interface GetAttendeeByEventIdParams extends PaginationParams {
 }
 export type UpdateEventSubmissionType = CreateEventSubmissionType & { id: string };
 
+type EventParams = {
+  page: number;
+  status: string;
+  sort: string;
+  search: string;
+};
+
 export const eventAPI = {
   createEvent: async (payload: CreateEventSubmissionType) => {
     return api.post('/event', payload);
@@ -31,6 +38,7 @@ export const eventAPI = {
     api.patch(`/event/${payload.eventId}/slug`, payload),
 
   deleteEvent: async (eventId: string) => api.delete(`/event/${eventId}`),
+  cancelEvent: async (eventId: string) => api.patch(`/event/${eventId}/cancel`),
 
   createEventCommunication: async (eventId: string, payload: CommunicationForm) =>
     api.post(`/event/${eventId}/communications`, payload),
@@ -65,8 +73,8 @@ export const eventAPI = {
     return api.post(`event/${eventId}/attendees`);
   },
 
-  getEvent: async (): Promise<IEvent[]> => {
-    const response = await api.get('/event');
+  getEvent: async (params?: EventParams): Promise<IEvent[]> => {
+    const response = await api.get('/event', { params });
     return response.data.data;
   },
 
@@ -112,7 +120,7 @@ export const eventAPI = {
     return response.data.data.events;
   },
 
-  cancelEvent: async (eventId: string) => {
+  cancelEventAttendee: async (eventId: string) => {
     const response = await api.delete(`/event/${eventId}/attendee`);
     return response.data;
   },

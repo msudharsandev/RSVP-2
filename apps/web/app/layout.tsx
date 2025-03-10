@@ -1,3 +1,4 @@
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import QueryProvider from '@/lib/react-query';
 import { cn } from '@/lib/utils';
 import type { Metadata } from 'next';
@@ -22,7 +23,7 @@ export default function RootLayout({
     <QueryProvider>
       <html lang="en">
         <body className={cn(plusJakartaSans.className, 'dark flex min-h-screen flex-col')}>
-          {children}
+          <NuqsAdapter>{children}</NuqsAdapter>
           <Toaster richColors />
         </body>
       </html>

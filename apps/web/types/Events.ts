@@ -17,6 +17,7 @@ export class Event {
   hostPermissionRequired: boolean;
   capacity?: number;
   isActive: boolean;
+  isCancelled?: boolean;
   createdAt: Date;
   updatedAt: Date;
   creator?: {
@@ -42,6 +43,7 @@ export class Event {
     this.hostPermissionRequired = data.hostPermissionRequired ?? false;
     this.capacity = data.capacity;
     this.isActive = data.isActive ?? true;
+    this.isCancelled = data.isCancelled;
     this.createdAt = data.createdAt ? new Date(data.createdAt) : new Date();
     this.updatedAt = data.updatedAt ? new Date(data.updatedAt) : new Date();
     if (data.creator) this.creator = data.creator;

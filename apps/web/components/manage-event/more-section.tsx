@@ -1,15 +1,22 @@
 'use client';
 
-import { useDeleteEventMutation, useEditEventSlug } from '@/lib/react-query/event';
+import {
+  useCancelEventMutation,
+  useDeleteEventMutation,
+  useEditEventSlug,
+} from '@/lib/react-query/event';
 import { useForm } from 'react-hook-form';
 import FormInput from '../common/form/FormInput';
 import { Button } from '../ui/button';
 import FormProvider from '../ui/form-provider';
 import { Separator } from '../ui/separator';
+import { Event } from '@/types/Events';
 
-const MoreSection = ({ eventId, slug }: { eventId: string; slug: string }) => {
+const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
+  const { id: eventId, isCancelled } = event;
   const { mutate, isPending } = useEditEventSlug();
   const { mutate: delMutate, isPending: deleteLoading } = useDeleteEventMutation();
+  const { mutate: cancelMutate, isPending: cancelLoading } = useCancelEventMutation();
 
   const form = useForm({
     defaultValues: { slug },
@@ -61,25 +68,33 @@ const MoreSection = ({ eventId, slug }: { eventId: string; slug: string }) => {
       </section>
 
       <Separator className="my-11 bg-separator" />
+      {isCancelled ? (
+        <section className="space-y-6 md:w-1/2">
+          <h3>Event Cancelled</h3>
+          <p className="text-sm">
+            This event has been cancelled. Attendees have been notified of the cancellation.
+          </p>
+        </section>
+      ) : (
+        <section className="space-y-6 md:w-1/2">
+          <h3>Cancel Event</h3>
 
-      <section className="space-y-6 md:w-1/2">
-        <h3>Cancel Event</h3>
+          <p className="text-sm">
+            Canceling this event cannot be undone. All attendees will be notified of the
+            cancellation. However, the host will still have access to the event details and related
+            information.
+          </p>
 
-        <p className="text-sm">
-          Canceling this event cannot be undone. All attendees will be notified of the cancellation.
-          However, the host will still have access to the event details and related information.
-        </p>
-
-        <Button
-          variant="destructive"
-          className="rounded-[6px]"
-          onClick={() => delMutate(eventId)}
-          disabled={deleteLoading}
-        >
-          Cancel Event
-        </Button>
-      </section>
-
+          <Button
+            variant="destructive"
+            className="rounded-[6px]"
+            onClick={() => cancelMutate(eventId)}
+            disabled={cancelLoading}
+          >
+            Cancel Event
+          </Button>
+        </section>
+      )}
       <Separator className="my-11 bg-separator" />
 
       <section className="space-y-6 md:w-1/2">

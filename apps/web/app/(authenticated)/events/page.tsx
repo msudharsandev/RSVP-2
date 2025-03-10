@@ -10,23 +10,16 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command.tsx';
+import CustomSelect from '@/components/ui/CustomSelect';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select.tsx';
 import useDebounce from '@/hooks/useDebounce';
 import { useGetEvent } from '@/lib/react-query/event.ts';
 import { cn } from '@/lib/utils.ts';
 import { IEvent } from '@/types/event.ts';
 import { locationName, NO_EVENT_TITLE, NO_EVENTS_MESSAGE } from '@/utils/constants.ts';
 import { CheckIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useEffect, useState } from 'react';
-
 interface HandleSearchEvent {
   target: {
     value: string;
@@ -34,23 +27,26 @@ interface HandleSearchEvent {
 }
 
 const Events = () => {
-  const { data: event, isLoading, error } = useGetEvent();
+  const [searchText, setSearchText] = useState('');
 
+  const debouncedSearchText = useDebounce(searchText, 500);
+  const [filters, setFilters] = useQueryStates(
+    {
+      page: parseAsInteger.withDefault(1),
+      status: parseAsString.withDefault(''),
+      sort: parseAsString.withDefault(''),
+      search: parseAsString.withDefault(''),
+    },
+    { history: 'push' }
+  );
+  const { data: events, isLoading, error } = useGetEvent(filters);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [isFilterOpen] = useState(true);
-  const [searchText, setSearchText] = useState('');
-  const [filteredEvents, setFilteredEvents] = useState<IEvent[] | undefined>(event);
-
-  const debouncedSearchText = useDebounce(searchText, 500);
 
   useEffect(() => {
-    if (event) {
-      setFilteredEvents(
-        event.filter((eventData) => eventData.name.toLowerCase().includes(searchText.toLowerCase()))
-      );
-    }
-  }, [debouncedSearchText, event]);
+    setFilters((prev) => ({ ...prev, search: debouncedSearchText }));
+  }, [debouncedSearchText]);
 
   const handleSearch = (e: HandleSearchEvent) => {
     setSearchText(e.target.value);
@@ -59,7 +55,7 @@ const Events = () => {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>{error.message}</div>;
 
-  return event?.length != 0 ? (
+  return events?.length != 0 ? (
     <Container className="min-h-screen space-y-8 py-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row">
         <div className="space-y-2">
@@ -94,6 +90,21 @@ const Events = () => {
                   : 'flex flex-col items-center justify-center gap-6 md:hidden'
               )}
             >
+              <CustomSelect
+                value={filters.status}
+                options={[
+                  { value: 'all', label: 'Select Status' },
+                  { value: 'active', label: 'Active' },
+                  { value: 'cancel', label: 'Cancelled' },
+                  // { value: 'deleted', label: 'Deleted' },
+                ]}
+                placeholder="Select Status"
+                ariaLabel="Select Event Status"
+                onValueChange={(value) =>
+                  setFilters((prev) => ({ ...prev, status: value === 'all' ? '' : value }))
+                }
+              />
+
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -149,34 +160,27 @@ const Events = () => {
                 </PopoverContent>
               </Popover>
 
-              <Select>
-                <SelectTrigger
-                  className="w-[90vw] hover:rounded-[8px] md:w-[200px]"
-                  aria-label="Sort By"
-                >
-                  <SelectValue placeholder="Sort By" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem className="cursor-pointer hover:rounded-[8px]" value="date">
-                      Date
-                    </SelectItem>
-                    <SelectItem className="cursor-pointer hover:rounded-[8px]" value="attendees">
-                      Attendees
-                    </SelectItem>
-                    <SelectItem className="cursor-pointer hover:rounded-[8px]" value="price">
-                      Price
-                    </SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <CustomSelect
+                value={filters.sort}
+                options={[
+                  { value: 'all', label: 'Sort By' },
+                  { value: 'date', label: 'Date' },
+                  { value: 'attendees', label: 'Attendees' },
+                  { value: 'price', label: 'Price' },
+                ]}
+                placeholder="Sort By"
+                ariaLabel="Sort By"
+                onValueChange={(value) =>
+                  setFilters((prev) => ({ ...prev, sort: value === 'all' ? '' : value }))
+                }
+              />
             </div>
           </section>
 
           <section className="mt-1"></section>
         </section>
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredEvents?.map((eventData: IEvent) => (
+          {events?.map((eventData: IEvent) => (
             <EventCard event={eventData} key={eventData.id} type="manage" />
           ))}
         </div>

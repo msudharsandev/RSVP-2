@@ -81,7 +81,7 @@ const ManageEventPage = () => {
           </TabsContent>
 
           <TabsContent className="mt-6" value="more">
-            <MoreSection eventId={id} slug={event.slug} />
+            <MoreSection event={event} slug={event.slug} />
           </TabsContent>
         </Tabs>
       </main>

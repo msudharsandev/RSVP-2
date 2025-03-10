@@ -175,6 +175,20 @@ export const updateEvent = catchAsync(
   }
 );
 
+export const cancelEvent = catchAsync(
+  async (req: AuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
+    const { eventId } = req.params;
+    const { userId } = req;
+    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+
+    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+
+    const cancelEvent = await Events.cancel(eventId, userId);
+
+    return res.status(200).json({ data: cancelEvent, success: true });
+  }
+);
+
 export const deleteEvent = catchAsync(
   async (req: AuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;

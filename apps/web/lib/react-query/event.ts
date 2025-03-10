@@ -27,10 +27,10 @@ export const useEventQuery = (id: string) => {
   });
 };
 
-export const useGetEvent = () => {
+export const useGetEvent = (params: any) => {
   return useQuery({
-    queryKey: [EVENTS_QUERY_KEY],
-    queryFn: () => eventAPI.getEvent(),
+    queryKey: [EVENTS_QUERY_KEY, params],
+    queryFn: () => eventAPI.getEvent(params),
   });
 };
 
@@ -70,6 +70,18 @@ export const useEditEventSlug = () => {
     mutationFn: eventAPI.editEventSlug,
     onSuccess: (_, { eventId }) => {
       toast.success('Event URL updated successfully');
+      queryClient.invalidateQueries({ queryKey: [EVENTS_QUERY_KEY, eventId] });
+    },
+    onError: () => toast.error('An error occurred'),
+  });
+};
+
+export const useCancelEventMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: eventAPI.cancelEvent,
+    onSuccess: (_, eventId) => {
+      toast.success('Event cancelled successfully');
       queryClient.invalidateQueries({ queryKey: [EVENTS_QUERY_KEY, eventId] });
     },
     onError: () => toast.error('An error occurred'),
@@ -187,7 +199,7 @@ export const useGetAttendeeTicketDetails = (eventId: string) => {
 
 export const useCancelEvent = () => {
   return useMutation<AxiosResponse, AxiosError<ErrorResponse>, { eventId: string }>({
-    mutationFn: ({ eventId }) => eventAPI.cancelEvent(eventId),
+    mutationFn: ({ eventId }) => eventAPI.cancelEventAttendee(eventId),
     onSuccess: () => toast.success('Event cancelled successfully'),
     onError: () => toast.error('An error occurred'),
   });

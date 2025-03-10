@@ -1,5 +1,6 @@
 import {
   allPlannedEvents,
+  cancelEvent,
   checkAllowStatus,
   createAttendee,
   createEvent,
@@ -92,6 +93,15 @@ eventRouter.patch(
   validate({ params: eventAttendeeReqSchema, body: CreateEventSchema }),
   eventManageMiddleware([Role.Creator]),
   updateEvent
+);
+
+eventRouter.patch(
+  '/:eventId/cancel',
+  apiLimiter,
+  authMiddleware,
+  validate({ params: eventAttendeeReqSchema }),
+  eventManageMiddleware([Role.Creator]),
+  cancelEvent
 );
 
 eventRouter.delete(
