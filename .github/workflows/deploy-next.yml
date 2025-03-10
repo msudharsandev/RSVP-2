@@ -21,7 +21,6 @@ jobs:
         EMAIL_TOKEN: ${{ secrets.EMAIL_TOKEN }}
         NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
         NODE_ENV: ${{ secrets.NODE_ENV }}
-        QR_SECRET_KEY: ${{ secrets.QR_SECRET_KEY }}
         REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
 
     steps:
