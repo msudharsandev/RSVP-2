@@ -32,11 +32,15 @@ const ConfirmCoHost = ({
 
   const submitCoHostRequest = () => {
     console.log(selectedCoHost);
-    mAddCohost({
-      eventId: id as string,
-      cohostEmail: selectedCoHost.user.primary_email,
-      role: 'Manager',
-    });
+    try {
+      mAddCohost({
+        eventId: id as string,
+        cohostEmail: selectedCoHost.user.primary_email,
+        role: 'Manager',
+      });
+    } finally {
+      setIsConfirmationDialogOpen(false);
+    }
   };
   return (
     <Dialog

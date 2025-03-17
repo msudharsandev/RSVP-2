@@ -34,7 +34,7 @@ export const createEventHost = catchAsync(
 
     const isUserMod = await CohostRepository.hasRole(eventId, userId, Role.Manager);
 
-    if (userId !== event.creatorId || !isUserMod)
+    if (userId !== event.creatorId && !isUserMod)
       return res
         .status(403)
         .json({ message: API_MESSAGES.COHOST.ADD.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED });
