@@ -1,0 +1,27 @@
+name: Deploy Backend App
+on:
+  workflow_dispatch:
+  push:
+   branches:
+      - main
+   paths:
+      - 'apps/server/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+            version: 10
+      - name: Install Railway
+        run: pnpm add -g @railway/cli
+      - name: Deploy
+        working-directory: ./apps/server
+        run: railway up
+        env:
+            RAILWAY_TOKEN: ${{ secrets.RAILWAY_GITHUB_ACTION_TOKEN }}
