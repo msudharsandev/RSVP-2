@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import SigninDialog from '@/components/auth/SigninDialog.tsx';
 
 function Home() {
   const searchParams = useSearchParams();
@@ -30,14 +31,16 @@ function Home() {
           <p className="text-gradient inline">Create, Share, </p>
           and Sell Tickets Easily.
         </h1>
-        <Button
-          variant={'gradient'}
-          className="text-md relative z-10 h-auto cursor-pointer py-3 md:px-9 md:py-4 md:text-lg"
-          size={'lg'}
-          onClick={() => router.push('/create-event')}
-        >
-          Host a Event
-        </Button>
+        <SigninDialog variant={'signup'}>
+          <Button
+            variant={'gradient'}
+            className="text-md relative z-10 h-auto cursor-pointer py-3 md:px-9 md:py-4 md:text-lg"
+            size={'lg'}
+            onClick={() => router.push('/create-event')}
+          >
+            Host a Event
+          </Button>
+        </SigninDialog>
         <Image
           src="/images/hero-background-mobile.svg"
           loading="eager"

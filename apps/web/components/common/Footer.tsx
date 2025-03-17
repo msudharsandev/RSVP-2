@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Logo from './Logo';
-import { cn } from '@/lib/utils';
+import { cn, helpCenterUrl } from '@/lib/utils';
 import Container from './Container';
 import Link from 'next/link';
 import SigninDialog from '../auth/SigninDialog';
@@ -55,8 +55,12 @@ const Footer = ({ className }: PropsWithClassName) => {
                     Sign In
                   </Button>
                 </SigninDialog>
-                <Link href="/release">Help</Link>
-                <Link href="/release">About</Link>
+                <Link href={helpCenterUrl} className="hover:underline">
+                  Help
+                </Link>
+                <Link href="/release#about" className="hover:underline">
+                  About
+                </Link>
               </div>
             )}
 
@@ -67,9 +71,15 @@ const Footer = ({ className }: PropsWithClassName) => {
                 !loginedUser ? 'flex-col gap-y-4' : 'flex-row gap-x-6'
               )}
             >
-              <Link href="/">RSVP</Link>
-              <Link href="/privacy-terms/#terms">Terms of Service</Link>
-              <Link href="/privacy-terms">Privacy Policy</Link>
+              <Link href="/release#changelog" className="hover:underline">
+                Release
+              </Link>
+              <Link href="/privacy-policy" className="hover:underline">
+                Terms of Service
+              </Link>
+              <Link href="/terms-and-conditions" className="hover:underline">
+                Privacy Policy
+              </Link>
             </div>
           </div>
         </Container>

@@ -27,7 +27,7 @@ import useScroll from '@/hooks/useScroll';
 import { useCurrentUser, useSignout } from '@/lib/react-query/auth';
 import { userAvatarOptions } from '@/utils/constants';
 
-const Autheticated = () => {
+const AutheticatedHeader = () => {
   const isScrolled = useScroll();
   const { mutate } = useSignout();
   const { data: userData } = useCurrentUser();
@@ -64,7 +64,7 @@ const Autheticated = () => {
                   <TicketIcon
                     className={`mr-2 h-5 w-5 group-hover:text-white ${eventsActiveClass}`}
                   />
-                  Events
+                  My Events
                 </Button>
               </Link>
               <Link href="/planned">
@@ -72,7 +72,7 @@ const Autheticated = () => {
                   <CalendarDateRangeIcon
                     className={`mr-2 h-5 w-5 text-gray-400 group-hover:text-white ${plannedActiveClass}`}
                   />
-                  Planned
+                  Upcoming Events
                 </Button>
               </Link>
               <Link href="/discover">
@@ -154,4 +154,4 @@ const Autheticated = () => {
   );
 };
 
-export default Autheticated;
+export default AutheticatedHeader;

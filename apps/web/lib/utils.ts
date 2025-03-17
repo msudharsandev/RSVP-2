@@ -18,3 +18,5 @@ export const formatDateTime = (date: string) => {
     time: dayjs(date).format('h:mm A'),
   };
 };
+
+export const helpCenterUrl = process.env.NEXT_PUBLIC_HELP_CENTER_URL ?? '';

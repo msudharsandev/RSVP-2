@@ -4,6 +4,7 @@ import { usePopularEvents } from '@/lib/react-query/event';
 import { IEvent } from '@/types/event';
 import { EventCardSkeleton } from '../common/EventCardSkeleton';
 import Link from 'next/link';
+import SigninDialog from '@/components/auth/SigninDialog.tsx';
 
 const PopularSection = () => {
   const { data: events, isLoading } = usePopularEvents(3);
@@ -31,9 +32,11 @@ const PopularSection = () => {
               <EventCard key={event.id} className="col-span-4" event={event} />
             ))}
       </div>
-      <Link href="/discover" className="mx-auto block w-fit md:hidden">
-        See all events
-      </Link>
+      <SigninDialog variant={'signup'}>
+        <Link href="/discover" className="mx-auto block w-fit md:hidden">
+          See all events
+        </Link>
+      </SigninDialog>
     </Container>
   );
 };

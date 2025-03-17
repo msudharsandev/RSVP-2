@@ -61,7 +61,7 @@ const PlannedEvents = () => {
         <main className="mt-8 flex select-none flex-col justify-start md:justify-normal">
           <section className="mb-12 flex flex-col items-start justify-between gap-5 md:flex-row">
             <h1 className="text-3xl font-semibold md:text-3xl">
-              Your Planned <span className="text-primary">Events</span>
+              You are <span className="text-primary">Going To</span>
             </h1>
 
             <TabsList variant="default">
