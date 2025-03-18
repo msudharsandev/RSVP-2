@@ -1,4 +1,4 @@
-name: Deploy Help Center to Vercel
+name: Deploy Help Center
 env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_HELP_PROJECT_ID }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
