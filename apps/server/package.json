@@ -8,7 +8,8 @@
     "format": "prettier --write .",
     "start": "node dist/app.js",
     "check": "prettier --check .",
-    "test": "jest --detectOpenHandles",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "migrate": "prisma migrate dev",
     "generate": "npx prisma generate",
     "typecheck": "tsc --noEmit"
@@ -46,9 +47,13 @@
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.11.24",
     "@types/react": "^18",
+    "@types/supertest": "^6.0.2",
     "prisma": "^5.20.0",
+    "supertest": "^7.1.0",
     "tsup": "^8.0.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^3.0.8"
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma"
