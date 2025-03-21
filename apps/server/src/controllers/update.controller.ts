@@ -58,7 +58,7 @@ export const createNotification = catchAsync(
 
     const usersList = await Users.findAllByIds(attendeeIds);
 
-    let emailData = {
+    const emailData = {
       id: 6,
       subject: RSVP_SUBJECT_MSG,
       recipient: notificationDeta.user.email,

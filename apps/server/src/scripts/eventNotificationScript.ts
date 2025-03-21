@@ -29,7 +29,7 @@ class EmailService {
 }
 
 async function processEventNotifications() {
-  let currentTime = new Date();
+  const currentTime = new Date();
   currentTime.setMinutes(0, 0, 0);
 
   const oneHourLaterFromCurrentTime = new Date(currentTime.getTime() + 3600000);

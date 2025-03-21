@@ -17,11 +17,8 @@ export const eventManageMiddleware = (allowedRoles: Role[]) => {
 
     const hasAccess = await CohostRepository.checkHostForEvent(userId, eventId, allowedRoles);
 
-    if (!hasAccess) {
-      return res.status(403).json({
-        message: 'Unauthorized access',
-      });
-    }
+    if (!hasAccess) return res.status(403).json({ message: 'Unauthorized access' });
+
     return next();
   });
 };
