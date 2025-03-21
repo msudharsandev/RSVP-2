@@ -40,7 +40,12 @@ const PhoneNumberForm = ({ user }: Props) => {
   return (
     <FormProvider methods={form} onSubmit={form.handleSubmit(onSubmit)}>
       <ProfileSection title="Phone Number" description="Invites will be sent to this phone number.">
-        <FormInput control={form.control} name="contact" label="Phone Number" />
+        <FormInput
+          control={form.control}
+          name="contact"
+          label="Phone Number"
+          aria-label="Phone Number"
+        />
 
         <div className="ml-auto flex items-center gap-2">
           <Button
