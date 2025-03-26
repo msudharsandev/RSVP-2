@@ -194,4 +194,43 @@ describe('Sign In Dialog', () => {
     expect(resendButton).toHaveTextContent('Click to resend');
     vi.useRealTimers();
   });
+
+  it('should show loading state while submitting the form', async () => {
+    const mockMutateWithDelay = vi.fn((_, { onSuccess }) => {
+      setTimeout(() => {
+        onSuccess();
+      }, 1000);
+    });
+    (useSignInMutation as any).mockReturnValue({
+      mutate: mockMutateWithDelay,
+      isPending: true,
+    });
+
+    render(
+      <SigninDialog variant="signin">
+        <Button>
+          Sign In
+        </Button>
+      </SigninDialog>
+    );
+
+    const user = userEvent.setup();
+    const signInButton = await screen.findByRole('button', { name: /Sign In/i });
+    await user.click(signInButton);
+
+    const emailInput = await screen.findByLabelText('email');
+    await user.type(emailInput, 'test@gmail.com');
+
+    const submitButton = await screen.findByRole('button', {
+      name: /send magic link|sending\.\.\./i,
+    });
+    await user.click(submitButton);
+    expect(screen.getByText('Sending...')).toBeInTheDocument();
+    expect(submitButton).toBeDisabled();
+
+    const spinner = screen
+      .getByRole('button', { name: /sending\.\.\./i })
+      .querySelector('.animate-spin');
+    expect(spinner).toBeInTheDocument();
+  });
 });

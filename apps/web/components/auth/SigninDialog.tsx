@@ -17,6 +17,7 @@ import { Icons } from '../common/Icon';
 import FormInput from '../common/form/FormInput';
 import { Button } from '../ui/button';
 import FormProvider from '../ui/form-provider';
+import { LoaderCircle } from 'lucide-react';
 
 const signInFormSchema = z.object({
   email: z.string().email(),
@@ -104,8 +105,17 @@ const SigninDialog: React.FC<SigninDialogProps> = ({ children, variant }) => {
                 className="mt-5 flex w-full items-center gap-2.5 px-4 py-[10px] text-sm font-medium text-white"
                 disabled={isPending}
               >
-                <Icons.lock />
-                Send magic link
+                {isPending ? (
+                  <>
+                    <LoaderCircle className="animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Icons.lock />
+                    Send magic link
+                  </>
+                )}
               </Button>
             </FormProvider>
           </>
