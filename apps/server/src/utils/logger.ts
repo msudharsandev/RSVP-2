@@ -1,5 +1,4 @@
 import winston from 'winston';
-const NewRelicTransport = require("newrelic-winston-transport");
 import config from '../config/config';
 
 const enumerateErrorFormat = winston.format((info) => {
@@ -19,10 +18,6 @@ const logger = winston.createLogger({
   )
 });
 
-if (config.env === "production") {
-  logger.add(new NewRelicTransport());
-} else {
-  logger.add(new winston.transports.Console());
-}
+logger.add(new winston.transports.Console());
 
 export default logger;
