@@ -7,7 +7,7 @@ const app_name = process.env.NEWRELIC_APP_NAME;
 const license_key = process.env.NEWRELIC_LICENSE_KEY;
 
 exports.config = {
-  agent_enabled: agent_enabled,
+  agent_enabled: false,
   app_name: [app_name],
   license_key: license_key,
   allow_all_headers: true,

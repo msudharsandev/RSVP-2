@@ -8,6 +8,7 @@ import generatePresignedUrl from '@/utils/s3';
 import { Users } from '@/db/models/users';
 import { Attendees } from '@/db/models/attendees';
 import EmailService from '@/utils/sendEmail';
+import logger from '@/utils/logger';
 
 type createNotificationBody = z.infer<typeof userUpdateSchema>;
 
@@ -72,9 +73,9 @@ export const createNotification = catchAsync(
 
     const emailResponse = await EmailService.send(emailData);
     if (emailResponse.status === 200) {
-      console.log(JSON.stringify(emailResponse.data));
+      logger.info(JSON.stringify(emailResponse.data));
     } else {
-      console.log(emailResponse);
+      logger.info(emailResponse);
     }
 
     return res.status(201).json(notificationDeta);
@@ -99,7 +100,7 @@ export const getNotification = catchAsync(
 
     const notifications = await Update.findById(param.eventId as string);
 
-    console.log('notifications', notifications);
+    logger.info('notifications', notifications);
 
     // if (!notifications || notifications.length === 0) {
     //   return res.status(200).json({notifications:[]});

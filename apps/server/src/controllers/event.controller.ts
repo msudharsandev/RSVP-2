@@ -7,6 +7,7 @@ import { Users } from '@/db/models/users';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
 import catchAsync from '@/utils/catchAsync';
 import { sluggify } from '@/utils/function';
+import logger from '@/utils/logger';
 import EmailService from '@/utils/sendEmail';
 import {
   attendeePayloadSchema,
@@ -294,7 +295,7 @@ export const createAttendee = catchAsync(
 
     const newAttendee = await Attendees.create(attendeeData);
     const url = `${config.CLIENT_URL}/generateQr/${newAttendee.eventId}/${newAttendee.userId}`;
-    console.log('URL to be sent via email:', url);
+    logger.info('URL to be sent via email:', url);
 
     if (config.env !== 'production') {
       await EmailService.send({

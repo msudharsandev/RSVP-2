@@ -3,6 +3,7 @@ import { Users } from '@/db/models/users';
 import { AuthenticatedRequest } from '@/middleware/authMiddleware';
 import catchAsync from '@/utils/catchAsync';
 import { generateAccessToken, generateRefreshToken, verifyAccessToken } from '@/utils/jwt';
+import logger from '@/utils/logger';
 import EmailService from '@/utils/sendEmail';
 import { SigninSchema, verifySigninSchema } from '@/validations/auth.validation';
 import { Request } from 'express';
@@ -22,7 +23,7 @@ export const signin = catchAsync(async (req: Request<{}, {}, SigninRequestBody>,
   }
 
   const token = await Users.createMagicLink(user.id);
-  console.log(`${config.CLIENT_URL}?token=${token}`);
+  logger.info(`${config.CLIENT_URL}?token=${token}`);
 
   if (config.env !== 'development') {
     await EmailService.send({
@@ -58,12 +59,14 @@ export const verifySignin = catchAsync(async (req: Request<{}, {}, VerifySigninB
   const refreshToken = generateRefreshToken({ userId: user.id });
 
   await Users.updateRefreshToken(user.id, refreshToken);
+  const clientUrl = new URL(config.CLIENT_URL);
+  const domain = clientUrl.hostname;
 
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
     secure: config.env === 'production',
-    sameSite: 'none',
-    domain: config.CLIENT_URL,
+    sameSite: config.env === 'production' ? 'none' : 'lax',
+    domain,
     maxAge: 15 * 60 * 1000,
     path: '/',
   });
@@ -71,8 +74,8 @@ export const verifySignin = catchAsync(async (req: Request<{}, {}, VerifySigninB
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: config.env === 'production',
-    sameSite: 'none',
-    domain: config.CLIENT_URL,
+    sameSite: config.env === 'production' ? 'none' : 'lax',
+    domain,
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
   });

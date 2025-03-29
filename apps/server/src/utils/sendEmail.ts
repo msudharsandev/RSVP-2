@@ -22,7 +22,6 @@ class EmailService {
       return response.data;
     } catch (error) {
       logger.error(`Error sending email: ${JSON.stringify(error)}`);
-      console.log(JSON.stringify(error, null, 2));
       // throw new Error(`Error sending email: ${error.message}`);
     }
   }
