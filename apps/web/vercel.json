@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "https://rsvp.up.railway.app/v1/$1"
+        }
+    ]
+}
