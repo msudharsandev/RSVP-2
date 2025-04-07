@@ -44,6 +44,7 @@ export const eventHostColumns = (
     id: 'actions',
     cell: ({ row }) => {
       const host = row.original;
+      if (row.original.role === 'Creator') return <></>;
       return (
         <Button
           variant="destructive"

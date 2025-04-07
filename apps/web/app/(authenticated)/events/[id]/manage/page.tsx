@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useQueryParams from '@/hooks/useSearchParams';
+import { useCurrentUser } from '@/lib/react-query/auth';
 import { useGetEventById } from '@/lib/react-query/event';
 import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ import { notFound, useParams } from 'next/navigation';
 const ManageEventPage = () => {
   const { id } = useParams();
   if (typeof id !== 'string') notFound();
-
+  const { data: userData } = useCurrentUser();
   const queryParams = useQueryParams({ defaultValues: { tab: 'overview' } });
 
   const tabValue = queryParams.get('tab', 'overview');
@@ -30,11 +31,14 @@ const ManageEventPage = () => {
   };
 
   if (isLoading) return <LoadingScreen className="min-h-screen" />;
+
   if (status === 'error') return notFound();
 
   if (!isSuccess) return <div>Something went wrong</div>;
-
   const { event } = data;
+
+  if (event.creatorId !== userData?.data?.data?.id) return notFound();
+
   return (
     <Container className="min-h-screen space-y-8 py-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row">
