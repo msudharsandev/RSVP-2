@@ -24,3 +24,11 @@ export const baseUser: IUser = {
   created_at: new Date(),
   updated_at: new Date(),
 };
+
+export const invalidEmailFormats = [
+  'plainaddress',
+  '@missingusername.com',
+  'username@.com',
+  'username@com',
+  'username@domain..com',
+];
