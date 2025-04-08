@@ -1,6 +1,7 @@
 ---
-import ContactUs from "../components/ContactUs.astro";
-import Footer from "../components/Footer.astro";
+import ContactUs from '../components/ContactUs.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/styles.css';
 
 interface Props {
   title: string;
@@ -10,26 +11,28 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang='en'>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content="Help Center" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
+    <meta charset='UTF-8' />
+    <meta name='description' content='Help Center' />
+    <meta name='viewport' content='width=device-width' />
+    <link rel='icon' type='image/svg+xml' href='/Frame.svg' />
+    <title>{' rsvp | Help Center'}</title>
   </head>
-  <body class="bg-gray-50">
-    <header class="bg-white border-b">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex">
-            <a href="/" class="flex items-center">
-              <span class="text-xl font-bold"> RSVP </span> &nbsp;
-              <span class="text-xl font-bold">Help Center</span>
+  <body class='bg-gray-50'>
+    <header class='bg-white border-b'>
+      <nav class='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+        <div class='flex justify-between h-16'>
+          <div class='flex'>
+            <a href='/' class='flex items-center'>
+              <img class='h-8 w-auto' src='/Frame.svg' alt='Logo' />
+              <span class='text-black font-extrabold text-xl ml-1'>RSVP</span>
             </a>
           </div>
-          <div class="flex items-center">
-            <a href="/blog" class="text-gray-600 hover:text-gray-900">Blog</a>
+          <div class='flex items-center'>
+            <a href='/blog' class='text-gray-600 hover:text-gray-900'
+              >Help Center</a
+            >
           </div>
         </div>
       </nav>
