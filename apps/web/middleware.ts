@@ -8,7 +8,7 @@ const protectedRoutes = [
   '/events',
   '/scanner',
   '/user',
-  '/discover',
+  '/planned',
 ];
 
 export function middleware(request: NextRequest) {
@@ -36,7 +36,7 @@ export const config = {
     '/events/:path*',
     '/scanner/:path*',
     '/user/:path*',
-    '/discover/:path*',
+    '/planned/:path*',
     '/',
   ],
 };

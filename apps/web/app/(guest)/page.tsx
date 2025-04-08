@@ -24,7 +24,7 @@ function Home() {
 
   return (
     <>
-      <Container className="text-secondary relative flex w-full flex-col items-center justify-center space-y-10 bg-cover py-[7rem] xl:py-[9rem]">
+      <Container className="relative flex w-full flex-col items-center justify-center space-y-10 bg-cover py-[7rem] xl:py-[9rem] text-white">
         <h1 className="relative z-10 text-center text-4xl font-bold !leading-tight md:text-5xl xl:text-6xl animate-fade-in">
           Dive into events starting here.
           <br className="hidden md:block" />
@@ -34,7 +34,7 @@ function Home() {
         <SigninDialog variant={'signup'}>
           <Button
             variant={'gradient'}
-            className="text-md relative z-10 h-auto cursor-pointer py-3 md:px-9 md:py-4 md:text-lg !mt-5 animate-fade-in hover:scale-105 transition-transform duration-300 ease-in-out"
+            className="text-white relative z-10 h-auto cursor-pointer py-3 md:px-9 md:py-4 md:text-lg !mt-5 animate-fade-in hover:scale-105 transition-transform duration-300 ease-in-out"
             size={'lg'}
             onClick={() => router.push('/create-event')}
           >

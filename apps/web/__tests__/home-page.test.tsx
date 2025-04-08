@@ -35,7 +35,7 @@ describe('Unauthenticated User Home Page', () => {
     );
 
     //  Check if unauthenticated navbar and footer links are present
-    expect(screen.getByText('Sign up')).toBeDefined();
+    expect(screen.getByText('Get Started')).toBeDefined();
     expect(screen.getByText('Help')).toBeDefined();
     expect(screen.getByText('About')).toBeDefined();
     expect(screen.getByText('RSVP')).toBeDefined();
