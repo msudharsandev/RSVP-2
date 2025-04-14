@@ -89,13 +89,13 @@ export const eventCategoryOptions: FormSelectOption[] = [
   { value: 'others', label: 'Others...' },
 ];
 
-export const NO_PLANNED_EVENTS_TITLE = 'No Planned Events';
+export const NO_PLANNED_EVENTS_TITLE = 'No Upcoming Events';
 export const NO_PLANNED_EVENTS_MESSAGE =
-  'You’re not attending any events yet. Browse and RSVP to upcoming events!.';
+  'You’re not attending any events yet. Click Below to navigate to discover events around you!.';
 
-export const NO_EVENT_TITLE = 'No Upcoming Events';
+export const NO_EVENT_TITLE = 'No Events Planned';
 export const NO_EVENTS_MESSAGE =
-  'There are no events available at the moment. Stay tuned for upcoming events!';
+  'You have no events planned yet. Why not host one?';
 export const locationName = [
   {
     value: 'delhi',

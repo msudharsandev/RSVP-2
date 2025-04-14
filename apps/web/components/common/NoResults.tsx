@@ -1,18 +1,62 @@
 import { Search } from 'lucide-react';
+import Image from 'next/image';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 interface NoResultsProps {
   title: string;
   message: string;
+  image?: string;
+  altText?: string;
+  imgWidth?: number;
+  imgHeight?: number;
+  showBtn?: boolean;
+  btnText?: string;
+  btnLink?: string;
+  btnIcon?: string;
 }
 
-const NoResults = ({ title, message }: NoResultsProps) => {
+const NoResults = ({
+  title,
+  message,
+  image,
+  altText,
+  imgWidth,
+  imgHeight,
+  showBtn,
+  btnText,
+  btnLink,
+  btnIcon,
+}: NoResultsProps) => {
   return (
     <>
-      <div className="mx-auto mb-5 w-fit rounded-lg border border-dark-500 p-3.5">
-        <Search className="size-7" />
+      <div className="mx-auto mb-5 w-fit">
+        {image ? (
+          <Image src={image} alt={altText} width={imgWidth} height={imgHeight} />
+        ) : (
+          <div className="rounded-lg border border-dark-500 p-3.5">
+            <Search className="size-7" />
+          </div>
+        )}
       </div>
       <h2 className="mb-2 text-center text-xl font-semibold">{title}</h2>
       <p className="text-center font-medium text-tertiary">{message}</p>
+      {showBtn && (
+        <Link href={btnLink || ''}>
+          <Button variant="default" className="w-full mt-4">
+            {btnIcon && (
+              <Image
+                src={btnIcon}
+                alt="add-icon"
+                width={16.5}
+                height={16.5}
+                className="mr-2"
+              />
+            )}
+            {btnText}
+          </Button>
+        </Link>
+      )}
     </>
   );
 };

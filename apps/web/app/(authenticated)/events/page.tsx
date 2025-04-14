@@ -57,7 +57,7 @@ const Events = () => {
   if (isLoading)
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin" />
+        <Loader2 data-testid="loader" className="h-10 w-10 animate-spin" />
       </div>
     );
 
@@ -187,7 +187,7 @@ const Events = () => {
 
           <section className="mt-1"></section>
         </section>
-        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="events-list">
           {events?.map((eventData: IEvent) => (
             <EventCard event={eventData} key={eventData.id} type="manage" />
           ))}
@@ -195,8 +195,19 @@ const Events = () => {
       </main>
     </Container>
   ) : (
-    <section className="mx-auto my-48 w-full max-w-[352px] text-center">
-      <NoResults title={NO_EVENT_TITLE} message={NO_EVENTS_MESSAGE} />
+    <section className="mx-auto my-48 w-full max-w-[352px] text-center" data-testid="no-events">
+      <NoResults
+        image="/images/no-event-image.svg"
+        altText="no-event-image"
+        imgWidth={200}
+        imgHeight={200}
+        title={NO_EVENT_TITLE}
+        message={NO_EVENTS_MESSAGE}
+        showBtn={true}
+        btnText="Create Event"
+        btnLink="/create-event"
+        btnIcon="/images/add-icon.svg"
+      />
     </section>
   );
 };

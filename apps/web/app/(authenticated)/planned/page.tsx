@@ -84,7 +84,17 @@ const PlannedEvents = () => {
     </Tabs>
   ) : (
     <section className="mx-auto my-48 w-full max-w-[352px] text-center">
-      <NoResults title={NO_PLANNED_EVENTS_TITLE} message={NO_PLANNED_EVENTS_MESSAGE} />
+      <NoResults
+        image="/images/no-event-image.svg"
+        altText="no-event-image"
+        imgWidth={200}
+        imgHeight={200}
+        title={NO_PLANNED_EVENTS_TITLE}
+        message={NO_PLANNED_EVENTS_MESSAGE}
+        showBtn={true}
+        btnText="Discover Events"
+        btnLink="/discover"
+      />{' '}
     </section>
   );
 };
