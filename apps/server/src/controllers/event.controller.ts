@@ -325,6 +325,13 @@ export const createAttendee = catchAsync(
       return res.status(400).json({ message: 'Event has expired' });
     }
 
+    if (event.capacity) {
+      const currentAttendeeCount = await Attendees.countAttendees(eventId);
+      if (currentAttendeeCount >= event.capacity) {
+        return res.status(400).json({ message: 'Event is at full capacity. No seats available.' });
+      }
+    }
+
     if (!event.hostPermissionRequired) {
       AttendeeStatus = { allowedStatus: true, status: 'Going' };
     } else {
