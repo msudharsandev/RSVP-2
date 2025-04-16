@@ -1,5 +1,5 @@
 import { Event } from '@/types/Events';
-import { Attendee } from '@/types/attendee';
+import { Attendee, AttendeeStatus } from '@/types/attendee';
 import { IEvent, IEventHost, IEventResponse } from '@/types/event';
 import { CommunicationForm } from '../zod/communication';
 import { CreateEventSubmissionType } from '../zod/event';
@@ -9,6 +9,7 @@ export interface GetAttendeeByEventIdParams extends PaginationParams {
   eventId: string;
   hasAttended?: boolean;
   sortBy: string;
+  status?: AttendeeStatus[];
 }
 export type UpdateEventSubmissionType = CreateEventSubmissionType & { id: string };
 
@@ -48,8 +49,12 @@ export const eventAPI = {
   },
 
   getEventAttendees: async (params: GetAttendeeByEventIdParams) => {
+    const apiParams = {
+      ...params,
+      status: params.status ? params.status.join(',') : undefined,
+    };
     return api.get(`/event/${params.eventId}/attendees`, {
-      params: params,
+      params: apiParams,
     });
   },
 

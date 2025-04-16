@@ -1,13 +1,12 @@
 import { Event } from './Events';
 import { IUser } from './user';
 
-export enum Status {
-  All = '0',
-  Going = '1',
-  NotGoing = '2',
-  Waiting = '3',
-  Pending = '4',
-  Invited = '5',
+export enum AttendeeStatus {
+  Going = 'Going',
+  NotGoing = 'NotGoing',
+  Waiting = 'Waiting',
+  Pending = 'Pending',
+  Invited = 'Invited',
 }
 
 export class Attendee {
@@ -19,7 +18,7 @@ export class Attendee {
   checkInTime: Date | null;
   feedback: string | null;
   qrToken: string;
-  status: Status;
+  status: AttendeeStatus;
   user: IUser;
   allowedStatus: boolean;
   deleted: boolean;

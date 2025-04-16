@@ -15,4 +15,5 @@ export interface IUser {
   event_participation_enabled: boolean;
   created_at: Date;
   updated_at: Date;
+  username?: string;
 }

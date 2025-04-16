@@ -22,13 +22,19 @@ export interface IEvent {
   Cohost: ICohost[];
   creator: Creator;
 }
+
 export interface Creator {
   full_name: string;
+  username: string;
+  profile_icon: string;
 }
+
 export interface ICohost {
+  role: string;
   user: {
     profile_icon: string;
     full_name: string;
+    username: string;
   };
 }
 

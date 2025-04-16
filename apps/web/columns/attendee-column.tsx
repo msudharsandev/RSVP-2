@@ -1,11 +1,12 @@
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Attendee, Status } from '@/types/attendee';
+import { Attendee } from '@/types/attendee';
 import { ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import { useAllowedGuestColumn, useUpdateAllowStatus } from '@/lib/react-query/event';
 import { useState, useEffect } from 'react';
+import { getBadgeVariant, getProfilePictureUrl } from '@/utils/event';
 
 const attendeeColumns: ColumnDef<Attendee>[] = [
   {
@@ -16,6 +17,7 @@ const attendeeColumns: ColumnDef<Attendee>[] = [
       return (
         <div className="flex items-center gap-2">
           <Avatar>
+            <AvatarImage src={getProfilePictureUrl(guest.user.profile_icon ?? 0)} />
             <AvatarFallback>{guest.user.full_name?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
@@ -30,22 +32,7 @@ const attendeeColumns: ColumnDef<Attendee>[] = [
     header: 'Status',
     cell: ({ row }) => {
       const status = row.original.status;
-
-      let variant: BadgeVariant = 'success';
-
-      switch (status) {
-        case Status.Pending:
-          variant = 'secondary';
-          break;
-        case Status.NotGoing:
-          variant = 'destructive';
-          break;
-        case Status.Going:
-          variant = 'success';
-          break;
-        default:
-          variant = 'default';
-      }
+      const variant: BadgeVariant = getBadgeVariant(status);
 
       return <Badge variant={variant}>{status}</Badge>;
     },

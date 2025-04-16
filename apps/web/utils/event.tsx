@@ -1,6 +1,7 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { AttendeeStatus } from '@/types/attendee';
 import { IEvent } from '@/types/event';
-
+import { userAvatarOptions } from '@/utils/constants';
 export const venueDisplay = (event: IEvent | null) => {
   switch (event?.venueType) {
     case 'physical':
@@ -25,4 +26,22 @@ const trimText = (venue: string) => {
   ) : (
     venue
   );
+};
+
+export const getBadgeVariant = (status: AttendeeStatus) => {
+  switch (status) {
+    case AttendeeStatus.Going:
+      return 'success';
+    case AttendeeStatus.NotGoing:
+      return 'destructive';
+    case AttendeeStatus.Pending:
+      return 'secondary';
+    default:
+      return 'default';
+  }
+};
+
+export const getProfilePictureUrl = (profileIConId: number | string) => {
+  const profileUrl = userAvatarOptions.find((option) => option.id === profileIConId);
+  return profileUrl?.src ?? userAvatarOptions[0].src;
 };

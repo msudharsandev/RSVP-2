@@ -1,5 +1,6 @@
 import { IUser } from '@/types/user';
 import { IEvent, ICohost } from '@/types/event';
+import { Attendee, AttendeeStatus } from '@/types/attendee';
 
 export const PHONE_NUMBER_LABEL = /phone number/i;
 export const SAVE_BUTTON_LABEL = /save/i;
@@ -42,15 +43,19 @@ export const TEST_EVENT_DATES = {
 
 export const TEST_COHOSTS: ICohost[] = [
   {
+    role: 'Manager',
     user: {
       profile_icon: 'icon1',
       full_name: 'John Doe',
+      username: 'johndoe',
     },
   },
   {
+    role: 'Manager',
     user: {
       profile_icon: 'icon2',
       full_name: 'Jane Smith',
+      username: 'janesmith',
     },
   },
 ];
@@ -73,13 +78,69 @@ export const TEST_EVENT: IEvent = {
   isActive: true,
   createdAt: new Date(),
   updatedAt: new Date(),
-  Cohost: TEST_COHOSTS,
   creator: {
     full_name: 'Event Creator',
+    username: 'eventcreator',
+    profile_icon: 'creator-icon',
   },
+  Cohost: TEST_COHOSTS.map((cohost) => ({
+    role: 'Manager',
+    user: {
+      ...cohost.user,
+      username: cohost.user.full_name.toLowerCase().replace(' ', ''),
+    },
+  })),
 };
 
 export const TEST_EVENT_DATA = {
   event: TEST_EVENT,
   totalAttendees: 5,
 };
+
+export const TEST_USER_RECENT_REG: IUser = {
+  id: 1,
+  primary_email: 'test@example.com',
+  full_name: 'Test User',
+  profile_icon: '1',
+  event_participation_enabled: true,
+  created_at: new Date(),
+  updated_at: new Date(),
+  contact: '1234567890',
+};
+
+export const TEST_ATTENDEES_RECENT_REG = [
+  new Attendee({
+    id: 'attendee1',
+    userId: 'user1',
+    eventId: TEST_EVENT.id,
+    registrationTime: new Date(),
+    status: AttendeeStatus.Going,
+    user: TEST_USER_RECENT_REG,
+    hasAttended: false,
+    checkInTime: null,
+    feedback: null,
+    qrToken: 'token1',
+    allowedStatus: true,
+    deleted: false,
+    updatedAt: new Date(),
+    event: TEST_EVENT,
+    isActive: true,
+  }),
+  new Attendee({
+    id: 'attendee2',
+    userId: 'user2',
+    eventId: TEST_EVENT.id,
+    registrationTime: new Date(),
+    status: AttendeeStatus.Waiting,
+    user: { ...TEST_USER_RECENT_REG, id: 2, full_name: 'Another User' },
+    hasAttended: false,
+    checkInTime: null,
+    feedback: null,
+    qrToken: 'token2',
+    allowedStatus: true,
+    deleted: false,
+    updatedAt: new Date(),
+    event: TEST_EVENT,
+    isActive: true,
+  }),
+];

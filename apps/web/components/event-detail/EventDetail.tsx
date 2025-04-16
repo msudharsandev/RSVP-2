@@ -5,10 +5,9 @@ import { IEvent } from '@/types/event';
 import dayjs from 'dayjs';
 import GetTicketsButton from './GetTicketsButton';
 import AvatarGroup from './AvatarGroup';
-import { userAvatarOptions } from '@/utils/constants';
 import { ClockIcon, LinkIcon } from 'lucide-react';
 import { Badge } from '../ui/badge';
-import { venueDisplay } from '@/utils/event';
+import { venueDisplay, getProfilePictureUrl } from '@/utils/event';
 
 const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees: number } }) => {
   const { event, totalAttendees } = eventData;
@@ -17,11 +16,6 @@ const EventDetail = ({ eventData }: { eventData: { event: IEvent; totalAttendees
   const formattedEndTime = dayjs(event.endTime).format('h:mm A');
   const additionalCount = totalAttendees > 4 ? totalAttendees - 4 : 0;
   const userAvatarLimit = totalAttendees > 4 ? 4 : totalAttendees;
-
-  const getProfilePictureUrl = (profileIConId: number | string) => {
-    const profileUrl = userAvatarOptions.find((option) => option.id === profileIConId);
-    return profileUrl?.src ?? userAvatarOptions[0]?.src!;
-  };
 
   return (
     <main>
