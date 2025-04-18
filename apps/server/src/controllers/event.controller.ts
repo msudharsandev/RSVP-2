@@ -297,7 +297,10 @@ export const plannedByUser = catchAsync(async (req: AuthenticatedRequest<{}, {},
 // Attendee routes
 export const createAttendee = catchAsync(
   async (req: AuthenticatedRequest<{ eventId?: string }, {}, CreateAttendeeBody>, res) => {
-    let AttendeeStatus: { allowedStatus: boolean; status: string } = { allowedStatus: false, status: '' };
+    let AttendeeStatus: { allowedStatus: boolean; status: string } = {
+      allowedStatus: false,
+      status: '',
+    };
     const userId = req.userId;
     if (!userId) {
       return res.status(401).json({ message: 'Invalid or expired token' });

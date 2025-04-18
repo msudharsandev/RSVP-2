@@ -131,7 +131,7 @@ export const eventAPI = {
   },
 
   checkAllowStatus: async (eventId: string, userId: string) => {
-    return api.patch(`/event/${eventId}/attendee/${userId}/allowStatus`, {
+    return api.patch(`/event/${eventId}/attendee/allowStatus`, {
       eventId,
       userId,
     });

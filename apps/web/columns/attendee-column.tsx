@@ -92,11 +92,7 @@ const AllowedGuestColumn = ({ attendee }: { attendee: Attendee }) => {
     });
   };
 
-  if (hasAccess) {
     return <Switch checked={isToggled} onCheckedChange={handleCheckedChange} />;
-  }
-
-  return <Switch disabled />;
 };
 
 export { attendeeColumns };
