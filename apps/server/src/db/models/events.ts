@@ -242,6 +242,15 @@ export class Events {
 
       const events = await prisma.event.findMany({
         where: filters,
+        include: {
+          creator: {
+            select: {
+              id: true,
+              full_name: true,
+              profile_icon: true,
+            },
+          }
+        },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
