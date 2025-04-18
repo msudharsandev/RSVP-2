@@ -31,6 +31,7 @@ import {
   MagnifyingGlassIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 const DiscoverEvents = () => {
@@ -202,7 +203,9 @@ const DiscoverEvents = () => {
 
           <section className="mt-6">
             {loading ? (
-              <p className="text-center text-white">Loading events...</p>
+               <div className="flex items-center justify-center">
+               <Loader2 data-testid="loader" className="h-10 w-10 animate-spin" />
+             </div>
             ) : events.length > 0 ? (
               <div className="mb-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {events.map((event: any) => (

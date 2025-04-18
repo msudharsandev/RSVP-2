@@ -32,7 +32,7 @@ const EventPreview = ({ className, children, venueType }: EventPreviewProps) => 
           <img
             src={image.file}
             alt="Event Image"
-            className="aspect-square overflow-clip rounded-lg object-cover"
+            className="aspect-square overflow-clip rounded-lg object-cover mt-2 md:mt-0"
           />
           <Button
             className="absolute -right-2 -top-2 z-10 hidden bg-opacity-80 hover:bg-destructive hover:bg-opacity-100 hover:text-white md:flex"

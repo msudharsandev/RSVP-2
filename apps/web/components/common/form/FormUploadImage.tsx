@@ -7,8 +7,9 @@ import api from '@/lib/axios/instance';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { useState } from 'react';
-import { Control, FieldPath, FieldValues, useController } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, useController, useFormContext } from 'react-hook-form';
 import { Icons } from '../Icon';
+import { CreateEventFormType } from '@/lib/zod/event';
 
 function FormImageUpload<
   TFieldValues extends FieldValues = FieldValues,
@@ -34,6 +35,15 @@ function FormImageUpload<
   });
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const {  setValue } = useFormContext<CreateEventFormType>();
+
+  const removeImage = () => {
+    setValue('eventImageId', {
+      signedUrl: '',
+      file: '',
+      url: '',
+    });
+  };
 
   const handleSave = async (file: File) => {
     setIsUploading(true);
@@ -41,7 +51,10 @@ function FormImageUpload<
       const response = await api.get('/event/upload-image', { params: { filename: file.name } });
       const signedUrl = response.data.signedUrl;
       const fileUrl = URL.createObjectURL(file);
-      onChange({ file: fileUrl, url: signedUrl });
+      const url = signedUrl.split('?')[0];
+
+      if (fileUrl && url) setValue('eventImageId', { file: fileUrl, url: url, signedUrl: signedUrl });
+
       setUploadProgress(100);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -51,7 +64,6 @@ function FormImageUpload<
       setUploadProgress(0);
     }
   };
-
   return (
     <FormField
       control={control}
@@ -61,7 +73,7 @@ function FormImageUpload<
           {label && <FormLabel className={cn('text-white', labelClassName)}>{label}</FormLabel>}
           <FormControl>
             <div className="mt-4 space-y-4">
-              {value && (
+              {value.file && (
                 <div className="relative aspect-square w-full rounded-lg bg-secondary">
                   <img
                     src={value.file}
@@ -70,7 +82,7 @@ function FormImageUpload<
                   />
                   <Button
                     className="absolute -right-2 -top-2 z-10"
-                    onClick={() => onChange(null)}
+                    onClick={removeImage}
                     variant="destructive"
                     size="icon"
                     radius="sm"
@@ -79,7 +91,7 @@ function FormImageUpload<
                   </Button>
                 </div>
               )}
-              {!value && (
+              {!value.file && (
                 <div className="flex flex-col items-center gap-4">
                   <input
                     type="file"

@@ -8,6 +8,7 @@ import { eventAPI } from '@/lib/axios/event-API';
 import { IEvent } from '@/types/event';
 import { NO_PLANNED_EVENTS_MESSAGE, NO_PLANNED_EVENTS_TITLE } from '@/utils/constants';
 import { useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
@@ -41,9 +42,9 @@ const PlannedEvents = () => {
 
   if (isLoading) {
     return (
-      <Container className="container-main pt-8">
-        <h1 className="text-primary-500">Loading event details...</h1>
-      </Container>
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 data-testid="loader" className="h-10 w-10 animate-spin" />
+      </div>
     );
   }
 

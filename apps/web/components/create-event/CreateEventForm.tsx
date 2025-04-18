@@ -7,6 +7,7 @@ import { combineDateAndTime } from '@/utils/time';
 import axios from 'axios';
 import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
+import { useState } from 'react';
 
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
@@ -33,7 +34,7 @@ const defaultValues: CreateEventFormType = {
 
 const CreateEventForm = () => {
   const { mutate, isPending } = useCreateEvent();
-
+  const [isLoading, setIsLoading] = useState(false);
   async function onSubmit(data: CreateEventFormType) {
     const {
       name,
@@ -66,9 +67,11 @@ const CreateEventForm = () => {
     };
 
     if (eventImageId.file && eventImageId.signedUrl) {
+      setIsLoading(true)
       const imageFile = await fileFromUrl(eventImageId.file, 'event-image');
       await axios.put(eventImageId.signedUrl, imageFile);
       mutate(submissionData);
+      setIsLoading(false)
     }
   }
 
@@ -78,7 +81,7 @@ const CreateEventForm = () => {
         <p className="font-medium text-secondary">Fill in the form below to create a new event</p>
       </div>
       <Separator className="my-9 bg-separator" />
-      <EventForm defaultValues={defaultValues} isLoading={isPending} onSubmit={onSubmit} />
+      <EventForm defaultValues={defaultValues} isLoading={isLoading} onSubmit={onSubmit} />
     </>
   );
 };
