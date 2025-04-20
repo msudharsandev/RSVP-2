@@ -92,7 +92,7 @@ const AutheticatedHeader = () => {
                 <DropdownMenuTrigger data-testid="profile-dropdown-button">
                   <Avatar>
                     <AvatarImage src={profileIcon?.src} alt="profile image" />
-                    <AvatarFallback>P</AvatarFallback>
+                    <AvatarFallback></AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent

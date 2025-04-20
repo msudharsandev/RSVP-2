@@ -3,10 +3,10 @@ import request from 'supertest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { eventRouter } from '@/routes/v1/event.routes';
-import { Events } from '@/db/models/events';
-import { Attendees } from '@/db/models/attendees';
-import { Users } from '@/db/models/users';
-import { CohostRepository } from '@/db/models/cohost';
+import { EventRepository as Events } from '@/repositories/event.repository';
+import { AttendeeRepository as Attendees } from '@/repositories/attendee.repository';
+import { UserRepository as Users } from '@/repositories/user.repository';
+import { CohostRepository } from '@/repositories/cohost.repository';
 import {
   ENDPOINT_FILTER_EVENTS,
   ENDPOINT_POPULAR_EVENTS,
@@ -26,9 +26,9 @@ import { Role } from '@prisma/client';
 import { eventManageMiddleware } from '@/middleware/hostMiddleware';
 
 const API_ROLES = {
-  CHECK_ALLOW_STATUS: [Role.Creator, Role.Manager],
-  DELETE_EVENT: [Role.Creator],
-  UPDATE_EVENT: [Role.Creator, Role.Manager],
+  CHECK_ALLOW_STATUS: [Role.CREATOR, Role.MANAGER],
+  DELETE_EVENT: [Role.CREATOR],
+  UPDATE_EVENT: [Role.CREATOR, Role.MANAGER],
 };
 
 let isAuthenticated: boolean = true;
@@ -142,7 +142,7 @@ describe('Event Router Endpoints', () => {
         slug: 'annual-conference',
       };
       vi.spyOn(Events as any, 'create').mockResolvedValue(fakeNewEvent);
-      vi.spyOn(CohostRepository as any, 'addHost').mockResolvedValue(undefined);
+      vi.spyOn(CohostRepository as any, 'create').mockResolvedValue(undefined);
       const res = await request(app).post('/').send(validPhysicalEventPayload);
       expect(res.status).toBe(HTTP_CREATED);
       expect(res.body).toHaveProperty('message', 'success');
@@ -242,28 +242,28 @@ describe('Event Router Endpoints', () => {
     const userId = TEST_USER_ID;
     const endpoint = `/${eventId}/attendee/${userId}/allowStatus`;
 
-    it('should allow authenticated Creator role to check allow status', async () => {
+    it('should allow authenticated CREATOR role to check allow status', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Manager;
-      vi.spyOn(Events as any, 'findById').mockResolvedValue({ id: eventId, name: 'Test Event' });   
+      currentTestRole = Role.MANAGER;
+      vi.spyOn(Events as any, 'findById').mockResolvedValue({ id: eventId, name: 'Test Event' });
       vi.spyOn(CohostRepository as any, 'checkHostForEvent').mockResolvedValue(true);
       const res = await request(app).get(endpoint);
       expect(res.status).toBe(HTTP_OK);
       expect(res.body).toHaveProperty('message', 'Success');
       expect(res.body.data).toHaveProperty('success', true);
     });
-  
+
     it('should deny unauthenticated requests from checking allow status', async () => {
       isAuthenticated = false;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       const res = await request(app).get(endpoint);
       expect(res.status).toBe(401);
       expect(res.body).toHaveProperty('message', 'Invalid or expired tokens');
     });
-  
-    it('should allow authenticated Manager role to check allow status', async () => {
+
+    it('should allow authenticated MANAGER role to check allow status', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Manager;
+      currentTestRole = Role.MANAGER;
       vi.spyOn(Events as any, 'findById').mockResolvedValue({ id: eventId, name: 'Test Event' });
       vi.spyOn(CohostRepository as any, 'checkHostForEvent').mockResolvedValue(true);
       const res = await request(app).get(endpoint);
@@ -274,7 +274,7 @@ describe('Event Router Endpoints', () => {
 
     it('should deny authenticated ReadOnly role from checking allow status', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.ReadOnly;
+      currentTestRole = Role.READ_ONLY;
       const res = await request(app).get(endpoint);
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty('message', 'Access denied: Insufficient permissions');
@@ -293,9 +293,9 @@ describe('Event Router Endpoints', () => {
     const eventId = 'event-123';
     const endpoint = `/${eventId}`;
 
-    it('should allow authenticated Creator role to delete an event', async () => {
+    it('should allow authenticated CREATOR role to delete an event', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       const fakeEvent = { id: eventId, name: 'Event to Delete', isDeleted: false };
       vi.spyOn(Events as any, 'findById').mockResolvedValue(fakeEvent);
       const deletedEvent = { ...fakeEvent, isDeleted: true };
@@ -309,15 +309,15 @@ describe('Event Router Endpoints', () => {
 
     it('should deny unauthenticated requests from deleting an event', async () => {
       isAuthenticated = false;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       const res = await request(app).delete(endpoint);
       expect(res.status).toBe(401);
       expect(res.body).toHaveProperty('message', 'Invalid or expired tokens');
     });
 
-    it('should deny authenticated Manager role from deleting an event', async () => {
+    it('should deny authenticated MANAGER role from deleting an event', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Manager;
+      currentTestRole = Role.MANAGER;
       const res = await request(app).delete(endpoint);
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty('message', 'Access denied: Insufficient permissions');
@@ -325,7 +325,7 @@ describe('Event Router Endpoints', () => {
 
     it('should deny authenticated ReadOnly role from deleting an event', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.ReadOnly;
+      currentTestRole = Role.READ_ONLY;
       const res = await request(app).delete(endpoint);
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty('message', 'Access denied: Insufficient permissions');
@@ -333,7 +333,7 @@ describe('Event Router Endpoints', () => {
 
     it('should return 404 if the event does not exist', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       vi.spyOn(Events as any, 'findById').mockResolvedValue(null);
       const res = await request(app).delete(endpoint);
       expect(res.status).toBe(HTTP_NOT_FOUND);
@@ -342,7 +342,7 @@ describe('Event Router Endpoints', () => {
 
     it('should return 400 if the event is already deleted', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       const alreadyDeletedEvent = { id: eventId, name: 'Already Deleted Event', isDeleted: true };
       vi.spyOn(Events as any, 'findById').mockResolvedValue(alreadyDeletedEvent);
       const res = await request(app).delete(endpoint);
@@ -352,7 +352,7 @@ describe('Event Router Endpoints', () => {
 
     it('should return 404 when trying to delete with no event ID', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       const res = await request(app).delete('/');
       expect(res.status).toBe(404);
     });
@@ -362,9 +362,9 @@ describe('Event Router Endpoints', () => {
     const eventId = 'b6dda59b-2aa9-474e-80a4-f4bb87c4aa4c';
     const endpoint = `/${eventId}/slug`;
 
-    it('should allow creator to update slug for an event', async () => {
+    it('should allow CREATOR to update slug for an event', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
 
       const fakeSlugReq = {
         name: 'Test Event',
@@ -389,9 +389,9 @@ describe('Event Router Endpoints', () => {
       });
     });
 
-    it('should allow manager to update slug for an event', async () => {
+    it('should allow MANAGER to update slug for an event', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Manager;
+      currentTestRole = Role.MANAGER;
 
       const fakeSlugReq = {
         name: 'Test Event',
@@ -418,7 +418,7 @@ describe('Event Router Endpoints', () => {
 
     it('Should return 403 Forbidden if the requester has permission to read only', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.ReadOnly;
+      currentTestRole = Role.READ_ONLY;
       const res = await request(app).patch(endpoint).send({
         slug: 'test-slug',
         eventId: eventId,
@@ -429,7 +429,7 @@ describe('Event Router Endpoints', () => {
 
     it('Should return 403 Forbidden if the requester is celebrity', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Celebrity;
+      currentTestRole = Role.CELEBRITY;
       const res = await request(app).patch(endpoint).send({
         slug: 'test-slug',
         eventId: eventId,
@@ -440,7 +440,7 @@ describe('Event Router Endpoints', () => {
 
     it('Should return 400 Bad Request if the provided slug is empty', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       const res = await request(app).patch(endpoint).send({
         slug: '',
         eventId: eventId,
@@ -455,7 +455,7 @@ describe('Event Router Endpoints', () => {
 
     it('Should return 400 Bad Request if the provided slug is missing', async () => {
       isAuthenticated = true;
-      currentTestRole = Role.Creator;
+      currentTestRole = Role.CREATOR;
       const res = await request(app).patch(endpoint).send({
         eventId: eventId,
       });
@@ -468,9 +468,9 @@ describe('Event Router Endpoints', () => {
       const eventId = 'event-123';
       const endpoint = `/${eventId}/cancel`;
 
-      it('should allow authenticated creator role to cancel an event', async () => {
+      it('should allow authenticated CREATOR role to cancel an event', async () => {
         isAuthenticated = true;
-        currentTestRole = Role.Creator;
+        currentTestRole = Role.CREATOR;
 
         const fakeEvent = {
           id: eventId,
@@ -501,7 +501,7 @@ describe('Event Router Endpoints', () => {
 
       it('should deny unauthenticated requests from cancelling an event', async () => {
         isAuthenticated = false;
-        currentTestRole = Role.Creator;
+        currentTestRole = Role.CREATOR;
 
         const res = await request(app).patch(endpoint);
 
@@ -509,9 +509,9 @@ describe('Event Router Endpoints', () => {
         expect(res.body).toHaveProperty('message', 'Invalid or expired tokens');
       });
 
-      it('should deny authenticated Manager role from cancelling an event', async () => {
+      it('should deny authenticated MANAGER role from cancelling an event', async () => {
         isAuthenticated = true;
-        currentTestRole = Role.Manager;
+        currentTestRole = Role.MANAGER;
 
         const res = await request(app).patch(endpoint);
 
@@ -521,7 +521,7 @@ describe('Event Router Endpoints', () => {
 
       it('should deny authenticated ReadOnly role from cancelling an event', async () => {
         isAuthenticated = true;
-        currentTestRole = Role.ReadOnly;
+        currentTestRole = Role.READ_ONLY;
 
         const res = await request(app).patch(endpoint);
 
@@ -531,7 +531,7 @@ describe('Event Router Endpoints', () => {
 
       it('should return 404 if the event does not exist', async () => {
         isAuthenticated = true;
-        currentTestRole = Role.Creator;
+        currentTestRole = Role.CREATOR;
 
         vi.spyOn(Events as any, 'findById').mockResolvedValue(null);
 
@@ -543,7 +543,7 @@ describe('Event Router Endpoints', () => {
 
       it('should return 400 if the event is already cancelled', async () => {
         isAuthenticated = true;
-        currentTestRole = Role.Creator;
+        currentTestRole = Role.CREATOR;
 
         const alreadyCancelledEvent = {
           id: eventId,

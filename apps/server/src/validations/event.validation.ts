@@ -86,8 +86,8 @@ export const CreateEventSchema = EventSchema.strict()
 export const UpdateEventSchema = EventSchema.partial();
 
 export const eventsPlannedByUserReqSchema = z.object({
-  search: z.string().min(1).max(256).optional(),
-  category: z.string().min(1).max(256).optional(),
+  search: z.string().optional(),
+  category: z.string().optional(),
   fromDate: z.coerce.date().default(() => DATE_RANGE.LOW),
   toDate: z.coerce.date().default(() => DATE_RANGE.HIGH),
   venueType: z.enum([VENUE_TYPE.PHYSICAL, VENUE_TYPE.VIRTUAL]).optional(),
@@ -97,15 +97,12 @@ export const eventsPlannedByUserReqSchema = z.object({
   sortOrder: z.enum([PAGINATION_ORDER.ASC, PAGINATION_ORDER.DESC]).optional(),
 });
 
-export const eventAttendeeReqSchema = z.object({
-  eventId: z.string().max(256),
-});
 export const userUpdateSchema = z.object({
   content: z.string(),
 });
 
 export const eventParamsSchema = z.object({
-  eventId: z.string(),
+  eventId: z.string().uuid(),
 });
 
 export const eventLimitSchema = z.object({
@@ -120,41 +117,39 @@ export const attendeesQuerySchema = z.object({
     return undefined;
   }, z.boolean().optional()),
   search: z.string().optional(),
-  status: z.union([
-    z.string(),
-    z.array(z.string())
-  ])
-  .optional()
-  .transform(val => {
-    if (typeof val === 'string') {
-      return val.split(',');
-    }
-    return val;
-  })
-  .refine(
-    (statuses) => {
-      if (!statuses) return true;
-      const validStatusValues = Object.values(Status);
-      return statuses.every(status => validStatusValues.includes(status as Status));
-    },
-    {
-      message: `One or more status values are invalid. Valid statuses are: ${Object.values(Status).join(', ')}`,
-    }
-  ),
+  status: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .transform((val) => {
+      if (typeof val === 'string') {
+        return val.split(',');
+      }
+      return val;
+    })
+    .refine(
+      (statuses) => {
+        if (!statuses) return true;
+        const validStatusValues = Object.values(Status);
+        return statuses.every((status) => validStatusValues.includes(status as Status));
+      },
+      {
+        message: `One or more status values are invalid. Valid statuses are: ${Object.values(Status).join(', ')}`,
+      }
+    ),
 });
-
 
 export const eventFilterSchema = z.object({
   page: z.coerce.number().positive().default(1),
   limit: z.coerce.number().positive().default(10),
   location: z.string().optional(),
   category: z.string().optional(),
-  sortOrder: z.enum([PAGINATION_ORDER.ASC, PAGINATION_ORDER.DESC]).optional(),
+  sortOrder: z.enum([PAGINATION_ORDER.ASC, PAGINATION_ORDER.DESC]).default(PAGINATION_ORDER.DESC),
   search: z.string().optional(),
   sortBy: z.string().optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
 });
 
-
 export type EventFilter = z.infer<typeof eventFilterSchema>;
+
+export type EventParams = z.infer<typeof eventParamsSchema>;

@@ -1,9 +1,8 @@
-
 import request from 'supertest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import express, { Request, Response, NextFunction } from 'express';
 
-import { Users } from '@/db/models/users';
+import { UserRepository as Users } from '@/repositories/user.repository';
 import { authRouter } from '@/routes/v1/auth.routes';
 import {
   FAKE_USER,

@@ -48,8 +48,6 @@ next-env.d.ts
 .env.test.local
 .env.production.local
 
-# newrelic agent logs
-newrelic_agent.log
 
 # Testing
 coverage

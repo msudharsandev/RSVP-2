@@ -1,33 +1,38 @@
 import z from 'zod';
-import { Events } from '@/db/models/events';
-import { Update } from '@/db/models/update';
-import { AuthenticatedRequest } from '@/middleware/authMiddleware';
+import { EventRepository } from '@/repositories/event.repository';
+import { UpdateRepository } from '@/repositories/update.repository';
+import { UserRepository } from '@/repositories/user.repository';
+import { AttendeeRepository } from '@/repositories/attendee.repository';
 import { userUpdateSchema } from '@/validations/event.validation';
 import catchAsync from '@/utils/catchAsync';
 import generatePresignedUrl from '@/utils/s3';
-import { Users } from '@/db/models/users';
-import { Attendees } from '@/db/models/attendees';
 import EmailService from '@/utils/sendEmail';
 import logger from '@/utils/logger';
+import config from '@/config/config';
+import { IAuthenticatedRequest } from '@/interface/middleware';
 
-type createNotificationBody = z.infer<typeof userUpdateSchema>;
-
-export const createNotification = catchAsync(
-  async (req: AuthenticatedRequest<{ eventId?: string }, {}, createNotificationBody>, res) => {
+/**
+ * Sends a notification message to event attendees.
+ * @param req - The HTTP request object containing the event ID in the parameters and the message content in the body.
+ * @param res - The HTTP response object.
+ * @returns The created notification details.
+ */
+export const sendMessageController = catchAsync(
+  async (
+    req: IAuthenticatedRequest<{ eventId?: string }, {}, z.infer<typeof userUpdateSchema>>,
+    res
+  ) => {
     const data = req.body;
     const param = req.params;
     const RSVP_SUBJECT_MSG = 'Updates from your event';
 
-    const event = await Events.findById(param.eventId as string);
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
-    }
+    const event = await EventRepository.findById(param.eventId as string);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
 
-    const getUserDetails = await Users.findById(event.creatorId);
-    if (!getUserDetails?.id) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    const getUserDetails = await UserRepository.findById(event.creatorId);
+    if (!getUserDetails?.id) return res.status(404).json({ message: 'User not found' });
 
+    logger.info('Creating message in sendMessageController ...')
     const notificationData = {
       content: data.content,
       eventId: param.eventId as string,
@@ -36,25 +41,22 @@ export const createNotification = catchAsync(
       userId: getUserDetails.id,
     };
 
-    const newNotification = await Update.create(notificationData);
-
+    const newNotification = await UpdateRepository.create(notificationData);
     const notificationDeta = {
       ...newNotification,
       user: {
         id: getUserDetails.id,
-        name: getUserDetails?.full_name,
-        email: getUserDetails?.primary_email,
+        name: getUserDetails?.fullName,
+        email: getUserDetails?.primaryEmail,
       },
     };
 
-    const attendeeList = await Attendees.findByEventId(param.eventId as string);
-
+    const attendeeList = await AttendeeRepository.findAllByEventId(param.eventId as string);
     const attendeeIds = attendeeList
       .filter((attendee) => attendee.userId !== notificationDeta.user.id)
       .map((user) => String(user.userId));
 
-    const usersList = await Users.findAllByIds(attendeeIds);
-
+    const usersList = await UserRepository.findAllByIds(attendeeIds);
     const emailData = {
       id: 6,
       subject: RSVP_SUBJECT_MSG,
@@ -62,61 +64,50 @@ export const createNotification = catchAsync(
       body: {
         eventName: event.name,
         updatesText: notificationDeta.content,
-        updatesLink: `https://www.rsvp.kim/v1/event/${notificationDeta.eventId}/communication`,
+        updatesLink: `${config.CLIENT_URL}/event/${notificationDeta.eventId}/communication`,
       },
-      bcc: usersList.map((user) => user.primary_email),
+      bcc: usersList.map((user) => user.primaryEmail),
     };
 
-    const emailResponse = await EmailService.send(emailData);
-    if (emailResponse.status === 200) {
-      logger.info(JSON.stringify(emailResponse.data));
+    if (config.NODE_ENV !== 'development') {
+      await EmailService.send(emailData);
     } else {
-      logger.info(emailResponse);
+      logger.info('Email notification:', emailData);
     }
 
     return res.status(201).json(notificationDeta);
   }
 );
 
-export const uploadEventImage = catchAsync(async (req: AuthenticatedRequest<{}, {}, {}>, res) => {
-  const fileName = req.query.filename;
-  const response = await generatePresignedUrl(fileName as string);
-  return res.status(200).json(response);
-});
+/**
+ * Generates a presigned URL for uploading an event image to S3.
+ * @param req - The HTTP request object containing the filename in the query.
+ * @param res - The HTTP response object.
+ * @returns The presigned URL and the generated key for the file.
+ */
+export const uploadEventImageController = catchAsync(
+  async (req: IAuthenticatedRequest<{}, {}, {}>, res) => {
+    const fileName = req.query.filename;
+    logger.info('Getting pre-signed url in uploadEventImageController ...')
+    const response = await generatePresignedUrl(fileName as string);
+    return res.status(200).json(response);
+  }
+);
 
-export const getNotification = catchAsync(
-  async (req: AuthenticatedRequest<{ eventId?: string }, {}>, res) => {
+/**
+ * Retrieves all messages (notifications) for a specific event.
+ * @param req - The HTTP request object containing the event ID in the parameters.
+ * @param res - The HTTP response object.
+ * @returns A list of messages for the event.
+ */
+export const getMessageController = catchAsync(
+  async (req: IAuthenticatedRequest<{ eventId?: string }, {}>, res) => {
     const param = req.params;
+    const event = await EventRepository.findById(param.eventId as string);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
 
-    const event = await Events.findById(param.eventId as string);
-
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
-    }
-
-    const notifications = await Update.findById(param.eventId as string);
-
-    logger.info('notifications', notifications);
-
-    // if (!notifications || notifications.length === 0) {
-    //   return res.status(200).json({notifications:[]});
-    // }
-
-    // const getUserDetails = await Users.findById(event.creatorId);
-
-    // if (!getUserDetails?.id) {
-    //   return res.status(404).json({ message: 'User not found' });
-    // }
-
-    // const eventNotifications = notifications.map((notification) => ({
-    //   ...notification,
-    //   user: {
-    //     id: getUserDetails.id,
-    //     name: getUserDetails.full_name,
-    //     email: getUserDetails.primary_email,
-    //   },
-    // }));
-
-    return res.status(200).json(notifications);
+    logger.info('Getting all messages in  getMessageController...')
+    const messages = await UpdateRepository.findAllById(param.eventId as string);
+    return res.status(200).json(messages);
   }
 );

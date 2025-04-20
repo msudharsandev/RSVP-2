@@ -2,18 +2,20 @@ import { Router } from 'express';
 import authMiddleware from '@/middleware/authMiddleware';
 import { validate } from '@/middleware/validate';
 import { profilePayloadSchema } from '@/validations/users.validation';
-import { getUserByUserName, updateProfile } from '@/controllers/user.controller';
-import { apiLimiter } from '@/middleware/rateLimiter';
+import {
+  getUserPublicController,
+  updateUserProfileController,
+} from '@/controllers/user.controller';
 
 const userRouter: Router = Router();
 
 userRouter.post(
   '/profile',
-  apiLimiter,
   authMiddleware,
   validate({ body: profilePayloadSchema }),
-  updateProfile
+  updateUserProfileController
 );
 
-userRouter.get('/:username', apiLimiter, authMiddleware, getUserByUserName);
+userRouter.get('/:username', authMiddleware, getUserPublicController);
+
 export { userRouter };

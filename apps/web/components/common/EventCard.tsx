@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { venueDisplay } from '@/utils/event';
 
 const Card = ({ className, event, type }: IEventCard) => {
+  console.log(event);
   return (
     <article
       className={cn('space-y-2.5 rounded-[10px] border border-dark-500 bg-dark-900 p-3 hover:scale-105 transition-transform duration-300 ease-in-out', className)}

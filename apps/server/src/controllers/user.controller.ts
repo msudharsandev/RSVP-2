@@ -1,50 +1,50 @@
-import { Users } from '@/db/models/users';
-import { AuthenticatedRequest } from '@/middleware/authMiddleware';
+import { UserRepository } from '@/repositories/user.repository';
+import { IAuthenticatedRequest } from '@/interface/middleware';
 import catchAsync from '@/utils/catchAsync';
 import { profilePayloadSchema, usernameSchema } from '@/validations/users.validation';
 import z from 'zod';
 import { Request } from 'express';
+import logger from '@/utils/logger';
 
-type UpdateProfileBody = z.infer<typeof profilePayloadSchema>;
-type usernameParams = z.infer<typeof usernameSchema>;
-export const updateProfile = catchAsync(
-  async (req: AuthenticatedRequest<{}, {}, UpdateProfileBody>, res) => {
+/**
+ * Updates the profile of the authenticated user.
+ * @param req - The HTTP request object containing the user's profile data in the body.
+ * @param res - The HTTP response object.
+ * @returns The updated user profile.
+ */
+export const updateUserProfileController = catchAsync(
+  async (req: IAuthenticatedRequest<{}, {}, z.infer<typeof profilePayloadSchema>>, res) => {
     const userId = req.userId as unknown as string;
     if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
-    let user;
-    user = await Users.updateProfile(userId, req.body);
 
+    let user = await UserRepository.updateProfile(userId, req.body);
     if (!user) return res.status(401).json({ message: 'Invalid or expired token' });
+    const { fullName, location, contact } = user;
 
-    const { full_name, location, contact, is_completed } = user;
-
-    const isProfileCompleted = !!full_name && !!location && !!contact;
-
-    if (!is_completed && isProfileCompleted)
-      user = await Users.updateProfile(userId, { is_completed: true });
+    logger.info('Checking if user profile is completed in updateUserProfileController ...')
+    if (!!fullName && !!location && !!contact) {
+      user = await UserRepository.updateProfile(userId, { isCompleted: true });
+    }
 
     return res.status(200).json({ message: 'success', data: user });
   }
 );
 
-export const getUserByUserName = catchAsync(async (req: Request<{}, {}, usernameParams>, res) => {
-  const { username } = req.params as usernameParams;
+/**
+ * Retrieves a user by their username.
+ * @param req - The HTTP request object containing the username in the parameters.
+ * @param res - The HTTP response object.
+ * @returns The user's public profile data.
+ */
+export const getUserPublicController = catchAsync(
+  async (req: Request<{}, {}, z.infer<typeof usernameSchema>>, res) => {
+    const { username } = req.params as z.infer<typeof usernameSchema>;
 
-  const user = await Users.findByUserName(username);
+    logger.info('Getting user by username in getUserPublicController ...')
+    const user = await UserRepository.findByUserName(username);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  const userDataToDisplay = {
-    id: user.id,
-    username: user.username,
-    full_name: user.full_name,
-    location: user.location,
-    contact: user.contact,
-    instagram: user.instagram,
-    twitter: user.twitter,
-    created_at: user.created_at,
-    email: user.primary_email,
-    bio: user.bio,
-  };
-  return res.status(200).json({ message: 'success', data: userDataToDisplay });
-});
+    const { refreshToken, magicToken, ...publicUserProfile } = user;
+    return res.status(200).json({ message: 'success', data: publicUserProfile });
+  }
+);

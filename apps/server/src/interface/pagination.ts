@@ -1,3 +1,7 @@
+/**
+ * Interface for pagination parameters.
+ * Used to define the structure of pagination-related inputs.
+ */
 export interface IPaginationParams {
   page?: number;
   limit?: number;
@@ -6,6 +10,10 @@ export interface IPaginationParams {
   sortOrder?: 'asc' | 'desc';
 }
 
+/**
+ * Interface for the result of a paginated query.
+ * Used to define the structure of paginated data and metadata.
+ */
 export interface IPaginatedResult<T> {
   data: T[];
   metadata: {

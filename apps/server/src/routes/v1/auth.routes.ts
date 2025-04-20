@@ -1,18 +1,22 @@
-import { me, signin, verifySignin, logout } from '@/controllers/auth.controller';
+import {
+  getMyDataController,
+  signinController,
+  verifySigninController,
+  logoutController,
+} from '@/controllers/auth.controller';
 import authMiddleware from '@/middleware/authMiddleware';
 import { validate } from '@/middleware/validate';
 import { SigninSchema, verifySigninSchema } from '@/validations/auth.validation';
 import { Router } from 'express';
-import { apiLimiter } from '@/middleware/rateLimiter';
 
 const authRouter: Router = Router();
 
-authRouter.post('/signin', apiLimiter, validate({ body: SigninSchema }), signin);
+authRouter.post('/signin', validate({ body: SigninSchema }), signinController);
 
-authRouter.post('/verify-signin', apiLimiter, validate({ body: verifySigninSchema }), verifySignin);
+authRouter.post('/verify-signin', validate({ body: verifySigninSchema }), verifySigninController);
 
-authRouter.post('/logout', apiLimiter, authMiddleware, logout);
+authRouter.post('/logout', authMiddleware, logoutController);
 
-authRouter.get('/me', apiLimiter, authMiddleware, me);
+authRouter.get('/me', authMiddleware, getMyDataController);
 
 export { authRouter };

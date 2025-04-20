@@ -41,7 +41,7 @@ const Events = () => {
     },
     { history: 'push' }
   );
-  const { data: events, isLoading, error } = useGetMyEvents(filters);
+  const { data, isLoading, error } = useGetMyEvents(filters);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [isFilterOpen] = useState(true);
@@ -63,7 +63,7 @@ const Events = () => {
 
   if (error) return <div>{error.message}</div>;
 
-  return events?.length != 0 ? (
+  return data?.events?.length != 0 ? (
     <Container className="min-h-screen space-y-8 py-8">
       <header className="flex flex-col justify-between gap-4 sm:flex-row">
         <div className="space-y-2">
@@ -188,7 +188,7 @@ const Events = () => {
           <section className="mt-1"></section>
         </section>
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" data-testid="events-list">
-          {events?.map((eventData: IEvent) => (
+          {data?.events?.map((eventData: IEvent) => (
             <EventCard event={eventData} key={eventData.id} type="manage" />
           ))}
         </div>

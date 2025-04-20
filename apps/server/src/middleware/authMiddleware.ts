@@ -1,15 +1,8 @@
 import config from '@/config/config';
 import { generateAccessToken, verifyAccessToken, verifyRefreshToken } from '@/utils/jwt';
-import { NextFunction, Request, Response } from 'express';
-import { Users } from '@/db/models/users';
-
-export interface AuthenticatedRequest<
-  P = {},
-  ResBody = {},
-  ReqBody = { accessToken?: string; refreshToken?: string },
-> extends Request<P, ResBody, ReqBody> {
-  userId?: string;
-}
+import { NextFunction, Response } from 'express';
+import { UserRepository } from '@/repositories/user.repository';
+import { IAuthenticatedRequest } from '@/interface/middleware';
 
 /**
  * Checks for a refresh token in the request cookies or body, and verifies it.
@@ -17,7 +10,7 @@ export interface AuthenticatedRequest<
  * @param req - The authenticated request object containing cookies and body.
  * @returns The decoded token if verification is successful, otherwise false.
  */
-const checkFromRefreshToken = async (req: AuthenticatedRequest) => {
+const checkFromRefreshToken = async (req: IAuthenticatedRequest) => {
   const refreshToken = req.cookies.refreshToken || req.headers.refreshToken;
   if (!refreshToken) return false;
 
@@ -25,7 +18,7 @@ const checkFromRefreshToken = async (req: AuthenticatedRequest) => {
   if (!decoded) return false;
 
   try {
-    const user = await Users.findById(decoded.userId);
+    const user = await UserRepository.findById(decoded.userId);
     if (!user || user.refreshToken !== refreshToken) return false;
 
     return decoded;
@@ -34,7 +27,7 @@ const checkFromRefreshToken = async (req: AuthenticatedRequest) => {
   }
 };
 
-const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+const authMiddleware = async (req: IAuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies.accessToken || req.headers.accessToken;
 
@@ -55,7 +48,7 @@ const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: Ne
 
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
-      secure: config.env === 'production',
+      secure: config.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000,
       path: '/',

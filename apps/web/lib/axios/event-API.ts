@@ -92,12 +92,16 @@ export const eventAPI = {
 
   getEvent: async (params?: EventParams): Promise<{ events: IEvent[], metadata: PaginationMetadata }> => {
     const response = await api.get('/event', { params });
-    return response.data.data;
+    const events = response.data.data.events.map((event: IEvent) => new Event(event));
+    const metadata = response.data.metadata;
+    return { events, metadata };
   },
 
-  getMyEvents: async (params?: EventParams): Promise<IEvent[]> => {
-    const response = await api.get('/event/planned', { params });
-    return response.data.data;
+  getMyEvents: async (params?: EventParams): Promise<{ events: IEvent[], metadata: PaginationMetadata }> => {
+    const response = await api.get('/event/user', { params });
+    const events = response.data.data.events.map((event: IEvent) => new Event(event));
+    const metadata = response.data.metadata;
+    return { events, metadata };
   },
 
   softDeleteAttendee: async (eventId: string) => {

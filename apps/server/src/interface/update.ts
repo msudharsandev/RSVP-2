@@ -1,3 +1,6 @@
+/**
+ * Interface representing an update or notification related to an event.
+ */
 export interface IUpdate {
   id?: string;
   userId: string;

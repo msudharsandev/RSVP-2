@@ -1,32 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
-import axios from 'axios';
+import EmailService from '@/utils/sendEmail';
+import config from '@/config/config';
 
 dotenv.config();
 const prisma = new PrismaClient();
-
-interface EmailData {
-  id: number;
-  subject: string;
-  body: Record<string, string>;
-}
-
-class EmailService {
-  private static emailUrl = process.env.STATIC_EMAIL_URL;
-
-  static async send(emailData: EmailData): Promise<any> {
-    try {
-      const response = await axios.post(this.emailUrl!, emailData, {
-        headers: {
-          Authorization: `${process.env.EMAIL_TOKEN}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.log(JSON.stringify(error, null, 2));
-    }
-  }
-}
 
 async function processEventNotifications() {
   try {
@@ -49,12 +27,12 @@ async function processEventNotifications() {
             },
           },
         ],
-        Attendee: {
+        attendees: {
           some: {
             hasAttended: false,
-            status: 'Going',
+            status: 'GOING',
             allowedStatus: true,
-            deleted: false,
+            isDeleted: false,
           },
         },
       },
@@ -64,19 +42,19 @@ async function processEventNotifications() {
         slug: true,
         description: true,
         startTime: true,
-        Attendee: {
+        attendees: {
           where: {
             hasAttended: false,
-            status: 'Going',
+            status: 'GOING',
             allowedStatus: true,
-            deleted: false,
+            isDeleted: false,
           },
           select: {
             id: true,
             user: {
               select: {
-                full_name: true,
-                primary_email: true,
+                fullName: true,
+                primaryEmail: true,
               },
             },
           },
@@ -91,10 +69,10 @@ async function processEventNotifications() {
         body: {
           eventName: event.name,
           updatesText: `Just a quick reminder that your event ${event.name} is starting soon at ${event.startTime}`,
-          updatesLink: `https://www.rsvp.kim/${event.slug}`,
+          updatesLink: `${config.CLIENT_URL}/${event.slug}`,
         },
-        bcc: event.Attendee.map(
-          (attendee: { user: { primary_email: string } }) => attendee.user.primary_email
+        bcc: event.attendees.map(
+          (attendee: { user: { primaryEmail: string } }) => attendee.user.primaryEmail
         ),
       };
       return EmailService.send(eventEmailData);

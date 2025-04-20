@@ -1,20 +1,16 @@
 import axios from 'axios';
 import config from '@/config/config';
 import logger from './logger';
+import { EmailData } from '@/interface/middleware';
 
-interface EmailData {
-  id: number;
-  subject: string;
-  recipient: string;
-  body: Record<string, string>;
-}
-
+/**
+ * EmailService class provides methods to send emails using an external email service.
+ * It uses Axios to make HTTP requests to the email service API.
+ */
 class EmailService {
-  private static emailUrl = 'https://tsp-emailservice.vercel.app/email';
-
   static async send(emailData: EmailData): Promise<any> {
     try {
-      const response = await axios.post(this.emailUrl, emailData, {
+      const response = await axios.post(config.EMAIL_API_URL, emailData, {
         headers: {
           Authorization: `${config.EMAIL_TOKEN}`,
         },
@@ -22,7 +18,6 @@ class EmailService {
       return response.data;
     } catch (error) {
       logger.error(`Error sending email: ${JSON.stringify(error)}`);
-      // throw new Error(`Error sending email: ${error.message}`);
     }
   }
 }

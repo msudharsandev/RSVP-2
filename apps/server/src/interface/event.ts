@@ -1,6 +1,18 @@
 import { VenueType } from '@prisma/client';
 
-export interface CreateEventDto {
+/**
+ * Interface for filtering and paginating events.
+ */
+
+export interface IAllowStatus {
+  allowedStatus: boolean;
+  userId: string;
+}
+
+/**
+ * Interface for creating a new event.
+ */
+export interface ICreateEvent {
   creatorId: string;
   name: string;
   slug: string;
@@ -18,6 +30,9 @@ export interface CreateEventDto {
   isActive?: boolean;
 }
 
+/**
+ * Interface for filtering events based on various criteria.
+ */
 export interface IEventFilters {
   userId?: string;
   search?: string;

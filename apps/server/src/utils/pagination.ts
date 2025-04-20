@@ -1,5 +1,5 @@
 import { IPaginationParams, IPaginatedResult } from '@/interface/pagination';
-import { prisma } from '@/db/connection';
+import { prisma } from '@/utils/connection';
 import { Prisma, PrismaClient } from '@prisma/client';
 
 export class Paginator<T extends keyof PrismaClient> {
@@ -9,7 +9,7 @@ export class Paginator<T extends keyof PrismaClient> {
     params: IPaginationParams,
     args: K = {} as K
   ): Promise<IPaginatedResult<Prisma.Result<PrismaClient[T], 'findMany', K>>> {
-    const { page = 1, limit = 10, sortBy = 'eventDate', sortOrder = 'desc' } = params;
+    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = params;
 
     const skip = (page - 1) * limit;
     const take = parseInt(limit.toString(), 10);
