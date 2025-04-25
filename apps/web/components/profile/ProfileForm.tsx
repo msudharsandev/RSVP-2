@@ -49,7 +49,7 @@ const ProfileForm = ({ user }: Props) => {
   };
 
   const profilePictureUrl = useMemo(() => {
-    const profileUrl = userAvatarOptions.find((option) => option.id === profileIcon?.toString());
+    const profileUrl = userAvatarOptions.find((option) => option.id === profileIcon);
     return profileUrl?.src ?? userAvatarOptions[0]?.src!;
   }, [profileIcon]);
 

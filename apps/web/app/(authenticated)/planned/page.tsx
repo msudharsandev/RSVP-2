@@ -7,7 +7,7 @@ import Timeline from '@/components/planned-events/Timeline';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { EventParams } from '@/lib/axios/event-API';
 import { useGetUpcomingEvents } from '@/lib/react-query/event';
-import { NO_PLANNED_EVENTS_MESSAGE, NO_PLANNED_EVENTS_TITLE } from '@/utils/constants';
+import { NO_PLANNED_EVENTS_MESSAGE, NO_PLANNED_EVENTS_TITLE, NO_PAST_EVENTS_TITLE } from '@/utils/constants';
 import { Suspense, useState } from 'react';
 
 const PlannedEvents = () => {
@@ -61,7 +61,6 @@ const UpcomingEvents = () => {
   if (isLoading) return <LoadingScreen />
 
   if (isError) return <div>Error loading events</div>
-
   if (data?.events.length === 0) return <NoResults
     image="/images/no-event-image.svg"
     altText="no-event-image"

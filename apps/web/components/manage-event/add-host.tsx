@@ -69,7 +69,7 @@ const AddCoHost = ({ className }: PropsWithClassName) => {
             Add host
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>Add Co-host</DialogTitle>
             <DialogDescription className="text-xs text-secondary">
@@ -102,7 +102,7 @@ const AddCoHost = ({ className }: PropsWithClassName) => {
                       <div className="flex items-center">
                         <Avatar className="h-8 w-8">
                           <AvatarImage
-                            src={`https://avatar.vercel.sh/${attendee.id}.png`}
+                            src={attendee.user?.profileIconUrl}
                             alt={attendee.user?.fullName}
                           />
                           <AvatarFallback>
@@ -127,6 +127,7 @@ const AddCoHost = ({ className }: PropsWithClassName) => {
                 ) : (
                   <>
                     <NoResults
+                    className='mt-10'
                       title="No User found"
                       message="Please confirm that if user is registered on the platform."
                     />
@@ -138,7 +139,7 @@ const AddCoHost = ({ className }: PropsWithClassName) => {
                         }}
                         className="mt-4"
                       >
-                        Invite {searchQuery} as Co-host
+                        Invite {searchQuery.slice(0, 10)}...  as Co-host
                       </Button>
                     )}
                   </>

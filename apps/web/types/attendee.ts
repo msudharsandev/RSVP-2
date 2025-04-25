@@ -2,11 +2,11 @@ import { Event } from './events';
 import { User } from './user';
 
 export enum AttendeeStatus {
-  Going = 'Going',
-  NotGoing = 'NotGoing',
-  Waiting = 'Waiting',
-  Pending = 'Pending',
-  Invited = 'Invited',
+  Going = 'GOING',
+  NotGoing = 'NOT_GOING',
+  Waiting = 'WAITING',
+  Pending = 'PENDING',
+  Invited = 'INVITED',
 }
 
 

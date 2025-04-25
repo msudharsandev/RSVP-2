@@ -48,6 +48,6 @@ export class User {
   }
 
   get profileIconUrl(): string {
-    return userAvatarOptions.find((option) => option.id === this.profileIcon.toString())?.src ?? userAvatarOptions[1].src;
+    return userAvatarOptions.find((option) => option.id === this.profileIcon)?.src ?? userAvatarOptions[1].src;
   }
 }

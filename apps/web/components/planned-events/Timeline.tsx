@@ -6,6 +6,7 @@ import { Icons } from '../common/Icon';
 import { Event } from '@/types/events';
 import dayjs from 'dayjs';
 import { getDateGroups } from '@/lib/utils';
+import { Badge } from '../ui/badge';
 
 const Timeline = ({ events }: { events?: Event[] }) => {
   if (!events || events.length === 0) {
@@ -43,7 +44,7 @@ const Timeline = ({ events }: { events?: Event[] }) => {
             <div className="pl-4 md:pl-6">
               {/* Event Date - Mobile View */}
               <div className="block pb-4 text-left text-sm font-medium md:hidden">
-                  {dayjs(dateGroup.date).format('DD MMM YYYY')}
+                {dayjs(dateGroup.date).format('DD MMM YYYY')}
               </div>
 
               {dateGroup?.events?.map((event, eventIndex) => (
@@ -56,12 +57,12 @@ const Timeline = ({ events }: { events?: Event[] }) => {
                     <div className="flex h-auto w-full flex-col justify-between gap-4 md:w-3/4">
                       <div className="flex flex-col gap-2">
                         <CardHeader className="flex flex-col items-start justify-between space-y-1.5 border-b-0 py-0 pl-0">
-                          <CardTitle className="text-xl font-bold leading-[25.2px] tracking-tight">
+                          <Badge variant="outline" className="text-sm -ml-0.5 mb-1 font-medium">
+                            {event.category}
+                          </Badge>
+                          <CardTitle className="text-xl font-bold leading-[25.2px] mb-1 tracking-tight">
                             {event.name}
                           </CardTitle>
-                          <p className="text-base font-semibold leading-[19.6px]">
-                            {event.category}
-                          </p>
                         </CardHeader>
 
                         <CardContent className="flex flex-col gap-1 p-0 pt-2">
@@ -89,7 +90,7 @@ const Timeline = ({ events }: { events?: Event[] }) => {
                     <div className="relative min-h-[350px] w-full rounded-md md:h-auto md:min-h-[160px] md:min-w-[160px] md:max-w-[160px]">
                       <div className="w-full overflow-hidden rounded-md">
                         <Image
-                          src={eventImageSrc}
+                          src={event.eventImageUrl}
                           alt={event.name}
                           fill
                           style={{ objectFit: 'cover' }}

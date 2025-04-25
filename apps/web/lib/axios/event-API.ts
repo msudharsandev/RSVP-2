@@ -117,7 +117,7 @@ export const eventAPI = {
   },
 
   getAttendee: async (eventId: string) => {
-    return api.get(`event/${eventId}/attendees/ticket`).then((res) => res.data as Attendee);
+    return api.get(`event/${eventId}/attendees/ticket`).then((res) => new Attendee(res.data.data));
   },
 
   verifyAttendee: async (payload: { eventId: string; attendeeId: string }) => {

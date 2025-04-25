@@ -25,7 +25,7 @@ const defaultValues: CreateEventFormType = {
   toTime: '20:00',
   toDate: allowedDate,
   capacity: 20,
-  eventImageId: {
+  eventImageUrl: {
     signedUrl: '',
     file: '',
     url: '',
@@ -40,7 +40,7 @@ const CreateEventForm = () => {
       name,
       category,
       description,
-      eventImageId,
+      eventImageUrl,
       venueType,
       hostPermissionRequired,
       capacity,
@@ -55,10 +55,10 @@ const CreateEventForm = () => {
       name,
       category,
       description,
-      eventImageId: eventImageId.url ?? '',
+      eventImageUrl:data.eventImageUrl.url ?? '',
       venueType,
-      venueAddress: venueType === 'physical' ? location : undefined,
-      venueUrl: venueType === 'virtual' ? location : undefined,
+      venueAddress: venueType === VenueType.Physical ? location : undefined,
+      venueUrl: venueType === VenueType.Virtual ? location : undefined,
       hostPermissionRequired,
       capacity,
       startTime: combineDateAndTime(fromDate, fromTime),
@@ -66,10 +66,10 @@ const CreateEventForm = () => {
       eventDate: fromDate,
     };
 
-    if (eventImageId.file && eventImageId.signedUrl) {
+    if (data.eventImageUrl.file && data.eventImageUrl.signedUrl) {
       setIsLoading(true)
-      const imageFile = await fileFromUrl(eventImageId.file, 'event-image');
-      await axios.put(eventImageId.signedUrl, imageFile);
+      const imageFile = await fileFromUrl(data.eventImageUrl.file, 'event-image');
+      await axios.put(data.eventImageUrl.signedUrl, imageFile);
       mutate(submissionData);
       setIsLoading(false)
     }

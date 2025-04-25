@@ -20,7 +20,6 @@ export const authAPI = {
 
   currentUser: async () => {
     const response = await api.get('/auth/me');
-    console.log(response.data, 'response.data');
     return new User(response.data.data);
   },
 

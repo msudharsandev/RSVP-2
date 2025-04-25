@@ -5,6 +5,7 @@ import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
 import { ClockIcon, LinkIcon } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Badge } from '../ui/badge';
 import AvatarGroup from './AvatarGroup';
 import GetTicketsButton from './GetTicketsButton';
@@ -25,7 +26,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
     <main>
       <div className="relative w-full overflow-hidden">
         <Image
-          src={event.eventImageId ?? '/images/event-detail-mobile.svg'}
+          src={event.eventImageUrl}
           objectFit="cover"
           width={200}
           height={200}
@@ -35,7 +36,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
         />
         <div className="relative mx-auto h-[300px] w-full object-cover sm:h-[350px] sm:w-[600px] md:h-[400px] md:w-[800px] lg:h-[600px] lg:w-[970px]">
           <Image
-            src={event.eventImageId ?? '/images/event-detail-mobile.svg'}
+            src={event.eventImageUrl}
             width={1920}
             height={1080}
             priority
@@ -46,7 +47,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
       </div>
       <article className="my-6 flex flex-col items-start md:my-12">
         {event.category ? (
-          <Badge className="mb-2 px-4 py-2 text-sm font-normal capitalize text-white">
+          <Badge className="mb-4 text-sm font-medium tracking-wide capitalize text-white">
             {event?.category}
           </Badge>
         ) : null}
@@ -67,17 +68,27 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
           </section>
           <section className="flex items-center">
             <div className="mr-[20px] rounded-[8px] bg-dark-500 p-3">
-              {event?.venueType === 'physical' && <MapPinIcon className="h-[24px] w-[24px]" />}
-              {event?.venueType === 'virtual' && <LinkIcon className="h-[24px] w-[24px]" />}
-              {event?.venueType === 'later' && <ClockIcon className="h-[24px] w-[24px]" />}
+              {event?.isPhysical && <MapPinIcon className="h-[24px] w-[24px]" />}
+              {event?.isVirtual && <LinkIcon className="h-[24px] w-[24px]" />}
+              {event?.isLater && <ClockIcon className="h-[24px] w-[24px]" />}
             </div>
             <article className="font-bold">
               <p>
-                {event?.venueType === 'physical' && 'Location'}
-                {event?.venueType === 'virtual' && 'Event Link'}
-                {event?.venueType === 'later' && 'To be announced'}
+                {event?.isPhysical && 'Location'}
+                {event?.isVirtual && 'Event Link'}
+                {event?.isLater && 'To be announced'}
               </p>
-              <p className="text-sm text-secondary">{venueDisplay(event)}</p>
+              {event?.isPhysical && (
+                <p className="text-sm text-secondary">{venueDisplay(event)}</p>
+              )}
+
+              {event?.isVirtual && (
+                <Link href={event?.venueUrl ?? ''} target="_blank" className="text-sm text-secondary hover:underline hover:text-primary">
+                  <p>
+                    {venueDisplay(event)}
+                  </p>
+                </Link>
+              )}
             </article>
           </section>
           <section className="mt-6 p-3 pl-0">

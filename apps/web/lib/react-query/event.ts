@@ -29,7 +29,7 @@ export const useEventQuery = (id: string) => {
   });
 };
 
-export const useGetEvent = (params: EventParams ) => {
+export const useGetEvent = (params: EventParams) => {
   return useQuery({
     queryKey: [EVENTS_QUERY_KEY, params],
     queryFn: () => eventAPI.getEvent(params),
@@ -40,19 +40,19 @@ export const useGetDiscoverEvents = (params: EventParams) => {
   return useInfiniteQuery({
     queryKey: [EVENTS_QUERY_KEY, params],
     queryFn: ({ pageParam }) => eventAPI.getEvent({ ...params, page: Number(pageParam ?? '1') }),
-    getNextPageParam: (lastPage: { metadata?: PaginationMetadata}) => lastPage.metadata?.hasMore ? lastPage.metadata?.page + 1 : undefined,
+    getNextPageParam: (lastPage: { metadata?: PaginationMetadata }) => lastPage.metadata?.hasMore ? lastPage.metadata?.page + 1 : undefined,
     initialPageParam: 1,
   });
 };
 
-export const useGetMyEvents = ( filters: EventParams ) => {
+export const useGetMyEvents = (filters: EventParams) => {
   return useQuery({
     queryKey: [EVENTS_QUERY_KEY, 'my-events', filters],
     queryFn: () => eventAPI.getMyEvents(filters),
   });
 };
 
-export const useGetUpcomingEvents = ( filters: EventParams ) => {
+export const useGetUpcomingEvents = (filters: EventParams) => {
   return useQuery({
     queryKey: [EVENTS_QUERY_KEY, 'upcoming-events', filters],
     queryFn: () => eventAPI.getUpcomingEvents(filters),
@@ -145,7 +145,7 @@ export const useGetAttendeeByEventId = (filter: GetAttendeeByEventIdParams) => {
     queryFn: async () => {
       const response = await eventAPI.getEventAttendees(filter);
       const attendees = Array.from(response.data.data).map(
-        (attendee) => new Attendee(attendee as any)
+        (attendee) => new Attendee(attendee as Attendee)
       );
       return { attendees, total: response.data.total };
     },

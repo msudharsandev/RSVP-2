@@ -22,7 +22,7 @@ const Card = ({ className, event, type }: CardProps) => {
       <figure>
         <Image
           priority
-            src={event?.eventImageId || '/images/demo-event-image.png'}
+            src={event?.eventImageUrl}
           width={300}
           height={200}
           className="h-44 w-full rounded-[8px] object-cover"
