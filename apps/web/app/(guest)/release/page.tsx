@@ -19,36 +19,38 @@ const ReleasePage = () => {
 
   const selectedChangelog = changelogs[parseInt(selectedIndex || '0')];
   return (
-    <Container asChild>
+    <Container asChild className="max-w-5xl">
       <section className="text-secondary">
         <main className="max-w-full" id="about">
           <header className="dark prose max-w-full marker:text-white text-secondary dark:prose-invert prose-h2:text-[1.75rem] prose-p:tracking-wide">
             <div className="space-y-0">
-              <h2 className="text-[2.25rem] font-semibold">About</h2>
+              <h2 className="font-semibold text-white mt-12">About</h2>
               <p>
-                RSVP is  your go-to platform for creating, managing, and attending events with
-                ease. Designed for both individuals and organizations, RSVP simplifies the entire
-                event planning process, ensuring your events are nothing short of spectacular
-                events! RSVP helps you to:
+                RSVP is your go-to platform for creating, managing, and attending events with ease.
+                Designed for both individuals and organizations, RSVP simplifies the entire event
+                planning process, ensuring your events are nothing short of spectacular events! RSVP
+                helps you to:
               </p>
               <div className="space-y-0">
                 <ul className="ml-5 list-disc space-y-1">
                   <li>
                     <span className="font-semibold">Create Memorable Events:</span>{' '}
                     <span className="text-secondary">
-                    Design captivating event pages using customizable templates and detailed information fields.
+                      Design captivating event pages using customizable templates and detailed
+                      information fields.
                     </span>
                   </li>
                   <li>
                     <span className="font-semibold">Manage Attendees Seamlessly:</span>{' '}
                     <span className="text-secondary">
-                    Keep track of RSVPs, send real-time updates, and organize your guest list with ease.
+                      Keep track of RSVPs, send real-time updates, and organize your guest list with
+                      ease.
                     </span>
                   </li>
                   <li>
                     <span className="font-semibold">Promote Like a Pro:</span>{' '}
                     <span className="text-secondary">
-                    Leverage powerful marketing tools to expand your reach and boost attendance.
+                      Leverage powerful marketing tools to expand your reach and boost attendance.
                     </span>
                   </li>
                   <li>
@@ -74,7 +76,7 @@ const ReleasePage = () => {
         <main className="max-w-6xl" id="changelog">
           <header className="flex flex-col items-start justify-between gap-8 pb-20 pt-20 md:flex-row md:items-end">
             <div className="max-w-fill 00 space-y-4">
-              <h2 className="text-[1.75rem]  font-semibold">Changelog</h2>
+              <h2 className="text-[1.75rem] font-semibold text-white">Changelog</h2>
               <p className="text-[1rem]  text-secondary md:text-[1rem]">
                 A latest-to-greatest list of our releases,packed with new features, improvements,
                 and bug fixes.
