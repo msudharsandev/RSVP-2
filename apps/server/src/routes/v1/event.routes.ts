@@ -35,7 +35,7 @@ import {
   eventFilterSchema,
   eventLimitSchema,
   eventParamsSchema,
-  getEventBySlugSchema,
+  SlugSchema,
   userUpdateSchema,
 } from '@/validations/event.validation';
 import { Router } from 'express';
@@ -59,7 +59,7 @@ eventRouter.get('/', validate({ query: eventFilterSchema }), filterEventControll
 
 eventRouter.get(
   '/slug/:slug',
-  validate({ params: getEventBySlugSchema }),
+  validate({ params: SlugSchema }),
   getEventBySlugController
 );
 
@@ -112,11 +112,11 @@ eventRouter.delete(
   deleteEventController
 );
 
-eventRouter.get(
-  '/user',
+eventRouter.patch(
+  '/:eventId/slug',
   authMiddleware,
-  validate({ params: idParamsSchema, body: attendeePayloadSchema }),
-  eventManageMiddleware([Role.CREATOR]),
+  validate({ params: eventParamsSchema, body: SlugSchema }),
+  eventManageMiddleware([Role.CREATOR, Role.MANAGER]),
   updateEventSlugController
 );
 

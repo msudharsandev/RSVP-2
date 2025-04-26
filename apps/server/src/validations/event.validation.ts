@@ -1,6 +1,6 @@
 import z from 'zod';
 import { paginationParamsSchema } from './pagination.validation';
-import { Status } from '@prisma/client';
+import { Status,VenueType } from '@prisma/client';
 
 export enum PAGINATION_ORDER {
   ASC = 'asc',
@@ -17,7 +17,7 @@ export const DATE_RANGE = {
   HIGH: new Date('9999-12-31T23:59:59.999Z'),
 } as const;
 
-export const getEventBySlugSchema = z.object({
+export const SlugSchema = z.object({
   slug: z.string(),
 });
 
@@ -26,7 +26,7 @@ export const EventSchema = z.object({
   category: z.string().max(256),
   description: z.string().max(512),
   eventImageUrl: z.string().max(256),
-  venueType: z.enum(['physical', 'virtual', 'later']),
+  venueType: z.enum([VenueType.PHYSICAL, VenueType.VIRTUAL, VenueType.LATER]),
   venueAddress: z.string().max(256).optional(),
   venueUrl: z.string().url().max(256).optional(),
   hostPermissionRequired: z.boolean(),
@@ -39,13 +39,13 @@ export const EventSchema = z.object({
 export const CreateEventSchema = EventSchema.strict()
   .refine(
     (data) => {
-      if (data.venueType === 'physical') {
+      if (data.venueType === VenueType.PHYSICAL) {
         return data.venueAddress !== null && data.venueUrl == null;
       }
-      if (data.venueType === 'virtual') {
+      if (data.venueType === VenueType.VIRTUAL) {
         return data.venueUrl !== null && data.venueAddress == null;
       }
-      if (data.venueType === 'later') {
+      if (data.venueType === VenueType.LATER) {
         return data.venueUrl == null && data.venueAddress == null;
       }
       return false;

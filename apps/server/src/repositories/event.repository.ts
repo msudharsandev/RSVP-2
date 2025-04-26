@@ -257,6 +257,7 @@ export class EventRepository {
     return updatedEvent;
   }
 
+
   /**
    * Updates the slug of an event.
    * @param eventId - The unique ID of the event.

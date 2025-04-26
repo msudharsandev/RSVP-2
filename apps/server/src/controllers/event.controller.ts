@@ -75,17 +75,15 @@ export const getEventByIdController = catchAsync(
  * @returns The updated slug.
  */
 export const updateEventSlugController = catchAsync(
-  async (req: IAuthenticatedRequest<{ id?: string }, {}, z.infer<typeof editSlugSchema>>, res) => {
-    const { id } = req.params;
+  async (req: IAuthenticatedRequest<{ eventId?: string }, {}, z.infer<typeof editSlugSchema>>, res) => {
+    const { eventId } = req.params;
     const { userId } = req;
     if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
 
-    if (!id) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
     const slug = req.body.slug;
-
     logger.info('Updating slug in updateEventSlugController ...')
-    const updatedSlug = await EventRepository.updateSlug(id, userId, slug);
-
+    const updatedSlug = await EventRepository.updateSlug(eventId, userId, slug);
     return res.status(200).json({ data: updatedSlug, success: true });
   }
 );
