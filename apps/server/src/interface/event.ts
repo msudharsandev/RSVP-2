@@ -5,8 +5,8 @@ import { VenueType } from '@prisma/client';
  */
 
 export interface IAllowStatus {
+  attendeeId: string;
   allowedStatus: boolean;
-  userId: string;
 }
 
 /**

@@ -5,7 +5,6 @@ import {
   deleteAttendeeController,
   deleteEventController,
   filterEventController,
-  getAllowAttendeeController,
   getAttendeeController,
   getAttendeeTicketController,
   getEventByIdController,
@@ -23,11 +22,11 @@ import {
 
 import {
   attendeeParamsSchema,
-  attendeePayloadSchema,
-  idParamsSchema,
   qrTokenSchema,
   upcomingEventsQuerySchema,
   verifyQrTokenParamsSchema,
+  updateAttendeeStatusParamsSchema,
+  attendeeStatusUpdateSchema
 } from '@/validations/attendee.validation';
 import {
   attendeesQuerySchema,
@@ -181,18 +180,10 @@ eventRouter.get(
   scanTicketController
 );
 
-eventRouter.get(
-  '/:eventId/attendee/:userId/allowStatus',
-  authMiddleware,
-  validate({ params: eventParamsSchema }),
-  eventManageMiddleware([Role.CREATOR, Role.MANAGER]),
-  getAllowAttendeeController
-);
-
 eventRouter.patch(
-  '/:eventId/attendee/allowStatus',
+  '/:eventId/attendee/:attendeeId/status',
   authMiddleware,
-  validate({ params: eventParamsSchema }),
+  validate({ params: updateAttendeeStatusParamsSchema, body: attendeeStatusUpdateSchema }),
   eventManageMiddleware([Role.CREATOR, Role.MANAGER]),
   updateAttendeeStatusController
 );

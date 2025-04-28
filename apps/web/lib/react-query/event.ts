@@ -231,30 +231,19 @@ export const useCancelEvent = () => {
   });
 };
 
-export const useAllowedGuestColumn = (eventId: string, userId: string) => {
-  return useQuery({
-    queryKey: ['allowStatus', eventId, userId],
-    queryFn: async () => {
-      const response = await eventAPI.checkAllowStatus(eventId, userId);
-      return response.data.data.hasAccess;
-    },
-    select: (hasAccess) => hasAccess,
-  });
-};
-
-export const useUpdateAllowStatus = () => {
+export const useUpdateAttendeeStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
       eventId,
-      userId,
+      attendeeId,
       allowedStatus,
     }: {
       eventId: string;
-      userId: string;
+      attendeeId: string;
       allowedStatus: boolean;
-    }) => eventAPI.updateAttendeeAllowStatus(eventId, userId, allowedStatus),
+    }) => eventAPI.updateAttendeeStatus(eventId, attendeeId, allowedStatus),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attendees'] });
     },

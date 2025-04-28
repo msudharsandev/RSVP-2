@@ -1308,13 +1308,12 @@ TBC - put all the UML diagrams here
 
 | URL | Method | Auth Required | Description |
 |-----|--------|---------------|-------------|
-| `/event/:eventId/attendee/allowStatus` | PATCH | True | Update attendee's allowed status (CREATOR/MANAGER only) |
+| `/event/:eventId/attendee/:attendeeId/status` | PATCH | True | Update attendee's allowed status and status (CREATOR/MANAGER only) |
 > <details>
 > <summary>Request body</summary>
 >
 > ```json
 > {
->   "userId": "1c1df2a1-6f3f-4908-8d17-2d2ca55839af",
 >   "allowedStatus": true
 > }
 > ```

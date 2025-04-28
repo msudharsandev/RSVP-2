@@ -25,6 +25,7 @@ export const API_MESSAGES = {
   ALLOW_GUEST: {
     UNAUTHORIZED_ACCESS: 'Unauthorized access',
     EVENTID_REQUIRED: 'Event ID is required',
+    ATTENDEEID_REQUIRED: 'Attendee Id is required',
     ATTENDEE_NOT_FOUND: 'Attendee not found',
     INVALID_TOKEN: 'Invalid or expired token',
     SUCCESSFUL_ATTENDEE_UPDATE: 'Attendee allow status updated successfully',

@@ -241,21 +241,22 @@ export class AttendeeRepository {
   }
 
   /**
-   * Updates the allowed status of an attendee for a specific event.
+   * Updates the allowed status and status of an attendee for a specific event.
    * @param eventId - The unique ID of the event.
-   * @param userId - The unique ID of the user.
+   * @param id - The unique ID of the attendee.
    * @param allowedStatus - The new allowed status.
+   * @param status - The new status.
    * @returns The updated attendee object.
    */
-  static async updateAllowStatus(eventId: string, userId: string, allowedStatus: boolean) {
-    return await prisma.attendee.updateMany({
+  static async updateAttendeeStatus( id: string, allowedStatus: boolean) {
+    return await prisma.attendee.update({
       where: {
-        eventId,
-        userId,
+        id,
         isDeleted: false,
       },
       data: {
         allowedStatus,
+        status: allowedStatus ? Status.GOING : Status.WAITING,
       },
     });
   }

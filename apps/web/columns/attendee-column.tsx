@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Attendee } from '@/types/attendee';
 import { ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
-import { useAllowedGuestColumn, useUpdateAllowStatus } from '@/lib/react-query/event';
+import { useUpdateAttendeeStatus } from '@/lib/react-query/event';
 import { useState, useEffect } from 'react';
 import { getBadgeVariant, getProfilePictureUrl } from '@/utils/event';
 
@@ -73,9 +73,7 @@ const attendeeColumns: ColumnDef<Attendee>[] = [
 ];
 
 const AllowedGuestColumn = ({ attendee }: { attendee: Attendee }) => {
-  const { mutate } = useUpdateAllowStatus();
-
-  const { data: hasAccess } = useAllowedGuestColumn(attendee.eventId, attendee.userId);
+  const { mutate } = useUpdateAttendeeStatus();
 
   useEffect(() => {
     setIsToggled(attendee.allowedStatus);
@@ -87,7 +85,7 @@ const AllowedGuestColumn = ({ attendee }: { attendee: Attendee }) => {
     setIsToggled(checked);
     mutate({
       eventId: attendee.eventId,
-      userId: attendee.userId,
+      attendeeId: attendee.id,
       allowedStatus: checked,
     });
   };

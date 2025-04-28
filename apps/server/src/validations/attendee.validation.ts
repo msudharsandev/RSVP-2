@@ -36,4 +36,13 @@ export const upcomingEventsQuerySchema = z.object({
   limit: z.coerce.number().positive().default(10),
 });
 
+export const updateAttendeeStatusParamsSchema = z.object({
+  attendeeId: z.string().uuid(),
+  eventId: z.string().uuid(),
+})
+
+export const attendeeStatusUpdateSchema = z.object({
+  allowedStatus: z.boolean(),
+});
+
 export type UpcomingEventsQuery = z.infer<typeof upcomingEventsQuerySchema>;

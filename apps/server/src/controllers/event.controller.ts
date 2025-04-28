@@ -504,43 +504,21 @@ export const getAttendeeTicketController = catchAsync(
 );
 
 /**
- * Checks if a user is allowed to attend an event.
- * @param req - The HTTP request object containing the event ID in the parameters.
- * @param res - The HTTP response object.
- * @returns A success message if the user is allowed.
- */
-export const getAllowAttendeeController = catchAsync(
-  async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
-    const { eventId } = req.params;
-    const userId = req.userId;
-    if (!eventId) throw new BadRequestError(API_MESSAGES.ALLOW_GUEST.EVENTID_REQUIRED);
-    if (!userId) throw new TokenExpiredError();
-
-    logger.info('Finding host and cohost in getAllowAttendeeController ...');
-    const hasAccess = await CohostRepository.FindhostOrCohost(userId, eventId);
-    if (!hasAccess) throw new ForbiddenError(API_MESSAGES.ALLOW_GUEST.UNAUTHORIZED_ACCESS);
-
-    return new SuccessResponse('success', { success: true }).send(res);
-  }
-);
-
-/**
- * Updates the allowed status of an attendee for a specific event.
- * @param req - The HTTP request object containing the event ID in the parameters and the allowed status in the body.
+ * Updates the allowed status and status of an attendee for a specific event.
+ * @param req - The HTTP request object containing the attendee ID in the parameters and the allowed status in the body.
  * @param res - The HTTP response object.
  * @returns The updated attendee object.
  */
 export const updateAttendeeStatusController = catchAsync(
-  async (req: IAuthenticatedRequest<{ eventId?: string }, {}, IAllowStatus>, res) => {
-    const { eventId } = req.params;
-    const { userId, allowedStatus } = req.body;
-    if (!eventId) throw new BadRequestError(API_MESSAGES.ALLOW_GUEST.EVENTID_REQUIRED);
+  async (req: IAuthenticatedRequest<{ attendeeId?: string }, {}, IAllowStatus>, res) => {
+    const { attendeeId } = req.params;
+    const { allowedStatus} = req.body;
+    if (!attendeeId) throw new BadRequestError(API_MESSAGES.ALLOW_GUEST.ATTENDEEID_REQUIRED);
 
-    logger.info('Updating attendee status in updateAttendeeStatusController ...');
-    const updatedAttendee = await AttendeeRepository.updateAllowStatus(
-      eventId,
-      userId,
-      allowedStatus
+    logger.info('Updating attendee status in updateAttendeeStatusController ...')
+    const updatedAttendee = await AttendeeRepository.updateAttendeeStatus(
+      attendeeId,
+      allowedStatus,
     );
 
     return new SuccessResponse(
