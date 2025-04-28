@@ -1,6 +1,8 @@
 import config from '@/config/config';
-import { UserRepository } from '@/repositories/user.repository';
 import { IAuthenticatedRequest } from '@/interface/middleware';
+import { UserRepository } from '@/repositories/user.repository';
+import { TokenExpiredError } from '@/utils/apiError';
+import { SuccessMsgResponse, SuccessResponse } from '@/utils/apiResponse';
 import catchAsync from '@/utils/catchAsync';
 import { generateAccessToken, generateRefreshToken, verifyAccessToken } from '@/utils/jwt';
 import logger from '@/utils/logger';
@@ -45,7 +47,7 @@ export const signinController = catchAsync(
       logger.info('Email notification:', emailData);
     }
 
-    return res.status(200).json({ message: 'success' });
+    return new SuccessMsgResponse('success').send(res);
   }
 );
 
@@ -59,11 +61,11 @@ export const verifySigninController = catchAsync(
   async (req: Request<{}, {}, z.infer<typeof verifySigninSchema>>, res) => {
     const { token } = req.body;
     const decodedToken = verifyAccessToken(token);
-    if (!decodedToken) return res.status(401).json({ message: 'Token expired or invalid' });
+    if (!decodedToken) throw new TokenExpiredError();
 
     logger.info('Verifying token in verifySigninController ...');
     const user = await UserRepository.verifyToken(decodedToken.tokenId);
-    if (!user) return res.status(401).json({ message: 'Token expired or invalid' });
+    if (!user) throw new TokenExpiredError();
 
     const accessToken = generateAccessToken({ userId: user.id });
     const refreshToken = generateRefreshToken({ userId: user.id });
@@ -86,7 +88,8 @@ export const verifySigninController = catchAsync(
     });
 
     const { isCompleted } = user;
-    return res.status(200).json({ data: { user: { isCompleted } } });
+    const data = { user: { isCompleted } };
+    return new SuccessResponse('success', data).send(res);
   }
 );
 
@@ -103,7 +106,7 @@ export const logoutController = catchAsync(async (req, res) => {
   res.clearCookie('refreshToken');
   await UserRepository.updateRefreshToken(userId, null);
 
-  return res.status(204).send();
+  return new SuccessMsgResponse('success').send(res);
 });
 
 /**
@@ -114,12 +117,12 @@ export const logoutController = catchAsync(async (req, res) => {
  */
 export const getMyDataController = catchAsync(async (req: IAuthenticatedRequest, res) => {
   const userId = req.userId;
-  if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+  if (!userId) throw new TokenExpiredError();
 
   logger.info('Getting user information in getMyDataController ...');
   const user = await UserRepository.findById(userId.toString());
-  if (!user) return res.status(401).json({ message: 'Invalid or expired token' });
+  if (!user) throw new TokenExpiredError();
   const { magicToken, refreshToken, ...safeUser } = user;
 
-  return res.status(200).json({ message: 'success', data: safeUser });
+  return new SuccessResponse('success', safeUser).send(res);
 });

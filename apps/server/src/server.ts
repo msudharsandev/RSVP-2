@@ -6,6 +6,8 @@ import cors, { CorsOptions } from 'cors';
 import express, { json, NextFunction, urlencoded, type Express } from 'express';
 import logger from '@/utils/logger';
 import { apiLimiter } from '@/utils/rateLimiter';
+import { InternalError } from './utils/apiError';
+import { ApiError } from './utils/apiError';
 
 /**
  * Creates and configures the Express server.
@@ -33,12 +35,14 @@ export const createServer = (): Express => {
       return res.status(404).json({ message: `Not Found - ${req.originalUrl}` });
     })
     .use((err: Error, _req: any, res: any, _next: NextFunction) => {
-      if (config.NODE_ENV === 'development') {
-        logger.info(err.stack);
+      if (err instanceof ApiError) {
+        // req.error = err.message;
+        ApiError.handle(err, res);
+      } else {
+        logger.error(err);
+        const errorMessage = 'We are experiencing high traffic, please try again later';
+        ApiError.handle(new InternalError(errorMessage), res);
       }
-      return res
-        .status(500)
-        .json({ message: `We are experiencing high traffic, please try again later` });
     });
 
   return app;

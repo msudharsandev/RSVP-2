@@ -1,16 +1,17 @@
-import z from 'zod';
+import config from '@/config/config';
+import { IAuthenticatedRequest } from '@/interface/middleware';
+import { AttendeeRepository } from '@/repositories/attendee.repository';
 import { EventRepository } from '@/repositories/event.repository';
 import { UpdateRepository } from '@/repositories/update.repository';
 import { UserRepository } from '@/repositories/user.repository';
-import { AttendeeRepository } from '@/repositories/attendee.repository';
-import { userUpdateSchema } from '@/validations/event.validation';
+import { NotFoundError } from '@/utils/apiError';
+import { SuccessResponse } from '@/utils/apiResponse';
 import catchAsync from '@/utils/catchAsync';
+import logger from '@/utils/logger';
 import generatePresignedUrl from '@/utils/s3';
 import EmailService from '@/utils/sendEmail';
-import logger from '@/utils/logger';
-import config from '@/config/config';
-import { IAuthenticatedRequest } from '@/interface/middleware';
-
+import { userUpdateSchema } from '@/validations/event.validation';
+import z from 'zod';
 /**
  * Sends a notification message to event attendees.
  * @param req - The HTTP request object containing the event ID in the parameters and the message content in the body.
@@ -27,10 +28,10 @@ export const sendMessageController = catchAsync(
     const RSVP_SUBJECT_MSG = 'Updates from your event';
 
     const event = await EventRepository.findById(param.eventId as string);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) throw new NotFoundError('Event not found');
 
     const getUserDetails = await UserRepository.findById(event.creatorId);
-    if (!getUserDetails?.id) return res.status(404).json({ message: 'User not found' });
+    if (!getUserDetails?.id) throw new NotFoundError('User not found');
 
     logger.info('Creating message in sendMessageController ...');
     const notificationData = {
@@ -75,7 +76,7 @@ export const sendMessageController = catchAsync(
       logger.info('Email notification:', emailData);
     }
 
-    return res.status(201).json(notificationDeta);
+    return new SuccessResponse('success', notificationDeta).send(res);
   }
 );
 
@@ -90,7 +91,7 @@ export const uploadEventImageController = catchAsync(
     const fileName = req.query.filename;
     logger.info('Getting pre-signed url in uploadEventImageController ...');
     const response = await generatePresignedUrl(fileName as string);
-    return res.status(200).json(response);
+    return new SuccessResponse('success', response).send(res);
   }
 );
 
@@ -104,10 +105,10 @@ export const getMessageController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}>, res) => {
     const param = req.params;
     const event = await EventRepository.findById(param.eventId as string);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) throw new NotFoundError('Event not found');
 
     logger.info('Getting all messages in  getMessageController...');
     const messages = await UpdateRepository.findAllById(param.eventId as string);
-    return res.status(200).json(messages);
+    return new SuccessResponse('success', messages).send(res);
   }
 );

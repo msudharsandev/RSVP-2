@@ -1,30 +1,37 @@
+import { IAuthenticatedRequest } from '@/interface/middleware';
 import { CohostRepository } from '@/repositories/cohost.repository';
 import { EventRepository } from '@/repositories/event.repository';
 import { UserRepository } from '@/repositories/user.repository';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+  TokenExpiredError,
+} from '@/utils/apiError';
+import { SuccessResponse } from '@/utils/apiResponse';
 import catchAsync from '@/utils/catchAsync';
+import logger from '@/utils/logger';
 import { addCohostSchema } from '@/validations/cohost.validation';
 import { Role } from '@prisma/client';
 import z from 'zod';
 import { API_MESSAGES } from '../constants/apiMessages';
-import { IAuthenticatedRequest } from '@/interface/middleware';
-import logger from '@/utils/logger';
-
 /**
  * Retrieves all hosts and cohosts for a specific event.
  * @param req - The HTTP request object containing the event ID in the parameters.
  * @param res - The HTTP response object.
  * @returns A list of hosts and cohosts for the event.
  */
+
 export const getEventHostController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;
-    if (!eventId) return res.status(400).json({ message: 'Event Id is required' });
+    if (!eventId) throw new BadRequestError('Event Id is required');
 
     logger.info('Getting all host in getEventHostController ...');
     const hosts = await CohostRepository.findAllByEventId(eventId);
-    if (!hosts) return res.status(404).json({ message: 'No hosts found' });
+    if (!hosts) throw new NotFoundError('No hosts found');
 
-    return res.status(200).json({ message: 'success', hosts });
+    return new SuccessResponse('success', hosts).send(res);
   }
 );
 
@@ -37,26 +44,25 @@ export const getEventHostController = catchAsync(
 export const addEventHostController = catchAsync(
   async (req: IAuthenticatedRequest<{}, {}, z.infer<typeof addCohostSchema>>, res) => {
     const { userId } = req;
-    if (!userId) return res.status(400).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
     const { email, eventId, role } = req.body;
 
     const event = await EventRepository.findById(eventId);
-    if (!event) return res.status(404).json({ message: API_MESSAGES.EVENT.NOT_FOUND });
+    if (!event) throw new NotFoundError(API_MESSAGES.EVENT.NOT_FOUND);
     const isUserMod = await CohostRepository.FindhostOrCohost(eventId, userId, [Role.MANAGER]);
 
     if (userId !== event.creatorId && !isUserMod)
-      return res
-        .status(403)
-        .json({ message: API_MESSAGES.COHOST.ADD.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED });
+      throw new ForbiddenError(
+        API_MESSAGES.COHOST.ADD.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED
+      );
 
     logger.info('Getting host details in addEventHostController ...');
     const user = await UserRepository.findbyEmail(email);
-    if (!user) return res.status(404).json({ message: API_MESSAGES.USER.NOT_FOUND });
+    if (!user) throw new NotFoundError(API_MESSAGES.USER.NOT_FOUND);
 
-    if (!user.isCompleted)
-      return res.status(400).json({ message: API_MESSAGES.USER.PROFILE_INCOMPLETE });
+    if (!user.isCompleted) throw new BadRequestError(API_MESSAGES.USER.PROFILE_INCOMPLETE);
     const hostExists = await CohostRepository.findByUserIdAndEventId(user.id, eventId);
-    if (hostExists) return res.status(400).json({ message: 'Host already exists' });
+    if (hostExists) throw new BadRequestError('Host already exists');
 
     const host = await CohostRepository.create({
       eventId,
@@ -64,7 +70,7 @@ export const addEventHostController = catchAsync(
       role: role.toUpperCase() as Role,
     });
 
-    return res.status(201).json({ message: 'success', data: host });
+    return new SuccessResponse('success', host).send(res);
   }
 );
 
@@ -84,17 +90,13 @@ export const removeEventCohostController = catchAsync(
     res
   ) => {
     const { eventId, cohostId } = req.params;
-    if (!eventId || !cohostId) return res.status(400).json({ message: 'Event Id and cohost user is required' });
-    
+    if (!eventId || !cohostId) throw new BadRequestError('Event Id and cohost user is required');
+
     const deletedCohost = await CohostRepository.removeCoHost(cohostId, eventId);
     if (!deletedCohost) {
-      return res.status(400).json({
-        message: API_MESSAGES.COHOST.REMOVE.FAILED,
-      });
+      throw new BadRequestError(API_MESSAGES.COHOST.REMOVE.FAILED);
     } else {
-      return res.status(200).json({
-        message: API_MESSAGES.COHOST.REMOVE.SUCCESS,
-      });
+      return new SuccessResponse(API_MESSAGES.COHOST.REMOVE.SUCCESS, deletedCohost).send(res);
     }
   }
 );

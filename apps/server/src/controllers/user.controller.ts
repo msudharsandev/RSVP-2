@@ -1,10 +1,12 @@
-import { UserRepository } from '@/repositories/user.repository';
 import { IAuthenticatedRequest } from '@/interface/middleware';
+import { UserRepository } from '@/repositories/user.repository';
+import { BadRequestError, NotFoundError, TokenExpiredError } from '@/utils/apiError';
+import { SuccessResponse } from '@/utils/apiResponse';
 import catchAsync from '@/utils/catchAsync';
-import { profilePayloadSchema, usernameSchema } from '@/validations/users.validation';
-import z from 'zod';
-import { Request } from 'express';
 import logger from '@/utils/logger';
+import { profilePayloadSchema, usernameSchema } from '@/validations/users.validation';
+import { Request } from 'express';
+import z from 'zod';
 
 /**
  * Updates the profile of the authenticated user.
@@ -15,18 +17,17 @@ import logger from '@/utils/logger';
 export const updateUserProfileController = catchAsync(
   async (req: IAuthenticatedRequest<{}, {}, z.infer<typeof profilePayloadSchema>>, res) => {
     const userId = req.userId as unknown as string;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
 
     let user = await UserRepository.updateProfile(userId, req.body);
-    if (!user) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!user) throw new TokenExpiredError();
     const { fullName, location, contact } = user;
 
     logger.info('Checking if user profile is completed in updateUserProfileController ...');
     if (!!fullName && !!location && !!contact) {
       user = await UserRepository.updateProfile(userId, { isCompleted: true });
     }
-
-    return res.status(200).json({ message: 'success', data: user });
+    return new SuccessResponse('success', user).send(res);
   }
 );
 
@@ -38,14 +39,14 @@ export const updateUserProfileController = catchAsync(
  */
 export const getUserPublicController = catchAsync(
   async (req: Request<{}, {}, z.infer<typeof usernameSchema>>, res) => {
-    const { username } = req.params as z.infer<typeof usernameSchema>;
+    const { userName } = req.params as z.infer<typeof usernameSchema>;
 
     logger.info('Getting user by username in getUserPublicController ...');
-    const user = await UserRepository.findByUserName(username);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const user = await UserRepository.findByUserName(userName);
+    if (!user) throw new NotFoundError('User not found');
 
     const { refreshToken, magicToken, ...publicUserProfile } = user;
-    return res.status(200).json({ message: 'success', data: publicUserProfile });
+    return new SuccessResponse('success', publicUserProfile).send(res);
   }
 );
 
@@ -58,15 +59,11 @@ export const getUserPublicController = catchAsync(
 export const deleteUserController = catchAsync(
   async (req: IAuthenticatedRequest<{ userId?: string }, {}, {}>, res) => {
     const { userId } = req.params;
-    if (!userId) return res.status(400).json({ message: 'User ID is required' });
+    if (!userId) throw new BadRequestError('User ID is required');
 
     const deletedUser = await UserRepository.delete(userId);
-    if (!deletedUser) return res.status(404).json({ message: 'User not found' });
+    if (!deletedUser) throw new NotFoundError('User not found');
 
-    return res.status(200).json({
-      data: deletedUser,
-      message: 'User deleted successfully',
-      success: true,
-    });
+    return new SuccessResponse('success', deletedUser).send(res);
   }
 );

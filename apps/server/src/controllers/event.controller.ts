@@ -1,9 +1,18 @@
 import config from '@/config/config';
 import { API_MESSAGES } from '@/constants/apiMessages';
+import { IAllowStatus } from '@/interface/event';
+import { IAuthenticatedRequest } from '@/interface/middleware';
 import { AttendeeRepository } from '@/repositories/attendee.repository';
 import { CohostRepository } from '@/repositories/cohost.repository';
 import { EventRepository } from '@/repositories/event.repository';
 import { UserRepository } from '@/repositories/user.repository';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+  TokenExpiredError,
+} from '@/utils/apiError';
+import { SuccessResponse } from '@/utils/apiResponse';
 import catchAsync from '@/utils/catchAsync';
 import { sluggify } from '@/utils/function';
 import logger from '@/utils/logger';
@@ -24,10 +33,8 @@ import {
 } from '@/validations/event.validation';
 import { Attendee, Prisma, Status, VenueType } from '@prisma/client';
 import { createHash, randomUUID } from 'crypto';
-import { IAllowStatus } from '@/interface/event';
 import * as XLSX from 'xlsx';
 import z from 'zod';
-import { IAuthenticatedRequest } from '@/interface/middleware';
 
 /**
  * Retrieves an event by its slug.
@@ -41,12 +48,10 @@ export const getEventBySlugController = catchAsync(
 
     logger.info('Getting event by slug in getEventBySlugController ...');
     const event = await EventRepository.findbySlug(slug);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) throw new NotFoundError('Event not found');
     const totalAttendees = await AttendeeRepository.countAttendees(event.id);
 
-    return res
-      .status(200)
-      .json({ message: 'Event retrieved successfully', data: { event, totalAttendees } });
+    return new SuccessResponse('success', { event, totalAttendees }).send(res);
   }
 );
 
@@ -59,14 +64,14 @@ export const getEventBySlugController = catchAsync(
 export const getEventByIdController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     logger.info('Getting event by id in getEventByIdController ...');
     const event = await EventRepository.findById(eventId);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) throw new NotFoundError('Event not found');
     const totalAttendees = await AttendeeRepository.countAttendees(event.id);
 
-    return res.status(200).json({ event, totalAttendees });
+    return new SuccessResponse('success', { event, totalAttendees }).send(res);
   }
 );
 
@@ -77,16 +82,19 @@ export const getEventByIdController = catchAsync(
  * @returns The updated slug.
  */
 export const updateEventSlugController = catchAsync(
-  async (req: IAuthenticatedRequest<{ eventId?: string }, {}, z.infer<typeof editSlugSchema>>, res) => {
+  async (
+    req: IAuthenticatedRequest<{ eventId?: string }, {}, z.infer<typeof editSlugSchema>>,
+    res
+  ) => {
     const { eventId } = req.params;
     const { userId } = req;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
 
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) throw new BadRequestError('Event ID is required');
     const slug = req.body.slug;
-    logger.info('Updating slug in updateEventSlugController ...')
+    logger.info('Updating slug in updateEventSlugController ...');
     const updatedSlug = await EventRepository.updateSlug(eventId, userId, slug);
-    return res.status(200).json({ data: updatedSlug, success: true });
+    return new SuccessResponse('success', updatedSlug).send(res);
   }
 );
 
@@ -102,9 +110,7 @@ export const getPopularEventController = catchAsync(async (req, res) => {
   logger.info('Getting popular events in getPopularEventController ...');
   const popularEvents = await EventRepository.findAllPopularEvents(limit);
 
-  return res
-    .status(200)
-    .json({ data: popularEvents, message: 'Popular events retrieved successfully' });
+  return new SuccessResponse('success', popularEvents).send(res);
 });
 
 /**
@@ -119,10 +125,7 @@ export const filterEventController = catchAsync(
     const filters = eventFilterSchema.parse(req.query);
     const events = await EventRepository.findEvents(filters);
 
-    return res.status(200).json({
-      message: 'Filtered Events Data',
-      data: events,
-    });
+    return new SuccessResponse('success', events).send(res);
   }
 );
 
@@ -135,7 +138,7 @@ export const filterEventController = catchAsync(
 export const getUserUpcomingEventController = catchAsync(
   async (req: IAuthenticatedRequest<{}, {}, UpcomingEventsQuery>, res) => {
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
     const filters = upcomingEventsQuerySchema.parse(req.query);
 
     logger.info('Getting upcoming event in getUserUpcomingEventController ..');
@@ -144,11 +147,11 @@ export const getUserUpcomingEventController = catchAsync(
       ...filters,
     });
 
-    return res.status(200).json({
-      message: 'Registered events retrieved successfully',
-      data: registeredEvents.events,
+    const data = {
+      events: registeredEvents.events,
       metadata: registeredEvents.metadata,
-    });
+    };
+    return new SuccessResponse('Registered events retrieved successfully', data).send(res);
   }
 );
 
@@ -162,14 +165,12 @@ export const createEventController = catchAsync(
   async (req: IAuthenticatedRequest<{}, {}, z.infer<typeof CreateEventSchema>>, res) => {
     const data = req.body;
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
 
     const getUserData = await UserRepository.findById(userId);
-    if (!getUserData) return res.status(404).json({ message: 'User not found' });
+    if (!getUserData) throw new NotFoundError('User not found');
     if (!getUserData.isCompleted)
-      return res
-        .status(400)
-        .json({ message: 'Please complete your profile before creating event' });
+      throw new BadRequestError('Please complete your profile before creating event');
 
     logger.info('Formatting data for create event in createEventController ...');
     const formattedData = {
@@ -186,7 +187,7 @@ export const createEventController = catchAsync(
       eventId: newEvent.id,
     });
 
-    return res.status(201).json({ message: 'success', event: newEvent });
+    return new SuccessResponse('success', newEvent).send(res);
   }
 );
 
@@ -203,7 +204,7 @@ export const updateEventController = catchAsync(
   ) => {
     const eventId = req.params.eventId;
     const data = req.body;
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     logger.info('Updating event in updateEventController ...');
     const updatedEvent = await EventRepository.update(eventId, {
@@ -211,7 +212,7 @@ export const updateEventController = catchAsync(
       venueType: data.venueType.toUpperCase() as VenueType,
     });
 
-    return res.status(200).json({ message: 'success', event: updatedEvent });
+    return new SuccessResponse('success', updatedEvent).send(res);
   }
 );
 
@@ -225,16 +226,16 @@ export const cancelEventController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;
     const { userId } = req;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!userId) throw new TokenExpiredError();
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     logger.info('Finding event in cancelEventController ...');
     const event = await EventRepository.findById(eventId);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    if (!event.isActive) return res.status(400).json({ message: 'Event already cancelled' });
+    if (!event) throw new NotFoundError('Event not found');
+    if (!event.isActive) throw new BadRequestError('Event already cancelled');
     const cancelEvent = await EventRepository.cancel(eventId, userId);
 
-    return res.status(200).json({ data: cancelEvent, success: true });
+    return new SuccessResponse('success', cancelEvent).send(res);
   }
 );
 
@@ -248,20 +249,16 @@ export const deleteEventController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;
     const { userId } = req;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!userId) throw new TokenExpiredError();
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     logger.info('Finding event and deleting in deleteEventController ...');
     const event = await EventRepository.findById(eventId);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    if (event.isDeleted) return res.status(400).json({ message: 'Event already deleted' });
+    if (!event) throw new NotFoundError('Event not found');
+    if (event.isDeleted) throw new BadRequestError('Event already deleted');
     const deletedEvent = await EventRepository.delete(eventId, userId);
 
-    return res.status(200).json({
-      data: deletedEvent,
-      message: 'Event deleted successfully',
-      success: true,
-    });
+    return new SuccessResponse('Event deleted successfully', deletedEvent).send(res);
   }
 );
 
@@ -277,9 +274,9 @@ export const getplannedByUserController = catchAsync(
       eventsPlannedByUserReqSchema.parse(req.query);
 
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
     const existingUser = await UserRepository.findById(userId);
-    if (!existingUser) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!existingUser) throw new TokenExpiredError();
 
     logger.info('Getting planned event in getplannedByUserController ...');
     const plannedEvents = await EventRepository.findAllPlannedEvents({
@@ -298,7 +295,7 @@ export const getplannedByUserController = catchAsync(
         sortOrder,
       },
     });
-    return res.status(200).json({ message: 'success', data: plannedEvents });
+    return new SuccessResponse('success', plannedEvents).send(res);
   }
 );
 
@@ -315,26 +312,26 @@ export const createAttendeeController = catchAsync(
   ) => {
     let attendeeStatus: Partial<Attendee> = {};
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
 
     const user = await UserRepository.findById(userId);
-    if (!user || !user.isCompleted) return res.status(400).json({ message: 'User profile is not completed' });
+    if (!user || !user.isCompleted) throw new BadRequestError('User profile is not completed');
 
     const eventId = req.params.eventId;
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     logger.info('Finding event by id in createAttendeeController ...');
     const event = await EventRepository.findById(eventId as string);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    if (!event.isActive) return res.status(400).json({ message: 'Event is not active' });
+    if (!event) throw new NotFoundError('Event not found');
+    if (!event.isActive) throw new BadRequestError('Event is not active');
 
     const currentTime = new Date();
-    if (event.endTime < currentTime) return res.status(400).json({ message: 'Event has expired' });
+    if (event.endTime < currentTime) throw new BadRequestError('Event has expired');
 
     if (event.capacity) {
       const currentAttendeeCount = await AttendeeRepository.countAttendees(eventId);
       if (currentAttendeeCount >= event.capacity) {
-        return res.status(400).json({ message: 'Event is at full capacity. No seats available.' });
+        throw new BadRequestError('Event is at full capacity. No seats available.');
       }
     }
 
@@ -346,12 +343,13 @@ export const createAttendeeController = catchAsync(
 
     const existingAttendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId, true);
     if (existingAttendee) {
-      const deleted_user = existingAttendee.isDeleted && existingAttendee.status === Status.NOT_GOING;
+      const deleted_user =
+        existingAttendee.isDeleted && existingAttendee.status === Status.NOT_GOING;
       if (deleted_user) {
         await AttendeeRepository.restore(existingAttendee.id);
-        return res.status(200).json({ message: 'Attendee restored successfully' });
+        return new SuccessResponse('Attendee restored successfully', existingAttendee).send(res);
       }
-      return res.status(400).json({ message: 'User already registered for this event' });
+      throw new BadRequestError('User already registered for this event');
     }
 
     const uuid = randomUUID();
@@ -391,7 +389,7 @@ export const createAttendeeController = catchAsync(
       logger.info('Email notification:', emailData);
     }
 
-    return res.status(201).json(newAttendee);
+    return new SuccessResponse('success', newAttendee).send(res);
   }
 );
 
@@ -404,18 +402,16 @@ export const createAttendeeController = catchAsync(
 export const getAttendeeController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const eventId = req.params.eventId;
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     logger.info('Finding event by id in getAttendeeController ...');
     const event = await EventRepository.findById(eventId as string);
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
-    }
+    if (!event) throw new NotFoundError('Event not found');
 
     const pagination = await attendeesQuerySchema.parseAsync(req.query);
     const attendees = await AttendeeRepository.findAttendeesByEventId({ eventId, ...pagination });
 
-    return res.status(200).json(attendees);
+    return new SuccessResponse('success', attendees).send(res);
   }
 );
 
@@ -428,16 +424,14 @@ export const getAttendeeController = catchAsync(
 export const getExcelSheetController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const eventId = req.params.eventId;
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     const event = await EventRepository.findById(eventId as string);
-    if (!event) {
-      return res.status(404).json({ message: 'Event not found' });
-    }
+    if (!event) throw new NotFoundError('Event not found');
 
     const attendees = await AttendeeRepository.findAllAttendees(eventId);
-    
-    logger.info('Mapping attendee in getExcelSheetController ...')
+
+    logger.info('Mapping attendee in getExcelSheetController ...');
     const exportData = attendees.map((attendee, index) => ({
       'Sr. No': index + 1,
       'Full Name': attendee.user.fullName,
@@ -498,14 +492,14 @@ export const getAttendeeTicketController = catchAsync(
     const userId = req.userId;
     const eventId = req.params.eventId;
 
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!userId) throw new TokenExpiredError();
+    if (!eventId) throw new BadRequestError('Event ID is required');
 
     logger.info('Getting user ticket in getAttendeeTicketController ...');
     const attendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId);
-    if (!attendee) return res.status(404).json({ message: 'Attendee not found' });
+    if (!attendee) throw new NotFoundError('Attendee not found');
 
-    return res.status(200).json({data: attendee, message: 'Fetch ticket successfully'});
+    return new SuccessResponse('success', attendee).send(res);
   }
 );
 
@@ -519,19 +513,14 @@ export const getAllowAttendeeController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;
     const userId = req.userId;
-    if (!eventId)
-      return res.status(400).json({ message: API_MESSAGES.ALLOW_GUEST.EVENTID_REQUIRED });
-    if (!userId) return res.status(401).json({ message: API_MESSAGES.ALLOW_GUEST.INVALID_TOKEN });
+    if (!eventId) throw new BadRequestError(API_MESSAGES.ALLOW_GUEST.EVENTID_REQUIRED);
+    if (!userId) throw new TokenExpiredError();
 
     logger.info('Finding host and cohost in getAllowAttendeeController ...');
     const hasAccess = await CohostRepository.FindhostOrCohost(userId, eventId);
-    if (!hasAccess)
-      return res.status(403).json({ message: API_MESSAGES.ALLOW_GUEST.UNAUTHORIZED_ACCESS });
+    if (!hasAccess) throw new ForbiddenError(API_MESSAGES.ALLOW_GUEST.UNAUTHORIZED_ACCESS);
 
-    return res.status(200).json({
-      message: API_MESSAGES.ALLOW_GUEST.SUCCESS,
-      data: { success: true },
-    });
+    return new SuccessResponse('success', { success: true }).send(res);
   }
 );
 
@@ -545,8 +534,7 @@ export const updateAttendeeStatusController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, IAllowStatus>, res) => {
     const { eventId } = req.params;
     const { userId, allowedStatus } = req.body;
-    if (!eventId)
-      return res.status(400).json({ message: API_MESSAGES.ALLOW_GUEST.EVENTID_REQUIRED });
+    if (!eventId) throw new BadRequestError(API_MESSAGES.ALLOW_GUEST.EVENTID_REQUIRED);
 
     logger.info('Updating attendee status in updateAttendeeStatusController ...');
     const updatedAttendee = await AttendeeRepository.updateAllowStatus(
@@ -555,10 +543,10 @@ export const updateAttendeeStatusController = catchAsync(
       allowedStatus
     );
 
-    return res.status(200).json({
-      message: API_MESSAGES.ALLOW_GUEST.SUCCESSFUL_ATTENDEE_UPDATE,
-      data: updatedAttendee,
-    });
+    return new SuccessResponse(
+      API_MESSAGES.ALLOW_GUEST.SUCCESSFUL_ATTENDEE_UPDATE,
+      updatedAttendee
+    ).send(res);
   }
 );
 
@@ -571,13 +559,13 @@ export const updateAttendeeStatusController = catchAsync(
 export const scanTicketController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string; qrToken?: string }, {}, {}>, res) => {
     const { eventId, qrToken } = req.params;
-    if (!qrToken) return res.status(400).json({ message: 'QR Token is required' });
+    if (!qrToken) throw new BadRequestError('QR Token is required');
 
     logger.info('Getting attendee using qr in scanTicketController ...');
     const attendee = await AttendeeRepository.findByQrToken(qrToken, eventId);
-    if (!attendee) return res.status(404).json({ message: 'Attendee not found' });
+    if (!attendee) throw new NotFoundError('Attendee not found');
 
-    return res.status(200).json(attendee);
+    return new SuccessResponse('success', attendee).send(res);
   }
 );
 
@@ -591,22 +579,21 @@ export const verifyQrController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string; attendeeId?: string }, {}, {}>, res) => {
     const userId = req.userId;
     const { attendeeId, eventId } = req.params;
-    if (!attendeeId || !eventId)
-      return res.status(400).json({ message: 'Attendee ID and Event ID is required' });
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+
+    if (!attendeeId || !eventId) throw new BadRequestError('Attendee ID and Event ID is required');
+    if (!userId) throw new TokenExpiredError();
 
     const attendee = await AttendeeRepository.findById(attendeeId);
-    if (!attendee) return res.status(404).json({ message: 'Attendee not found' });
+    if (!attendee) throw new NotFoundError('Attendee not found');
 
-    if (attendee.eventId !== eventId)
-      return res.status(400).json({ message: 'Attendee is not allowed' });
-    if (!attendee.allowedStatus)
-      return res.status(403).json({ message: 'Attendee is not allowed' });
-    if (attendee.hasAttended) return res.status(400).json({ message: 'Already scanned ticket' });
+
+    if (attendee.eventId !== eventId) throw new BadRequestError('Attendee is not allowed');
+    if (!attendee.allowedStatus) throw new ForbiddenError('Attendee is not allowed');
+    if (attendee.hasAttended) throw new BadRequestError('Already scanned ticket');
 
     logger.info('Getting event using id in verifyQrController ...');
     const event = await EventRepository.findById(eventId);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
+    if (!event) throw new NotFoundError('Event not found');
     const currentTime = new Date();
     const eventStartTime = new Date(event.startTime);
     const eventEndTime = new Date(event.endTime);
@@ -615,15 +602,11 @@ export const verifyQrController = catchAsync(
     verificationStartTime.setHours(eventStartTime.getHours() - 1);
 
     if (currentTime < verificationStartTime) {
-      return res.status(400).json({
-        message: 'Ticket verification will start 1 hour before the event',
-      });
+      throw new BadRequestError('Ticket verification will start 1 hour before the event');
     }
 
     if (currentTime > eventEndTime) {
-      return res.status(400).json({
-        message: 'Event has ended. Ticket is no longer valid',
-      });
+      throw new BadRequestError('Event has ended. Ticket is no longer valid');
     }
 
     await AttendeeRepository.update(attendee.id, {
@@ -631,7 +614,7 @@ export const verifyQrController = catchAsync(
       checkInTime: currentTime,
     });
 
-    return res.status(200).json({ message: 'Ticket is valid' });
+    return new SuccessResponse('success', { message: 'Ticket is valid' }).send(res);
   }
 );
 
@@ -644,29 +627,25 @@ export const verifyQrController = catchAsync(
 export const deleteAttendeeController = catchAsync(
   async (req: IAuthenticatedRequest<{ eventId?: string }, {}, {}>, res) => {
     const { eventId } = req.params;
-    if (!eventId) return res.status(400).json({ message: 'Event ID is required' });
+    if (!eventId) throw new BadRequestError('Event ID is required');
     const userId = req.userId;
-    if (!userId) return res.status(401).json({ message: 'Invalid or expired token' });
+    if (!userId) throw new TokenExpiredError();
 
     logger.info('Getting attendee in deleteAttendeeController ...');
     const attendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId);
-    if (!attendee) return res.status(404).json({ message: 'Attendee record not found' });
+    if (!attendee) throw new NotFoundError('Attendee record not found');
 
     if (attendee.userId === userId) {
       await AttendeeRepository.cancel(attendee.id);
-      return res.status(200).json({
-        message: 'Attendee removed successfully',
-      });
+      return new SuccessResponse('Attendee removed successfully', attendee).send(res);
     }
 
     const isCreator = await CohostRepository.FindhostOrCohost(userId, attendee.eventId);
     if (isCreator) {
       await AttendeeRepository.delete(attendee.id);
-      return res.status(200).json({
-        message: 'Attendee removed successfully',
-      });
+      return new SuccessResponse('Attendee removed successfully', attendee).send(res);
     }
 
-    return res.status(403).json({ message: 'Unauthorized access' });
+    throw new ForbiddenError('Unauthorized access');
   }
 );
