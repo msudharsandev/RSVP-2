@@ -1,6 +1,6 @@
 'use client';
 
-import { attendeeColumns } from '@/columns/attendee-column';
+import { attendeeColumns } from '@/components/manage-event/attendee-column';
 import { Input } from '@/components/ui/input';
 import { useGetAttendeeByEventId } from '@/lib/react-query/event';
 import { Search } from 'lucide-react';
