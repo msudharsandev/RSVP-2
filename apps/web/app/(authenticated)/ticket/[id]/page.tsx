@@ -8,10 +8,12 @@ import { MapPinIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
 import { Link, Presentation } from 'lucide-react';
 import { notFound, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import QRCode from 'react-qr-code';
 
 const TicketPage = () => {
   const { id } = useParams();
+  const { back } = useRouter();
 
   if (typeof id !== 'string') notFound();
 
@@ -25,6 +27,7 @@ const TicketPage = () => {
   const handleEventCancel = () => {
     if (typeof id === 'string') {
       cancelEvent({ eventId: id });
+      back();
     }
   };
 

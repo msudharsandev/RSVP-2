@@ -1,15 +1,10 @@
 import z from 'zod';
 import { paginationParamsSchema } from './pagination.validation';
-import { Status,VenueType } from '@prisma/client';
+import { Status, VenueType } from '@prisma/client';
 
 export enum PAGINATION_ORDER {
   ASC = 'asc',
   DESC = 'desc',
-}
-
-export enum VENUE_TYPE {
-  PHYSICAL = 'physical',
-  VIRTUAL = 'virtual',
 }
 
 export const DATE_RANGE = {
@@ -90,7 +85,7 @@ export const eventsPlannedByUserReqSchema = z.object({
   category: z.string().optional(),
   fromDate: z.coerce.date().default(() => DATE_RANGE.LOW),
   toDate: z.coerce.date().default(() => DATE_RANGE.HIGH),
-  venueType: z.enum([VENUE_TYPE.PHYSICAL, VENUE_TYPE.VIRTUAL]).optional(),
+  venueType: z.enum([VenueType.PHYSICAL, VenueType.VIRTUAL]).optional(),
   page: z.coerce.number().positive().default(1).optional(),
   limit: z.coerce.number().positive().default(10).optional(),
   sortBy: z.string().max(256).optional(),

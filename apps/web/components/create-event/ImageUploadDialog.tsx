@@ -34,9 +34,9 @@ const ImageUploadDialog = ({ children }: Props) => {
       const filename = file.name;
 
       try {
-        const response = await api.get('/event/upload-image', { params: { filename } });
+        const { data } = await api.get('/event/upload-image', { params: { filename } });
         setUploadProgress(100);
-        const signedUrl = response.data.signedUrl;
+        const signedUrl = data.data.signedUrl;
         const fileUrl = URL.createObjectURL(file);
         setImage(fileUrl);
         const actualUrl = signedUrl.split('?')[0];

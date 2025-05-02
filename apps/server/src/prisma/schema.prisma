@@ -63,7 +63,7 @@ model Event {
   endTime                   DateTime   @map("end_time")
   eventDate                 DateTime   @map("event_date")
   description               String?    @map("description") @db.VarChar(1000)
-  eventImageUrl             String?    @map("event_image_url") @db.VarChar(100)
+  eventImageUrl             String?    @map("event_image_url") @db.VarChar(256)
   venueType                 VenueType  @map("venue_type")
   venueAddress              String?    @map("venue_address") @db.VarChar(256)
   venueUrl                  String?    @map("venue_url") @db.VarChar(256)
@@ -125,6 +125,7 @@ enum Status {
   WAITING  @map("3")
   PENDING  @map("4")
   INVITED  @map("5")
+  CANCELLED @map("6")
 }
 
 enum Role {

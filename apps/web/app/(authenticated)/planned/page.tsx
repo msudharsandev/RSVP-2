@@ -57,8 +57,6 @@ const UpcomingEvents = () => {
 
   if (isLoading) return <LoadingScreen />;
 
-  if (isLoading) return <LoadingScreen />;
-
   if (isError) return <div>Error loading events</div>;
   if (data?.events.length === 0)
     return (

@@ -56,6 +56,7 @@ export const useGetMyEvents = (filters: EventParams) => {
 export const useGetUpcomingEvents = (filters: EventParams) => {
   return useQuery({
     queryKey: [EVENTS_QUERY_KEY, 'upcoming-events', filters],
+    select: (data) => data,
     queryFn: () => eventAPI.getUpcomingEvents(filters),
   });
 };
@@ -66,7 +67,7 @@ export const useCreateEvent = () => {
     mutationFn: eventAPI.createEvent,
     onSuccess: ({ data }) => {
       toast.success('Event created successfully');
-      const url = `/${data.event.slug}`;
+      const url = `/${data.data.slug}`;
       router.push(url);
     },
     onError: (error) => {
@@ -129,11 +130,11 @@ export const useDeleteEventMutation = () => {
 };
 
 export const useGetEventById = (eventId?: string) => {
-  return useQuery<{ event: Event; totalAttendees: number }, AxiosError<ErrorResponse>>({
+  return useQuery({
     queryFn: eventId
       ? async () => {
-          const response = await eventAPI.getEventById(eventId);
-          return { event: response.event, totalAttendees: response.totalAttendees };
+          const reponse = await eventAPI.getEventById(eventId);
+          return { event: reponse.event, totalAttendees: reponse.totalAttendees };
         }
       : undefined,
     enabled: !!eventId,
@@ -218,7 +219,7 @@ export const useGetAttendeeTicketDetails = (eventId: string) => {
   return useQuery({
     queryKey: ['event', eventId, 'ticket'],
     queryFn: () => eventAPI.getAttendeeTicketDetail(eventId),
-    retry: 1,
+    retry: 0,
     enabled: !!eventId,
   });
 };

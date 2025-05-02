@@ -64,24 +64,26 @@ const Communication = ({ eventId }: CommunicationProps) => {
     <section className="flex w-full flex-col space-y-8">
       <h3>Communicate with your Attendees</h3>
       <section>
-        <section>
-          <Card className="w-full border-none bg-transparent lg:w-1/2">
-            <CardContent>
-              <ScrollArea className={cn(communicationsData?.data?.length > 3 && 'h-96 p-4')}>
-                {(communicationsData as CommunicationsData)?.data?.map(
-                  (msg: CommunicationMessage, index: number) => (
-                    <ChatMessage
-                      key={index}
-                      user={msg.user}
-                      message={msg.content}
-                      time={formatTime(msg.updatedAt)}
-                    />
-                  )
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </section>
+        {communicationsData?.data?.length > 0 && (
+          <section>
+            <Card className="w-full border-none bg-transparent lg:w-1/2">
+              <CardContent>
+                <ScrollArea className={cn(communicationsData?.data?.length > 3 && 'h-96 p-4')}>
+                  {(communicationsData as CommunicationsData)?.data?.map(
+                    (msg: CommunicationMessage, index: number) => (
+                      <ChatMessage
+                        key={index}
+                        user={msg.user}
+                        message={msg.content}
+                        time={formatTime(msg.updatedAt)}
+                      />
+                    )
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </section>
+        )}
         <FormProvider methods={form} onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}

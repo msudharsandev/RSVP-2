@@ -343,10 +343,11 @@ export const createAttendeeController = catchAsync(
     
     const existingAttendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId, null);
     if (existingAttendee) {
-      const deleted_user =
-        existingAttendee.isDeleted && existingAttendee.status === Status.NOT_GOING;
-      if (deleted_user) {
-        const restoredAttendee = await AttendeeRepository.restore(existingAttendee.id, attendeeStatus.status as Status);
+      const isUserTicketCancelled =
+        existingAttendee.isDeleted && existingAttendee.status === Status.CANCELLED;
+      if (isUserTicketCancelled) {
+        const restoredAttendee = await AttendeeRepository.restore(existingAttendee.id, Status.GOING);
+        attendeeStatus = { isDeleted: false, status: Status.GOING };
         return new SuccessResponse('Attendee restored successfully', restoredAttendee).send(res);
       }
       throw new BadRequestError('User already registered for this event');
@@ -357,6 +358,7 @@ export const createAttendeeController = catchAsync(
     const qrToken = hash.slice(0, 6);
 
     const attendeeData: Prisma.AttendeeCreateInput = {
+      ...attendeeStatus,
       qrToken: qrToken,
       user: {
         connect: {
@@ -368,8 +370,6 @@ export const createAttendeeController = catchAsync(
           id: eventId,
         },
       },
-      status: attendeeStatus.status,
-      allowedStatus: attendeeStatus.allowedStatus,
     };
 
     const newAttendee = await AttendeeRepository.create(attendeeData);

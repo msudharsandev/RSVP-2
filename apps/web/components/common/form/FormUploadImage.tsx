@@ -46,8 +46,8 @@ function FormImageUpload<
   const handleSave = async (file: File) => {
     setIsUploading(true);
     try {
-      const response = await api.get('/event/upload-image', { params: { filename: file.name } });
-      const signedUrl = response.data.signedUrl;
+      const { data } = await api.get('/event/upload-image', { params: { filename: file.name } });
+      const signedUrl = data.data.signedUrl;
       const fileUrl = URL.createObjectURL(file);
       const url = signedUrl.split('?')[0];
 

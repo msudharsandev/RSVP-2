@@ -285,7 +285,7 @@ export class AttendeeRepository {
     return await prisma.attendee.update({
       where: { id, isDeleted: false },
       data: {
-        status: Status.NOT_GOING,
+        status: Status.CANCELLED,
         isDeleted: true,
         allowedStatus: false,
       },
@@ -299,7 +299,7 @@ export class AttendeeRepository {
    */
   static async restore(id: string, status: Status) {
     return await prisma.attendee.update({
-      where: { id, isDeleted: true, status: Status.NOT_GOING },
+      where: { id, isDeleted: true, status: Status.CANCELLED },
       data: {
         status: status,
         isDeleted: false,

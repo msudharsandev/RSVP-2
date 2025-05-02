@@ -35,11 +35,6 @@ export class EventRepository {
       ...(startDate && { eventDate: { gte: startDate } }),
       isDeleted: false,
       isActive: true,
-      attendees:{
-        some:{
-          status: Status.GOING
-        }
-      }
     };
 
     if (search) {

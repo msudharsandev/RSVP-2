@@ -47,7 +47,7 @@ const EventForm = ({ defaultValues, isLoading, onSubmit }: Props) => {
           <FormImageUpload
             control={form.control}
             name="eventImageUrl"
-            className="md:hidden"
+            className="lg:hidden"
             label="Event Image"
           />
           <FormInput label="Event Name" name="name" control={form.control} />
