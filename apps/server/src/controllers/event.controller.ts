@@ -340,14 +340,14 @@ export const createAttendeeController = catchAsync(
     } else {
       attendeeStatus = { allowedStatus: false, status: Status.WAITING };
     }
-
-    const existingAttendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId, true);
+    
+    const existingAttendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId, null);
     if (existingAttendee) {
       const deleted_user =
         existingAttendee.isDeleted && existingAttendee.status === Status.NOT_GOING;
       if (deleted_user) {
-        await AttendeeRepository.restore(existingAttendee.id);
-        return new SuccessResponse('Attendee restored successfully', existingAttendee).send(res);
+        const restoredAttendee = await AttendeeRepository.restore(existingAttendee.id, attendeeStatus.status as Status);
+        return new SuccessResponse('Attendee restored successfully', restoredAttendee).send(res);
       }
       throw new BadRequestError('User already registered for this event');
     }
@@ -369,6 +369,7 @@ export const createAttendeeController = catchAsync(
         },
       },
       status: attendeeStatus.status,
+      allowedStatus: attendeeStatus.allowedStatus,
     };
 
     const newAttendee = await AttendeeRepository.create(attendeeData);
@@ -612,18 +613,7 @@ export const deleteAttendeeController = catchAsync(
     logger.info('Getting attendee in deleteAttendeeController ...');
     const attendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId);
     if (!attendee) throw new NotFoundError('Attendee record not found');
-
-    if (attendee.userId === userId) {
-      await AttendeeRepository.cancel(attendee.id);
-      return new SuccessResponse('Attendee removed successfully', attendee).send(res);
-    }
-
-    const isCreator = await CohostRepository.FindhostOrCohost(userId, attendee.eventId);
-    if (isCreator) {
-      await AttendeeRepository.delete(attendee.id);
-      return new SuccessResponse('Attendee removed successfully', attendee).send(res);
-    }
-
-    throw new ForbiddenError('Unauthorized access');
+    const cancelledAttendee = await AttendeeRepository.cancel(attendee.id);
+    return new SuccessResponse('Attendee removed successfully', cancelledAttendee).send(res);
   }
 );

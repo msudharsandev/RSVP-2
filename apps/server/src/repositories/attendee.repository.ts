@@ -48,12 +48,12 @@ export class AttendeeRepository {
    * @param eventId - The unique ID of the event.
    * @returns The attendee object if found, otherwise null.
    */
-  static async findByUserIdAndEventId(userId: string, eventId: string, isDeleted: boolean = false) {
+  static async findByUserIdAndEventId(userId: string, eventId: string, isDeleted: boolean | null = false) {
     return await prisma.attendee.findFirst({
       where: {
         userId,
         eventId,
-        isDeleted: isDeleted,
+        isDeleted: isDeleted !== null ? isDeleted : undefined,
       },
     });
   }
@@ -275,20 +275,9 @@ export class AttendeeRepository {
     });
   }
 
-  /**
-   * Soft deletes an attendee record by ID.
-   * @param id - The unique ID of the attendee.
-   * @returns The updated attendee object with `isDeleted` set to true.
-   */
-  static async delete(id: string) {
-    return await prisma.attendee.update({
-      where: { id, isDeleted: false },
-      data: { isDeleted: true },
-    });
-  }
 
-  /**
-   * Cancels an attendee record by ID.
+  /** 
+   * Cancels an attendee record by ID. (Soft Delete)
    * @param id - The unique ID of the attendee.
    * @returns The updated attendee object with `status` set to `CANCELLED`.
    */
@@ -298,6 +287,7 @@ export class AttendeeRepository {
       data: {
         status: Status.NOT_GOING,
         isDeleted: true,
+        allowedStatus: false,
       },
     });
   }
@@ -307,11 +297,11 @@ export class AttendeeRepository {
    * @param id - The unique ID of the attendee.
    * @returns The updated attendee object with `isDeleted` set to false.
    */
-  static async restore(id: string) {
+  static async restore(id: string, status: Status) {
     return await prisma.attendee.update({
       where: { id, isDeleted: true, status: Status.NOT_GOING },
       data: {
-        status: Status.GOING,
+        status: status,
         isDeleted: false,
       },
     });
