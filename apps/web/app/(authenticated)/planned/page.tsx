@@ -16,10 +16,10 @@ import { Suspense, useState } from 'react';
 
 const PlannedEvents = () => {
   return (
-    <Tabs defaultValue="upcoming">
-      <Container asChild>
-        <main className="mt-8 flex select-none flex-col justify-start md:justify-normal">
-          <section className="mb-12 flex flex-col items-start justify-between gap-5 md:flex-row">
+    <Container asChild>
+      <main className="mt-8 flex select-none flex-col justify-start md:justify-normal">
+        <Tabs defaultValue="upcoming">
+          <section className="flex flex-col items-start justify-between gap-5 md:flex-row">
             <h1 className="text-3xl font-semibold md:text-3xl">
               You are <span className="text-primary">Going To</span>
             </h1>
@@ -34,16 +34,16 @@ const PlannedEvents = () => {
             </TabsList>
           </section>
 
-          <TabsContent value="upcoming">
+          <TabsContent value="upcoming" className="my-12">
             <UpcomingEvents />
           </TabsContent>
 
-          <TabsContent value="past">
+          <TabsContent value="past" className="my-12">
             <PastEvents />
           </TabsContent>
-        </main>
-      </Container>
-    </Tabs>
+        </Tabs>
+      </main>
+    </Container>
   );
 };
 

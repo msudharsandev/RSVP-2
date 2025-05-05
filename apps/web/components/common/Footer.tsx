@@ -11,10 +11,7 @@ const Footer = ({ className }: PropsWithClassName) => {
   const { data: loginedUser } = useCurrentUser();
 
   return (
-    <footer
-      data-testid="footer"
-      className={cn('footer mt-auto pt-16 animate-slide-in-from-bottom text-white', className)}
-    >
+    <footer className={cn('footer mt-auto animate-slide-in-from-bottom text-white', className)}>
       <div className="bg-black py-8">
         <Container className="flex flex-col gap-8 justify-between sm:flex-row">
           <div>

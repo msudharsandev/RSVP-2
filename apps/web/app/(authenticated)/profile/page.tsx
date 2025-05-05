@@ -9,7 +9,6 @@ import SecondaryEmailForm from '@/components/profile/SecondaryEmailForm';
 import PhoneNumberForm from '@/components/profile/ContactForm';
 import { useCurrentUser } from '@/lib/react-query/auth';
 import { useMemo } from 'react';
-import { User } from '@/types/user';
 import ProfileFormSkeleton from '@/components/profile/ProfileFormLoading';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 
