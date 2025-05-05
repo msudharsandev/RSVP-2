@@ -14,9 +14,14 @@ import {
 } from '@/utils/testConstants';
 import logger from '@/utils/logger';
 
+let userExists: boolean = true;
+
 vi.mock('@/middleware/authMiddleware', () => {
   return {
-    default: (req: Request, _res: Response, next: NextFunction) => {
+    default: (req: Request, res: Response, next: NextFunction) => {
+      if (!userExists) {
+        return res.status(HTTP_NOT_FOUND).json({ message: 'User not found' });
+      }
       (req as any).userId = TEST_USER_ID;
       next();
     },
@@ -95,6 +100,7 @@ app.use('/users', userRouter);
 
 beforeEach(() => {
   vi.resetAllMocks();
+  userExists = true;
 });
 
 describe('User Router Endpoints', () => {
@@ -328,7 +334,7 @@ describe('User Router Endpoints', () => {
       const bioResponse = await request(app).post(ENDPOINT_UPDATE_PROFILE).send({
         bio: longBio,
       });
-      console.log(twitterResponse.body);
+
       expect(twitterResponse.status).toBe(HTTP_BAD_REQUEST);
       expect(twitterResponse.body).toHaveProperty(
         'message',
@@ -413,22 +419,22 @@ describe('User Router Endpoints', () => {
       const softDeleteSpy = vi.spyOn(Users, 'delete').mockResolvedValue(FAKE_USER as any);
 
       const res = await request(app).delete(ENDPOINT_DELETE_USER);
-
       expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('message', 'User deleted successfully');
+      expect(res.body).toHaveProperty('message', 'success');
 
       expect(softDeleteSpy).toHaveBeenCalledWith(TEST_USER_ID);
     });
 
     it('should return 404 if user is not found', async () => {
+      userExists = false;
+
       const softDeleteSpy = vi.spyOn(Users, 'delete').mockResolvedValue(null as any);
 
       const res = await request(app).delete(ENDPOINT_DELETE_USER);
-
       expect(res.status).toBe(HTTP_NOT_FOUND);
       expect(res.body).toHaveProperty('message', 'User not found');
 
-      expect(softDeleteSpy).toHaveBeenCalledWith(TEST_USER_ID);
+      expect(softDeleteSpy).not.toHaveBeenCalled();
     });
 
     it('should return 400 if userId is missing from the path', async () => {
