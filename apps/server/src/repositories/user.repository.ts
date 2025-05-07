@@ -128,14 +128,43 @@ export class UserRepository {
   }
 
   /**
-   * Soft deletes a user by setting its `isDeleted` status to true.
+   * Soft deletes a user by setting its `isDeleted` status to true
+   * and cascades the deletion to all related entities.
    * @param userId - The unique ID of the user.
    * @returns The updated user object.
    */
   static async delete(userId: string) {
-    return await prisma.users.update({
-      where: { id: userId },
-      data: { isDeleted: true },
+    return await prisma.$transaction(async (tx) => {
+      await tx.event.updateMany({
+        where: { creatorId: userId, isDeleted: false },
+        data: { isDeleted: true, isActive: false },
+      });
+
+      await tx.attendee.updateMany({
+        where: { userId, isDeleted: false },
+        data: { isDeleted: true, status: 'CANCELLED', allowedStatus: false },
+      });
+
+      await tx.cohost.updateMany({
+        where: { userId, isDeleted: false },
+        data: { isDeleted: true },
+      });
+
+      await tx.update.updateMany({
+        where: { userId, isDeleted: false },
+        data: { isDeleted: true },
+      });
+
+      const deletedUser = await tx.users.update({
+        where: { id: userId },
+        data: { 
+          isDeleted: true,
+          magicToken: null,
+          refreshToken: null
+        },
+      });
+
+      return deletedUser;
     });
   }
 }

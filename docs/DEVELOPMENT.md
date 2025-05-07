@@ -139,7 +139,7 @@ TBC - put all the UML diagrams here
 ---
 | URL              | Method | Auth Required | Description           |
 |------------------|--------|---------------|-----------------------|
-| `/users/:userId` | DELETE | True           | Delete user account   |
+| `/users` | DELETE | True           | Delete user account   |
 
 > <details> 
 > <summary>Response body</summary>

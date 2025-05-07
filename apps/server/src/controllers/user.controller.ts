@@ -58,11 +58,14 @@ export const getUserPublicController = catchAsync(
  */
 export const deleteUserController = catchAsync(
   async (req: IAuthenticatedRequest<{ userId?: string }, {}, {}>, res) => {
-    const { userId } = req.params;
+    const { userId } = req;
     if (!userId) throw new BadRequestError('User ID is required');
 
     const deletedUser = await UserRepository.delete(userId);
     if (!deletedUser) throw new NotFoundError('User not found');
+
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
 
     return new SuccessResponse('success', deletedUser).send(res);
   }

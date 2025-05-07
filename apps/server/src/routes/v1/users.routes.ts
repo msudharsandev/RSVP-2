@@ -20,9 +20,8 @@ userRouter.post(
 userRouter.get('/:username', authMiddleware, getUserPublicController);
 
 userRouter.delete(
-  '/:userId',
+  '/',
   authMiddleware,
-  validate({ params: userParamsSchema }),
   deleteUserController
 );
 
