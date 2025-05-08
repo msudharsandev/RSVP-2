@@ -3,12 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  TicketIcon,
-  CalendarDateRangeIcon,
-  UserIcon,
-  ArrowRightEndOnRectangleIcon,
-} from '@heroicons/react/24/solid';
+import { TicketIcon, CalendarDateRangeIcon } from '@heroicons/react/24/solid';
 import { Button } from '../../ui/button';
 import Logo from '../Logo';
 import {
@@ -26,6 +21,7 @@ import { Icons } from '../Icon';
 import useScroll from '@/hooks/useScroll';
 import { useCurrentUser, useSignout } from '@/lib/react-query/auth';
 import { userAvatarOptions } from '@/utils/constants';
+import { LogOutIcon, UserIcon } from 'lucide-react';
 
 const AutheticatedHeader = () => {
   const isScrolled = useScroll();
@@ -94,23 +90,26 @@ const AutheticatedHeader = () => {
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  className="w-56 rounded-[10px]"
+                  className="w-56 rounded-lg"
                   align="end"
                   alignOffset={-5}
                   sideOffset={5}
                 >
-                  <DropdownMenuLabel className="text-base">My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <Link href="/profile">
-                    <DropdownMenuItem className="cursor-pointer rounded-xl">
-                      <UserIcon className="mr-3 h-6 w-6" />
-                      <span className="text-base">Profile</span>
+                    <DropdownMenuItem className="cursor-pointer space-x-2 font-medium">
+                      <UserIcon className="size-4" />
+                      <span>Profile</span>
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="cursor-pointer rounded-xl" onClick={handleLogout}>
-                    <ArrowRightEndOnRectangleIcon className="mr-3 h-6 w-6 text-destructive" />
-                    <span className="text-base text-destructive">Sign Out</span>
+                  <DropdownMenuItem
+                    className="cursor-pointer space-x-2 font-medium"
+                    onClick={handleLogout}
+                  >
+                    <LogOutIcon className="size-4 text-destructive" />
+                    <span className="text-destructive">Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

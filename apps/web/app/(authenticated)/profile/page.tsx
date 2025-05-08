@@ -11,6 +11,7 @@ import { useCurrentUser } from '@/lib/react-query/auth';
 import { useMemo } from 'react';
 import ProfileFormSkeleton from '@/components/profile/ProfileFormLoading';
 import { Alert, AlertTitle } from '@/components/ui/alert';
+import { DeactivateAccountDialog } from '@/components/profile/DeactivateAccountDialog';
 
 const ProfilePage = () => {
   const { data, isSuccess, isLoading } = useCurrentUser();
@@ -77,12 +78,7 @@ const ProfilePage = () => {
           If you no longer wish to use RSVP, you can deactivate your account. Your account will be
           permanently deleted after 6 months of inactivity.
         </p>
-        <Button
-          variant="destructive"
-          className="w-fit whitespace-nowrap rounded-[6px] text-sm/[24px]"
-        >
-          Deactivate My Account
-        </Button>
+        {user && <DeactivateAccountDialog userId={user?.id} />}
       </section>
     </Container>
   );

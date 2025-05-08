@@ -108,7 +108,7 @@ const DiscoverEvents = () => {
                 </div>
                 <Input
                   type="text"
-                  className="block w-full rounded-md bg-dark-500 py-2 pl-10 pr-3 leading-5 "
+                  className="block w-full rounded-full bg-dark-500 py-2 pl-10 pr-3 leading-5 "
                   placeholder="Search Events"
                   value={filters.search}
                   onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}

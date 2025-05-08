@@ -64,7 +64,7 @@ const Events = () => {
 
   return (
     <Container className="mt-8">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row mb-12">
         <div className="space-y-2">
           <p className="text-3xl">
             Manage Your <span className="text-primary">Events</span>
@@ -101,7 +101,7 @@ const Events = () => {
                 <CustomSelect
                   value={filters.status}
                   options={[
-                    { value: 'all', label: 'Select Status' },
+                    { value: 'all', label: 'All' },
                     { value: 'active', label: 'Active' },
                     { value: 'cancel', label: 'Cancelled' },
                   ]}
@@ -170,7 +170,7 @@ const Events = () => {
                 <CustomSelect
                   value={filters.sort}
                   options={[
-                    { value: 'all', label: 'Sort By' },
+                    { value: 'all', label: 'All' },
                     { value: 'date', label: 'Date' },
                     { value: 'attendees', label: 'Attendees' },
                     { value: 'price', label: 'Price' },
@@ -183,11 +183,9 @@ const Events = () => {
                 />
               </div>
             </section>
-
-            <section className="mt-1"></section>
           </section>
           <div
-            className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+            className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
             data-testid="events-list"
           >
             {data?.events?.map((eventData) => (

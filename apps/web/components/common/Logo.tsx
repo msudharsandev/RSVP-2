@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 const Logo = ({ className }: PropsWithClassName) => {
@@ -6,9 +5,9 @@ const Logo = ({ className }: PropsWithClassName) => {
     <Image
       priority
       src="/images/logo.svg"
-      width={200}
+      width={108}
       height={40}
-      className={cn('h-10 w-[108px]', className)}
+      className={className}
       alt="Logo"
     />
   );

@@ -9,4 +9,8 @@ export const userAPI = {
   getUserByUsername: async (username: string) => {
     return api.get(`/users/${username}`);
   },
+
+  deactivateAccount: async () => {
+    return api.delete('/users');
+  },
 };

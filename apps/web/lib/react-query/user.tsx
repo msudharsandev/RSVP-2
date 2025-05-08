@@ -3,6 +3,7 @@ import { AxiosResponse } from 'axios';
 import { toast } from 'sonner';
 import { userAPI } from '../axios/user-API';
 import { UpdateProfilePayload } from '../zod/profile';
+import { useRouter } from 'next/navigation';
 
 export const useProfileUpdate = () => {
   const queryClient = useQueryClient();
@@ -14,6 +15,23 @@ export const useProfileUpdate = () => {
     },
     onError: ({ message }) => {
       toast.error(message);
+    },
+  });
+};
+
+export const useDeactivateAccount = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  return useMutation<AxiosResponse, Error, string>({
+    mutationFn: userAPI.deactivateAccount,
+    onSuccess: () => {
+      toast.success('Account deactivated successfully');
+      queryClient.clear();
+      router.push('/');
+      router.refresh();
+    },
+    onError: ({ message }) => {
+      toast.error(message || 'Failed to deactivate account');
     },
   });
 };
