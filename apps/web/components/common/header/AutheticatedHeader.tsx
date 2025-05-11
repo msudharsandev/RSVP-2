@@ -3,7 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { TicketIcon, CalendarDateRangeIcon } from '@heroicons/react/24/solid';
+import { Ticket } from 'lucide-react';
+import { CalendarRange } from 'lucide-react';
+
 import { Button } from '../../ui/button';
 import Logo from '../Logo';
 import {
@@ -55,7 +57,7 @@ const AutheticatedHeader = () => {
             <div className="hidden gap-3 md:flex">
               <Link href="/events">
                 <Button className={`text-md group ${eventsActiveClass}`} variant={'ghost'}>
-                  <TicketIcon
+                  <Ticket
                     className={`mr-2 h-5 w-5 group-hover:text-white ${eventsActiveClass}`}
                   />
                   My Events
@@ -63,7 +65,7 @@ const AutheticatedHeader = () => {
               </Link>
               <Link href="/planned">
                 <Button className={`text-md group ${plannedActiveClass}`} variant={'ghost'}>
-                  <CalendarDateRangeIcon
+                  <CalendarRange
                     className={`mr-2 h-5 w-5 text-gray-400 group-hover:text-white ${plannedActiveClass}`}
                   />
                   Upcoming Events
@@ -124,7 +126,7 @@ const AutheticatedHeader = () => {
             className="text-md group text-white hover:bg-primary active:bg-primary"
             variant={'ghost'}
           >
-            <TicketIcon className="mr-2 h-5 w-5 text-white" />
+            <Ticket className="mr-2 h-5 w-5 text-white" />
             <span className="w-0 overflow-hidden group-hover:w-fit">Events</span>
           </Button>
         </Link>
@@ -133,7 +135,7 @@ const AutheticatedHeader = () => {
             className="text-md group text-white hover:bg-primary active:bg-primary"
             variant={'ghost'}
           >
-            <CalendarDateRangeIcon className="mr-2 h-5 w-5 text-white" />
+            <CalendarRange className="mr-2 h-5 w-5 text-white" />
             <span className="w-0 overflow-hidden group-hover:w-fit">Planned</span>
           </Button>
         </Link>

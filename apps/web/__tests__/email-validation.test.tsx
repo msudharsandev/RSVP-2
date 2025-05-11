@@ -4,9 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { useSignInMutation } from '@/lib/react-query/auth';
 import { useProfileUpdate } from '@/lib/react-query/user';
 import { invalidEmailFormats } from '@/utils/test-constants';
-import { baseUser } from '@/utils/test-constants';
+import { baseUser } from '../utils/test-constants';
 import SecondaryEmailForm from '@/components/profile/SecondaryEmailForm';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { User } from '@/types/user';
 
 vi.mock('@/lib/react-query/auth', () => ({
   useSignInMutation: vi.fn(),
@@ -108,10 +109,11 @@ describe('Email Validation Tests', () => {
   });
 
   it('tests secondary email removal', async () => {
-    const userWithSecondary = {
+    const userWithSecondary: User = new User({
       ...baseUser,
-      secondary_email: 'old-secondary@example.com',
-    };
+      secondaryEmail: 'existing-secondary@example.com',
+    });
+
     render(<SecondaryEmailForm user={userWithSecondary} />, { wrapper });
     const user = userEvent.setup();
 
@@ -125,10 +127,11 @@ describe('Email Validation Tests', () => {
   });
 
   it('checks persistence of changes', async () => {
-    const userWithSecondary = {
+    const userWithSecondary: User = new User({
       ...baseUser,
-      secondary_email: 'existing-secondary@example.com',
-    };
+      secondaryEmail: 'existing-secondary@example.com',
+    });
+    
 
     render(<SecondaryEmailForm user={userWithSecondary} />, { wrapper });
     const mutateCallData: any[] = [];

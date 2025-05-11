@@ -18,21 +18,24 @@ export const invalidPhoneNumberFormats = [
   { input: 'abcdefghij', error: 'Only numbers are allowed' },
 ];
 
-export const baseUser: User = new User({
+export const baseUser: User = {
   id: '1',
   primaryEmail: 'test@example.com',
+  secondaryEmail: '',
   contact: '1234567890',
-  eventParticipationEnabled: true,
+  fullName: 'Test User',
+  userName: 'testuser',
   createdAt: new Date(),
   updatedAt: new Date(),
   isCompleted: true,
-  profileIcon: 1,
+  eventParticipationEnabled: true,
   isDeleted: false,
-  isProfileComplete: true,
-  fullName: 'Test User',
-  userName: 'testuser',
-  initials: 'TU',
-});
+  isProfileComplete: true, 
+  initials: 'TU',           
+  profileIcon: 1,
+  profileIconUrl: 'https://example.com/icon.png', 
+};
+
 
 export const invalidEmailFormats = [
   'plainaddress',

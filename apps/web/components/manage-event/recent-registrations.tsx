@@ -2,7 +2,7 @@ import { recentRegistrationColumns } from '@/components/data-columns/recent-regi
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { cn } from '@/lib/utils';
-import { ArrowRightIcon } from '@heroicons/react/24/solid';
+import { ArrowRight } from 'lucide-react';
 import useQueryParams from '@/hooks/useSearchParams.tsx';
 import { useGetAttendeeByEventId } from '@/lib/react-query/event';
 import { useParams } from 'next/navigation';
@@ -33,7 +33,7 @@ const RecentRegistrations = ({ className }: PropsWithClassName) => {
           }}
         >
           View all
-          <ArrowRightIcon className="ml-2 size-4" />
+          <ArrowRight className="ml-2 size-4" />
         </Button>
       </header>
       <DataTable
