@@ -22,11 +22,12 @@ import EventPreview from './EventPreview';
 
 type Props = {
   defaultValues: CreateEventFormType;
+  isEditing?: boolean;
   isLoading: boolean;
   onSubmit: (data: CreateEventFormType) => void;
 };
 
-const EventForm = ({ defaultValues, isLoading, onSubmit }: Props) => {
+const EventForm = ({ defaultValues, isEditing = false, isLoading, onSubmit }: Props) => {
   const allowedDate = new Date();
   allowedDate.setHours(0, 0, 0, 0);
   allowedDate.setDate(allowedDate.getDate() + 1);
@@ -35,6 +36,8 @@ const EventForm = ({ defaultValues, isLoading, onSubmit }: Props) => {
     resolver: zodResolver(createEventFormSchema),
     defaultValues: defaultValues,
   });
+
+  const buttonText = isEditing ? 'Update Event' : 'Create Event';
 
   const {
     control,
@@ -211,7 +214,7 @@ const EventForm = ({ defaultValues, isLoading, onSubmit }: Props) => {
             disabled={isLoading || !isDirty}
             className="m mt-2 min-h-11 w-full rounded-[1.25rem] text-base font-semibold text-white"
           >
-            {isLoading ? <LoaderCircle className="animate-spin" /> : <>Save</>}
+            {isLoading ? <LoaderCircle className="animate-spin" /> : <>{buttonText}</>}
           </Button>
         </form>
         <EventPreview className="sticky top-28 hidden w-full max-w-[424px] rounded-[1.25rem] bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 py-7 lg:block" />
