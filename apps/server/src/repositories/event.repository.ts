@@ -10,7 +10,7 @@ import { prisma } from '@/utils/connection';
  * It includes methods for CRUD operations, pagination, and event-specific queries.
  */
 export class EventRepository {
-  /**
+/**
    * Retrieves public events based on filters, pagination, and sorting options.
    * @param params - The parameters for filtering, sorting, and pagination.
    * @returns An array of events matching the criteria.
@@ -27,15 +27,45 @@ export class EventRepository {
     sortBy,
   }: EventFilter) {
     const eventsPaginator = new Paginator('event');
+    const currentDateTime = new Date();
 
     const where: Prisma.EventWhereInput = {
       ...(location && { location: location }),
       ...(category && { category: category }),
-      ...(endDate && { eventDate: { lte: endDate } }),
-      ...(startDate && { eventDate: { gte: startDate } }),
       isDeleted: false,
       isActive: true,
+      OR: [
+        {
+          startTime: {
+            gte: currentDateTime,
+          },
+        },
+        {
+          startTime: {
+            lt: currentDateTime,
+          },
+          endTime: {
+            gt: currentDateTime,
+          },
+        },
+      ],
     };
+
+    if (startDate || endDate) {
+      where.AND = [];
+      
+      if (startDate) {
+        where.AND.push({
+          startTime: { gte: startDate }
+        });
+      }
+      
+      if (endDate) {
+        where.AND.push({
+          startTime: { lte: endDate }
+        });
+      }
+    }
 
     if (search) {
       where.OR = [
@@ -192,40 +222,54 @@ export class EventRepository {
     return event;
   }
 
-  /**
-   * Retrieves popular events within the next 30 days.
-   * @param take - The number of events to retrieve.
-   * @returns An array of popular events.
-   */
-  static async findAllPopularEvents(take: number) {
-    const events = await prisma.event.findMany({
-      where: {
-        eventDate: {
-          gte: new Date(),
-        },
-        isActive: true,
-        isDeleted: false,
-        hostPermissionRequired: false,
-      },
-      include: {
-        creator: {
-          select: {
-            fullName: true,
-            profileIcon: true,
-            userName: true,
+/**
+ * Retrieves popular events within the next 30 days.
+ * @param take - The number of events to retrieve.
+ * @returns An array of popular events.
+ */
+static async findAllPopularEvents(take: number) {
+  const currentDateTime = new Date();
+  
+  const events = await prisma.event.findMany({
+    where: {
+      OR: [
+        {
+          startTime: {
+            gte: currentDateTime,
           },
         },
-        attendees: true,
-      },
-      orderBy: {
-        attendees: {
-          _count: 'desc',
+        {
+          startTime: {
+            lt: currentDateTime,
+          },
+          endTime: {
+            gt: currentDateTime,
+          },
+        },
+      ],
+      isActive: true,
+      isDeleted: false,
+      hostPermissionRequired: false,
+    },
+    include: {
+      creator: {
+        select: {
+          fullName: true,
+          profileIcon: true,
+          userName: true,
         },
       },
-      take,
-    });
-    return events;
-  }
+      attendees: true,
+    },
+    orderBy: {
+      attendees: {
+        _count: 'desc',
+      },
+    },
+    take,
+  });
+  return events;
+}
 
   /**
    * Creates a new event.

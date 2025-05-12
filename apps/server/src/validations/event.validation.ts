@@ -54,19 +54,31 @@ export const CreateEventSchema = EventSchema.strict()
   .refine(
     (data) => {
       const currentDateTime = new Date();
-      const currentDate = new Date(currentDateTime.setHours(0, 0, 0, 0));
+      
+      const currentDate = new Date(currentDateTime);
+      currentDate.setHours(0, 0, 0, 0);
       const eventDate = new Date(data.eventDate);
       eventDate.setHours(0, 0, 0, 0);
+      
       const startTime = new Date(data.startTime);
       const endTime = new Date(data.endTime);
 
-      if (!(eventDate >= currentDate)) {
+      const eventStartDateTime = new Date(data.eventDate);
+      eventStartDateTime.setHours(
+        startTime.getHours(),
+        startTime.getMinutes(), 
+        startTime.getSeconds()
+      );
+      
+      if (eventDate < currentDate) {
         return false;
       }
-      if (!(startTime > currentDateTime)) {
+      
+      if (eventStartDateTime <= currentDateTime) {
         return false;
       }
-      if (!(endTime > startTime)) {
+      
+      if (endTime <= startTime) {
         return false;
       }
 
