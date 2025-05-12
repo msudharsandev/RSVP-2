@@ -10,7 +10,7 @@ import { prisma } from '@/utils/connection';
  * It includes methods for CRUD operations, pagination, and event-specific queries.
  */
 export class EventRepository {
-/**
+  /**
    * Retrieves public events based on filters, pagination, and sorting options.
    * @param params - The parameters for filtering, sorting, and pagination.
    * @returns An array of events matching the criteria.
@@ -53,16 +53,16 @@ export class EventRepository {
 
     if (startDate || endDate) {
       where.AND = [];
-      
+
       if (startDate) {
         where.AND.push({
-          startTime: { gte: startDate }
+          startTime: { gte: startDate },
         });
       }
-      
+
       if (endDate) {
         where.AND.push({
-          startTime: { lte: endDate }
+          startTime: { lte: endDate },
         });
       }
     }
@@ -180,7 +180,7 @@ export class EventRepository {
         sortOrder,
         sortBy,
       },
-      { where: where }
+      { where: where, include: { creator: true } }
     );
 
     return {
@@ -222,54 +222,54 @@ export class EventRepository {
     return event;
   }
 
-/**
- * Retrieves popular events within the next 30 days.
- * @param take - The number of events to retrieve.
- * @returns An array of popular events.
- */
-static async findAllPopularEvents(take: number) {
-  const currentDateTime = new Date();
-  
-  const events = await prisma.event.findMany({
-    where: {
-      OR: [
-        {
-          startTime: {
-            gte: currentDateTime,
+  /**
+   * Retrieves popular events within the next 30 days.
+   * @param take - The number of events to retrieve.
+   * @returns An array of popular events.
+   */
+  static async findAllPopularEvents(take: number) {
+    const currentDateTime = new Date();
+
+    const events = await prisma.event.findMany({
+      where: {
+        OR: [
+          {
+            startTime: {
+              gte: currentDateTime,
+            },
+          },
+          {
+            startTime: {
+              lt: currentDateTime,
+            },
+            endTime: {
+              gt: currentDateTime,
+            },
+          },
+        ],
+        isActive: true,
+        isDeleted: false,
+        hostPermissionRequired: false,
+      },
+      include: {
+        creator: {
+          select: {
+            fullName: true,
+            profileIcon: true,
+            userName: true,
           },
         },
-        {
-          startTime: {
-            lt: currentDateTime,
-          },
-          endTime: {
-            gt: currentDateTime,
-          },
-        },
-      ],
-      isActive: true,
-      isDeleted: false,
-      hostPermissionRequired: false,
-    },
-    include: {
-      creator: {
-        select: {
-          fullName: true,
-          profileIcon: true,
-          userName: true,
+        attendees: true,
+      },
+      orderBy: {
+        attendees: {
+          _count: 'desc',
         },
       },
-      attendees: true,
-    },
-    orderBy: {
-      attendees: {
-        _count: 'desc',
-      },
-    },
-    take,
-  });
-  return events;
-}
+      take,
+    });
+    return events;
+  }
 
   /**
    * Creates a new event.
@@ -295,7 +295,6 @@ static async findAllPopularEvents(take: number) {
     });
     return updatedEvent;
   }
-
 
   /**
    * Updates the slug of an event.

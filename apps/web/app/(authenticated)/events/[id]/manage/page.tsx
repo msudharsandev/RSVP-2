@@ -2,7 +2,6 @@
 
 import Container from '@/components/common/Container';
 import ErrorScreen from '@/components/common/ErrorScreen';
-import LoadingScreen from '@/components/common/LoadingScreen';
 import Communication from '@/components/manage-event/Communication';
 import GuestManageSection from '@/components/manage-event/guest-manage-section';
 import MoreSection from '@/components/manage-event/more-section';
@@ -13,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useQueryParams from '@/hooks/useSearchParams';
 import { useGetEventById } from '@/lib/react-query/event';
 import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -29,7 +29,12 @@ const ManageEventPage = () => {
 
   if (isError || !data) return <ErrorScreen message="Something went wrong" />;
 
-  if (isLoading || !data) return <LoadingScreen className="min-h-screen" />;
+  if (isLoading || !data)
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin" />
+      </div>
+    );
 
   const { event } = data;
 

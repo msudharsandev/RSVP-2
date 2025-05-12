@@ -340,13 +340,17 @@ export const createAttendeeController = catchAsync(
     } else {
       attendeeStatus = { allowedStatus: false, status: Status.WAITING };
     }
-    
+
     const existingAttendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId, null);
     if (existingAttendee) {
+      console.log(existingAttendee.status);
       const isUserTicketCancelled =
-        existingAttendee.isDeleted && existingAttendee.status === Status.CANCELLED;
+        existingAttendee.isDeleted && existingAttendee.status === Status.NOT_GOING;
       if (isUserTicketCancelled) {
-        const restoredAttendee = await AttendeeRepository.restore(existingAttendee.id, Status.GOING);
+        const restoredAttendee = await AttendeeRepository.restore(
+          existingAttendee.id,
+          Status.GOING
+        );
         attendeeStatus = { isDeleted: false, status: Status.GOING };
         return new SuccessResponse('Attendee restored successfully', restoredAttendee).send(res);
       }
@@ -513,13 +517,13 @@ export const getAttendeeTicketController = catchAsync(
 export const updateAttendeeStatusController = catchAsync(
   async (req: IAuthenticatedRequest<{ attendeeId?: string }, {}, IAllowStatus>, res) => {
     const { attendeeId } = req.params;
-    const { allowedStatus} = req.body;
+    const { allowedStatus } = req.body;
     if (!attendeeId) throw new BadRequestError(API_MESSAGES.ALLOW_GUEST.ATTENDEEID_REQUIRED);
 
-    logger.info('Updating attendee status in updateAttendeeStatusController ...')
+    logger.info('Updating attendee status in updateAttendeeStatusController ...');
     const updatedAttendee = await AttendeeRepository.updateAttendeeStatus(
       attendeeId,
-      allowedStatus,
+      allowedStatus
     );
 
     return new SuccessResponse(
@@ -564,7 +568,6 @@ export const verifyQrController = catchAsync(
 
     const attendee = await AttendeeRepository.findById(attendeeId);
     if (!attendee) throw new NotFoundError('Attendee not found');
-
 
     if (attendee.eventId !== eventId) throw new BadRequestError('Attendee is not allowed');
     if (!attendee.allowedStatus) throw new ForbiddenError('Attendee is not allowed');

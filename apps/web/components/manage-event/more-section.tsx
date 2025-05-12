@@ -14,7 +14,7 @@ import { Event } from '@/types/events';
 import { LoaderCircle } from 'lucide-react';
 
 const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
-  const { id: eventId, isCancelled } = event;
+  const { id: eventId, isActive } = event;
   const { mutate, isPending } = useEditEventSlug();
   const { mutate: delMutate, isPending: deleteLoading } = useDeleteEventMutation();
   const { mutate: cancelMutate, isPending: cancelLoading } = useCancelEventMutation();
@@ -69,7 +69,7 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
       </section>
 
       <Separator className="my-11 bg-separator" />
-      {isCancelled ? (
+      {!isActive ? (
         <section className="space-y-6 md:w-1/2">
           <h3>Event Cancelled</h3>
           <p className="text-sm">
