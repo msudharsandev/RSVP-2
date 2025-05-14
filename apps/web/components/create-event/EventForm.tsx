@@ -6,7 +6,8 @@ import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/
 import { createEventFormSchema, CreateEventFormType } from '@/lib/zod/event';
 import { VenueType } from '@/types/events';
 import { eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
-import { BuildingOfficeIcon, LinkIcon } from '@heroicons/react/16/solid';
+import { Building2 } from 'lucide-react';
+import { Link } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Clock1, LoaderCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -145,7 +146,7 @@ const EventForm = ({ defaultValues, isEditing = false, isLoading, onSubmit }: Pr
                       aria-label="Toggle physical"
                       className="h-6 items-center gap-1 rounded-[1.25rem] bg-gray-100 px-3 text-xs/[1.25rem] text-slate-800 data-[state=on]:bg-primary data-[state=on]:text-white"
                     >
-                      <BuildingOfficeIcon className="size-4" />
+                      <Building2 className="size-4" />
                       Venue
                     </ToggleGroupItem>
                     <ToggleGroupItem
@@ -153,7 +154,7 @@ const EventForm = ({ defaultValues, isEditing = false, isLoading, onSubmit }: Pr
                       aria-label="Toggle virtual"
                       className="h-6 items-center gap-1 rounded-[1.25rem] bg-gray-100 px-3 text-xs/[1.25rem] text-slate-800 data-[state=on]:bg-primary data-[state=on]:text-white"
                     >
-                      <LinkIcon className="size-4" />
+                      <Link className="size-4" />
                       Online
                     </ToggleGroupItem>
                     <ToggleGroupItem

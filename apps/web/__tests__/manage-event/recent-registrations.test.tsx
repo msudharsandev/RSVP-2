@@ -56,7 +56,7 @@ describe('RecentRegistrations Component (Integration with DataTable)', () => {
     expect(within(table).getByRole('columnheader', { name: /status/i })).toBeInTheDocument();
 
     TEST_ATTENDEES_RECENT_REG.forEach((attendee) => {
-      expect(within(table).getByText(attendee.user.full_name as string)).toBeInTheDocument();
+      expect(within(table).getByText(attendee.user.fullName as string)).toBeInTheDocument();
       expect(within(table).getByText(attendee.status)).toBeInTheDocument();
     });
   });
@@ -74,7 +74,7 @@ describe('RecentRegistrations Component (Integration with DataTable)', () => {
 
     const table = screen.getByRole('table');
     expect(
-      within(table).queryByText(TEST_ATTENDEES_RECENT_REG[0].user.full_name as string)
+      within(table).queryByText(TEST_ATTENDEES_RECENT_REG[0].user.fullName as string)
     ).not.toBeInTheDocument();
   });
 

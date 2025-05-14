@@ -105,7 +105,7 @@ describe('GetTicketsButton', () => {
   it('should show "Waiting for Approval" when permission is required', () => {
     (useCurrentUser as any).mockReturnValue({
       isLoading: false,
-      data: { data: { data: { id: 'user-123' } } },
+      data: {id: 'user-123' },
     });
 
     (useGetAttendeeTicketDetails as any).mockReturnValue({
@@ -125,7 +125,7 @@ describe('GetTicketsButton', () => {
 
     (useCurrentUser as any).mockReturnValue({
       isLoading: false,
-      data: { data: { data: { id: 'user-123' } } },
+      data: {id: 'user-123' } ,
     });
 
     (useGetAttendeeTicketDetails as any).mockReturnValue({
@@ -152,7 +152,7 @@ describe('GetTicketsButton', () => {
 
     (useCurrentUser as any).mockReturnValue({
       isLoading: false,
-      data: { data: { data: { id: 'user-123' } } },
+      data: { id: 'user-123' } ,
     });
 
     (useGetAttendeeTicketDetails as any).mockReturnValue({

@@ -1,7 +1,6 @@
 import { Event } from '@/types/events';
 import { getProfilePictureUrl, venueDisplay } from '@/utils/event';
-import { CalendarDaysIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { CalendarIcon, MapPin, BadgeCheck } from 'lucide-react'; 
 import dayjs from 'dayjs';
 import { ClockIcon, LinkIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -64,7 +63,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
         <section className="mt-6 w-full md:mt-0 md:w-[60%]">
           <section className="mb-6 flex items-center">
             <div className="mr-[20px] rounded-[8px] bg-dark-500 p-3">
-              <CalendarDaysIcon className="h-[24px] w-[24px]" />
+              <CalendarIcon className="h-[24px] w-[24px]" />
             </div>
             <article className="font-bold">
               <p>{formattedStartDate}</p>
@@ -75,7 +74,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
           </section>
           <section className="flex items-center">
             <div className="mr-[20px] rounded-[8px] bg-dark-500 p-3">
-              {event?.isPhysical && <MapPinIcon className="h-[24px] w-[24px]" />}
+              {event?.isPhysical && <MapPin className="h-[24px] w-[24px]" />}
               {event?.isVirtual && <LinkIcon className="h-[24px] w-[24px]" />}
               {event?.isLater && <ClockIcon className="h-[24px] w-[24px]" />}
             </div>
@@ -149,7 +148,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
             )}
             {/* {event?.hostPermissionRequired && (
               <section className="mt-4 flex items-center">
-                <CheckBadgeIcon className="mr-2.5 size-6 text-green-500" />
+                <BadgeCheck className="mr-2.5 size-6 text-green-500" />
                 <article className="flex flex-col">
                   <p className="font-semibold">Required Approval</p>
                   <p className="text-sm text-secondary">Needs host permission to join event</p>

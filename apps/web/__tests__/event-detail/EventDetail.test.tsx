@@ -1,8 +1,9 @@
 import { screen } from '@testing-library/react';
 import { renderWithQueryClient } from '@/__tests__/utils/tanstack-query';
 import EventDetail from '@/components/event-detail/EventDetail';
-import { VenueType } from '@/types/event';
-import { TEST_EVENT_DATA, TEST_EVENT } from '@/utils/test-constants';
+import { Event } from '../../types/events';
+import { VenueType } from '../../types/events';
+import { TEST_EVENT_DATA, TEST_EVENT } from '../../utils/test-constants';
 import dayjs from 'dayjs';
 
 vi.mock('next/image', () => ({
@@ -34,13 +35,13 @@ describe('EventDetail', () => {
   it('should display virtual venue information correctly', () => {
     const virtualEvent = {
       ...TEST_EVENT_DATA,
-      event: {
+      event: new Event({
         ...TEST_EVENT,
-        venueType: 'virtual' as VenueType,
+        venueType: VenueType.Virtual,
         venueUrl: 'https://meet.google.com',
-      },
+      }),
     };
-
+  
     renderWithQueryClient(<EventDetail eventData={virtualEvent} />);
 
     expect(screen.getByText('Event Link')).toBeInTheDocument();
@@ -50,7 +51,7 @@ describe('EventDetail', () => {
   it('should display TBA venue information correctly', () => {
     const tbaEvent = {
       ...TEST_EVENT_DATA,
-      event: { ...TEST_EVENT, venueType: 'later' as VenueType, venue: '' },
+      event: new Event( { ...TEST_EVENT, venueType:VenueType.Later, venueAddress: '' }),
     };
 
     renderWithQueryClient(<EventDetail eventData={tbaEvent} />);
@@ -93,7 +94,7 @@ describe('EventDetail', () => {
   it('should not render description section when description is empty', () => {
     const eventWithoutDescription = {
       ...TEST_EVENT_DATA,
-      event: { ...TEST_EVENT, description: '' },
+      event: new Event({ ...TEST_EVENT, description: '' }),
     };
 
     renderWithQueryClient(<EventDetail eventData={eventWithoutDescription} />);
@@ -104,7 +105,7 @@ describe('EventDetail', () => {
   it('should handle events with no cohosts', () => {
     const eventWithoutCohosts = {
       ...TEST_EVENT_DATA,
-      event: { ...TEST_EVENT, Cohost: [] },
+      event: new Event({ ...TEST_EVENT, cohosts: [] }),
     };
 
     renderWithQueryClient(<EventDetail eventData={eventWithoutCohosts} />);
