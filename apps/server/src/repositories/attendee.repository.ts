@@ -85,21 +85,46 @@ export class AttendeeRepository {
       userId,
       isDeleted: false,
     };
+    const currentDateTime = new Date();
 
     if (startDate) {
       whereClause.event = {
-        eventDate: {
-          gte: startDate,
-        },
+        OR: [          {
+            startTime: {
+              gte: startDate,
+            },
+          },
+          {
+            startTime: {
+              lt: startDate,
+            },
+            endTime: {
+              gt: startDate,
+            },
+          },
+        ],
       };
     }
 
     if (endDate) {
-      whereClause.event = {
-        eventDate: {
-          lte: endDate,
-        },
-      };
+      if (whereClause.event) {
+        whereClause.event = {
+          AND: [
+            whereClause.event,
+            {
+              startTime: {
+                lte: endDate,
+              },
+            },
+          ],
+        };
+      } else {
+        whereClause.event = {
+          startTime: {
+            lte: endDate,
+          },
+        };
+      }
     }
 
     const attendees = await prisma.attendee.findMany({
@@ -275,8 +300,7 @@ export class AttendeeRepository {
     });
   }
 
-
-  /** 
+  /**
    * Cancels an attendee record by ID. (Soft Delete)
    * @param id - The unique ID of the attendee.
    * @returns The updated attendee object with `status` set to `CANCELLED`.

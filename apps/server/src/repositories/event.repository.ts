@@ -27,15 +27,45 @@ export class EventRepository {
     sortBy,
   }: EventFilter) {
     const eventsPaginator = new Paginator('event');
+    const currentDateTime = new Date();
 
     const where: Prisma.EventWhereInput = {
       ...(location && { location: location }),
       ...(category && { category: category }),
-      ...(endDate && { eventDate: { lte: endDate } }),
-      ...(startDate && { eventDate: { gte: startDate } }),
       isDeleted: false,
       isActive: true,
+      OR: [
+        {
+          startTime: {
+            gte: currentDateTime,
+          },
+        },
+        {
+          startTime: {
+            lt: currentDateTime,
+          },
+          endTime: {
+            gt: currentDateTime,
+          },
+        },
+      ],
     };
+
+    if (startDate || endDate) {
+      where.AND = [];
+
+      if (startDate) {
+        where.AND.push({
+          startTime: { gte: startDate },
+        });
+      }
+
+      if (endDate) {
+        where.AND.push({
+          startTime: { lte: endDate },
+        });
+      }
+    }
 
     if (search) {
       where.OR = [
@@ -150,7 +180,7 @@ export class EventRepository {
         sortOrder,
         sortBy,
       },
-      { where: where }
+      { where: where, include: { creator: true } }
     );
 
     return {
@@ -198,11 +228,25 @@ export class EventRepository {
    * @returns An array of popular events.
    */
   static async findAllPopularEvents(take: number) {
+    const currentDateTime = new Date();
+
     const events = await prisma.event.findMany({
       where: {
-        eventDate: {
-          gte: new Date(),
-        },
+        OR: [
+          {
+            startTime: {
+              gte: currentDateTime,
+            },
+          },
+          {
+            startTime: {
+              lt: currentDateTime,
+            },
+            endTime: {
+              gt: currentDateTime,
+            },
+          },
+        ],
         isActive: true,
         isDeleted: false,
         hostPermissionRequired: false,
@@ -251,7 +295,6 @@ export class EventRepository {
     });
     return updatedEvent;
   }
-
 
   /**
    * Updates the slug of an event.

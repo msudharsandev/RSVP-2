@@ -8,7 +8,7 @@ const fullProfileSchema = z
   .object({
     fullName: z.string().min(1),
     location: z.string(),
-    bio: z.string(),
+    bio: z.string().max(500),
     profileIcon: z.coerce.number().default(1),
     twitter: z.string().optional(),
     instagram: z.string().optional(),

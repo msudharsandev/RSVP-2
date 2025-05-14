@@ -129,14 +129,9 @@ export const useDeleteEventMutation = () => {
   });
 };
 
-export const useGetEventById = (eventId?: string) => {
+export const useGetEventById = (eventId: string) => {
   return useQuery({
-    queryFn: eventId
-      ? async () => {
-          const reponse = await eventAPI.getEventById(eventId);
-          return { event: reponse.event, totalAttendees: reponse.totalAttendees };
-        }
-      : undefined,
+    queryFn: async () => eventAPI.getEventById(eventId),
     enabled: !!eventId,
     queryKey: [EVENTS_QUERY_KEY, eventId],
   });
@@ -174,10 +169,12 @@ export const useUpdateEvent = () => {
 };
 
 export const useCreateAttendee = () => {
+  const router = useRouter();
   return useMutation<AxiosResponse, AxiosError<ErrorResponse>, string>({
     mutationFn: eventAPI.createAttendee,
     onSuccess: () => {
       toast.success('Attendee created successfully!');
+      router.refresh();
     },
     onError: (error) => {
       toast.error(error.response?.data.message || 'An error occurred');
@@ -186,10 +183,12 @@ export const useCreateAttendee = () => {
 };
 
 export const useSoftDeleteAttendee = () => {
+  const router = useRouter();
   return useMutation<AxiosResponse, AxiosError<ErrorResponse>, string>({
     mutationFn: eventAPI.softDeleteAttendee,
     onSuccess: () => {
       toast.success('Registration cancelled successfully');
+      router.refresh();
     },
     onError: (error) => {
       toast.error(error.response?.data.message || 'Failed to cancel registration');

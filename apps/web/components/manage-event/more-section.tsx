@@ -11,9 +11,10 @@ import { Button } from '../ui/button';
 import FormProvider from '../ui/form-provider';
 import { Separator } from '../ui/separator';
 import { Event } from '@/types/events';
+import { LoaderCircle } from 'lucide-react';
 
 const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
-  const { id: eventId, isCancelled } = event;
+  const { id: eventId, isActive } = event;
   const { mutate, isPending } = useEditEventSlug();
   const { mutate: delMutate, isPending: deleteLoading } = useDeleteEventMutation();
   const { mutate: cancelMutate, isPending: cancelLoading } = useCancelEventMutation();
@@ -68,7 +69,7 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
       </section>
 
       <Separator className="my-11 bg-separator" />
-      {isCancelled ? (
+      {!isActive ? (
         <section className="space-y-6 md:w-1/2">
           <h3>Event Cancelled</h3>
           <p className="text-sm">
@@ -86,12 +87,12 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
           </p>
 
           <Button
-            variant="destructive"
+            variant={cancelLoading ? 'subtle' : 'destructive'}
             className="rounded-[6px]"
             onClick={() => cancelMutate(eventId)}
             disabled={cancelLoading}
           >
-            Cancel Event
+            {cancelLoading ? <LoaderCircle className="animate-spin" /> : <>Cancel Event</>}
           </Button>
         </section>
       )}
@@ -106,12 +107,12 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
         </p>
 
         <Button
-          variant="destructive"
+          variant={deleteLoading ? 'subtle' : 'destructive'}
           className="rounded-[6px] opacity-50 hover:opacity-100"
           onClick={() => delMutate(eventId)}
           disabled={deleteLoading}
         >
-          Delete My Event
+          {deleteLoading ? <LoaderCircle className="animate-spin" /> : <>Delete My Event</>}
         </Button>
       </section>
     </section>

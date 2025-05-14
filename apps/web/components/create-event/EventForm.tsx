@@ -9,7 +9,7 @@ import { eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
 import { Building2 } from 'lucide-react';
 import { Link } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Clock1 } from 'lucide-react';
+import { Clock1, LoaderCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import FormCombobox from '../common/form/FormCombobox';
 import FormDatePicker from '../common/form/FormDatePicker';
@@ -22,29 +22,23 @@ import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import EventPreview from './EventPreview';
 
 type Props = {
-  isEditing?: boolean;
   defaultValues: CreateEventFormType;
+  isEditing?: boolean;
   isLoading: boolean;
   onSubmit: (data: CreateEventFormType) => void;
 };
 
-const EventForm = ({ isEditing, defaultValues, isLoading, onSubmit }: Props) => {
+const EventForm = ({ defaultValues, isEditing = false, isLoading, onSubmit }: Props) => {
   const allowedDate = new Date();
   allowedDate.setHours(0, 0, 0, 0);
   allowedDate.setDate(allowedDate.getDate() + 1);
-
-  let submitLabel = 'Create Event';
-
-  if (isLoading) {
-    submitLabel = isEditing ? 'Updating...' : 'Creating...';
-  } else if (isEditing) {
-    submitLabel = 'Update Event';
-  }
 
   const form = useForm<CreateEventFormType>({
     resolver: zodResolver(createEventFormSchema),
     defaultValues: defaultValues,
   });
+
+  const buttonText = isEditing ? 'Update Event' : 'Create Event';
 
   const {
     control,
@@ -221,7 +215,7 @@ const EventForm = ({ isEditing, defaultValues, isLoading, onSubmit }: Props) => 
             disabled={isLoading || !isDirty}
             className="m mt-2 min-h-11 w-full rounded-[1.25rem] text-base font-semibold text-white"
           >
-            {submitLabel}
+            {isLoading ? <LoaderCircle className="animate-spin" /> : <>{buttonText}</>}
           </Button>
         </form>
         <EventPreview className="sticky top-28 hidden w-full max-w-[424px] rounded-[1.25rem] bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 py-7 lg:block" />

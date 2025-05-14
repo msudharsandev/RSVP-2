@@ -85,7 +85,9 @@ const ProfileForm = ({ user }: Props) => {
           type="text"
           inputClassName="rounded-l-none"
         >
-          <span className="block rounded-l-[6px] bg-dark-500 px-2.5 py-2">https://x.com/</span>
+          <span className="block rounded-l-[6px] bg-dark-500 px-2.5 py-2 whitespace-nowrap">
+            https://x.com/
+          </span>
         </FormInput>
         <FormInput
           control={form.control}
@@ -94,7 +96,7 @@ const ProfileForm = ({ user }: Props) => {
           type="text"
           inputClassName="rounded-l-none"
         >
-          <span className="block rounded-l-[6px] bg-dark-500 px-2.5 py-2">
+          <span className="block rounded-l-[6px] bg-dark-500 px-2.5 py-2 whitespace-nowrap">
             https://instagram.com/
           </span>
         </FormInput>

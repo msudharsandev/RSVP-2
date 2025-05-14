@@ -127,17 +127,26 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
             </article>
           ) : null}
         </section>
+
         <section className="w-full md:w-[481px]">
           <section className="w-full rounded-lg bg-dark-900 p-6 shadow-lg md:w-[481px]">
-            <h2 className="text-xl font-bold">Registration</h2>
-            <p className="mt-2 font-semibold">{capacity - totalAttendees} Seats are Remaining.</p>
-            {totalAttendees > 0 && (
-              <div className="flex items-center pb-2 pt-4">
-                <AvatarGroup additionalCount={additionalCount} limit={userAvatarLimit} />
-                <p className="ml-3 text-sm font-semibold">{totalAttendees} going</p>
-              </div>
+            {!event?.isActive ? (
+              <p className="text-red-500">Event has been cancelled</p>
+            ) : (
+              <>
+                <h2 className="text-xl font-bold">Registration</h2>
+                <p className="mt-2 font-semibold">
+                  {capacity - totalAttendees} Seats are Remaining.
+                </p>
+                {totalAttendees > 0 && (
+                  <div className="flex items-center pb-2 pt-4">
+                    <AvatarGroup additionalCount={additionalCount} limit={userAvatarLimit} />
+                    <p className="ml-3 text-sm font-semibold">{totalAttendees} going</p>
+                  </div>
+                )}
+              </>
             )}
-            {event?.hostPermissionRequired && (
+            {/* {event?.hostPermissionRequired && (
               <section className="mt-4 flex items-center">
                 <BadgeCheck className="mr-2.5 size-6 text-green-500" />
                 <article className="flex flex-col">
@@ -145,12 +154,15 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
                   <p className="text-sm text-secondary">Needs host permission to join event</p>
                 </article>
               </section>
+            )} */}
+
+            {event?.isActive && (
+              <GetTicketsButton
+                creatorId={event.creatorId}
+                eventId={event.id}
+                isPermissionRequired={event?.hostPermissionRequired}
+              />
             )}
-            <GetTicketsButton
-              creatorId={event.creatorId}
-              eventId={event.id}
-              isPermissionRequired={event?.hostPermissionRequired}
-            />
           </section>
         </section>
       </section>

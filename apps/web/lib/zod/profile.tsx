@@ -40,11 +40,11 @@ export const profileFormSchema = z.object({
   location: z
     .string()
     .refine((val) => !val || !/^[\d\s]+$/.test(val.trim()), 'Cannot contain only numbers'),
-  bio: z.string().default(''),
+  bio: z.string().max(500).default(''),
   profileIcon: z.coerce.number().optional(),
   twitter: z.string().optional(),
   instagram: z.string().optional(),
-  website: z.string().optional(),
+  website: z.string().url().optional(),
   secondaryEmail: z.string().email().optional(),
 });
 

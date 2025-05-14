@@ -6,9 +6,9 @@ import { useCurrentUser } from '@/lib/react-query/auth';
 import { useCancelEvent, useGetAttendeeDetails, useGetEventById } from '@/lib/react-query/event';
 import { MapPinIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
-import { Link, Presentation } from 'lucide-react';
-import { notFound, useParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { LoaderCircle, Presentation } from 'lucide-react';
+import Link from 'next/link';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import QRCode from 'react-qr-code';
 
 const TicketPage = () => {
@@ -20,7 +20,7 @@ const TicketPage = () => {
   const { data: userData, isLoading: isUserLoading } = useCurrentUser();
   const { data: attendee, isLoading: isAttendeeLoading } = useGetAttendeeDetails(id);
   const { data: eventData, isLoading: isEventLoading } = useGetEventById(id);
-  const { mutate: cancelEvent } = useCancelEvent();
+  const { mutate: cancelEvent, isPending: cancelEventloading } = useCancelEvent();
 
   const event = eventData?.event;
 
@@ -50,8 +50,8 @@ const TicketPage = () => {
         </div>
         <div className="flex w-full flex-col items-center justify-between gap-x-10 gap-y-3 md:w-1/2 md:flex-row">
           {eventData?.event?.isVirtual ? (
-            <Link href={event?.venueUrl || ''} target="_blank">
-              <Button className="h-12 w-full rounded-[6px] md:w-1/2">
+            <Link href={event?.venueUrl || ''} target="_blank" className="w-full md:w-1/2">
+              <Button className="h-12 w-full rounded-[6px]">
                 <Presentation className="mr-2 size-6" />
                 See Meeting
               </Button>
@@ -64,10 +64,11 @@ const TicketPage = () => {
           ) : null}
           <Button
             className="h-12 w-full rounded-[6px] border bg-dark-900 md:w-1/2"
-            variant="destructive"
+            variant={cancelEventloading ? 'subtle' : 'destructive'}
             onClick={handleEventCancel}
+            disabled={cancelEventloading}
           >
-            Cancel ticket
+            {cancelEventloading ? <LoaderCircle className="animate-spin" /> : <>Cancel ticket</>}
           </Button>
         </div>
       </div>
