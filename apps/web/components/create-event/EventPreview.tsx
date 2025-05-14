@@ -1,5 +1,5 @@
 import { CreateEventFormType } from '@/lib/zod/event';
-import { Calendar, MapPin } from 'lucide-react';
+import { CalendarIcon, MapPinIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
 import { X } from 'lucide-react';
 import { ReactNode } from 'react';
@@ -61,14 +61,14 @@ const EventPreview = ({ className, children, venueType }: EventPreviewProps) => 
       </h2>
       {venueType === 'physical' && (
         <div className="mb-6 flex gap-3.5 lg:mb-4">
-          <MapPin className="mt-[3px] size-6 shrink-0" />
+          <MapPinIcon className="mt-[3px] size-6 shrink-0" />
           <p className="line-clamp-2 text-[1.125rem]/[1.5rem] font-medium text-white">
             {watch('location') || '-'}
           </p>
         </div>
       )}
       <section className="flex gap-3.5">
-        <Calendar className="mt-[3px] size-6 shrink-0" />
+        <CalendarIcon className="mt-[3px] size-6 shrink-0" />
         <div className="text-white">
           <p className="text-sm font-semibold">From</p>
           <span className="font-medium">

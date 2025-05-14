@@ -13,7 +13,8 @@ import useDebounce from '@/hooks/useDebounce';
 import { useGetAttendeeByEventId } from '@/lib/react-query/event';
 import { cn } from '@/lib/utils';
 import { Attendee } from '@/types/attendee';
-import { Search, Plus } from 'lucide-react';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { PlusIcon } from '@heroicons/react/24/solid';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import NoResults from '../common/NoResults';
@@ -64,7 +65,7 @@ const AddCoHost = ({ className }: PropsWithClassName) => {
       <Dialog open={isCohostSelectionDialogOpen} onOpenChange={toggleCohostSelectionDialog}>
         <DialogTrigger asChild>
           <Button radius="sm" size="sm" variant="tertiary" className="w-full">
-            <Plus className="mr-2 size-4" />
+            <PlusIcon className="mr-2 size-4" />
             Add host
           </Button>
         </DialogTrigger>
@@ -79,7 +80,7 @@ const AddCoHost = ({ className }: PropsWithClassName) => {
           <div className="grid gap-3">
             <div className="relative flex w-full items-center">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <Search className="z-10 h-5 w-5 text-white" />
+                <MagnifyingGlassIcon className="z-10 h-5 w-5 text-white" />
               </div>
               <input
                 type="text"

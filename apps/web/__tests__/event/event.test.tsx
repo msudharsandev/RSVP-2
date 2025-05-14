@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Events from '../../app/(authenticated)/events/page.tsx';
-import { useGetEvent, useGetMyEvents } from '@/lib/react-query/event';
+import { useGetEvent } from '@/lib/react-query/event';
 
 // Mock the required hooks and modules
 vi.mock('@/lib/react-query/event', () => ({
-  useGetMyEvents: vi.fn(),
+  useGetEvent: vi.fn(),
 }));
 
 vi.mock('nuqs', () => ({
@@ -38,7 +38,7 @@ describe('Events Component', () => {
   });
 
   it('should show loading state', () => {
-    (useGetMyEvents as any).mockReturnValue({
+    (useGetEvent as any).mockReturnValue({
       isLoading: true,
       error: null,
       data: null,
@@ -49,7 +49,7 @@ describe('Events Component', () => {
   });
 
   it('should render events when data is loaded', () => {
-    (useGetMyEvents as any).mockReturnValue({
+    (useGetEvent as any).mockReturnValue({
       isLoading: false,
       error: null,
       data: mockEvents,
@@ -62,7 +62,7 @@ describe('Events Component', () => {
   });
 
   it('should handle search input', async () => {
-    (useGetMyEvents as any).mockReturnValue({
+    (useGetEvent as any).mockReturnValue({
       isLoading: false,
       error: null,
       data: mockEvents,
@@ -84,7 +84,7 @@ describe('Events Component', () => {
 
   it('should display error message when API call fails', () => {
     const errorMessage = 'Failed to fetch events';
-    (useGetMyEvents as any).mockReturnValue({
+    (useGetEvent as any).mockReturnValue({
       isLoading: false,
       error: { message: errorMessage },
       data: null,
@@ -95,16 +95,13 @@ describe('Events Component', () => {
   });
 
   it('should render no results when events array is empty', () => {
-    (useGetMyEvents as any).mockReturnValue({
+    (useGetEvent as any).mockReturnValue({
       isLoading: false,
       error: null,
-      data: {
-        events:[]
-      },
+      data: [],
     });
 
-    const {debug} = render(<Events />);
-    debug();
+    render(<Events />);
     expect(screen.getByTestId('no-events')).toBeInTheDocument();
   });
 });

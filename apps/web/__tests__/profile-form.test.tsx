@@ -17,26 +17,22 @@ vi.mock('@/lib/react-query/user', () => ({
 }));
 
 const mockUser = {
-  id: '1',
-  primaryEmail: 'john@example.com',
-  secondaryEmail: 'john1@example.com',
+  id: 1,
+  primary_email: 'john@example.com',
+  secondary_email: 'john1@example.com',
   contact: '+919876543210',
-  fullName: 'John Doe',
+  full_name: 'John Doe',
   magicToken: 'magictoken123',
-  isCompleted: true,
+  is_completed: true,
   location: 'Delhi',
   bio: 'John Doe bio',
   twitter: 'john123',
   instagram: 'john789',
   website: 'https://johndoe.com',
-  profileIcon: 1,
-  eventParticipationEnabled: true,
-  createdAt: new Date('2025-03-07'),
-  updatedAt: new Date('2024-03-13'),
-  isDeleted: false,
-  isProfileComplete: true, 
-  initials: 'TU',
-  profileIconUrl: 'https://example.com/icon.png', 
+  profile_icon: 'icon1',
+  event_participation_enabled: true,
+  created_at: new Date('2025-03-07'),
+  updated_at: new Date('2024-03-13'),
 };
 
 beforeEach(() => {
@@ -48,7 +44,7 @@ describe('ProfileForm component', () => {
   it('should test editing fields and form data correctly', async () => {
     renderWithQueryClient(<ProfileForm user={mockUser} />);
 
-    const nameInput = screen.getByDisplayValue(mockUser.fullName);
+    const nameInput = screen.getByDisplayValue(mockUser.full_name);
     const locationInput = screen.getByDisplayValue(mockUser.location);
     const bioInput = screen.getByDisplayValue(mockUser.bio);
     const twitterInput = screen.getByDisplayValue(mockUser.twitter);
@@ -77,7 +73,7 @@ describe('ProfileForm component', () => {
   it('should validate input formats and character limits', async () => {
     renderWithQueryClient(<ProfileForm user={mockUser} />);
 
-    const nameInput = screen.getByDisplayValue(mockUser.fullName);
+    const nameInput = screen.getByDisplayValue(mockUser.full_name);
     const locationInput = screen.getByDisplayValue(mockUser.location);
     const saveButton = screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement;
 
@@ -112,7 +108,7 @@ describe('ProfileForm component', () => {
     const saveButton = screen.getByRole('button', { name: 'Save' }) as HTMLButtonElement;
     expect(saveButton.disabled).toBeTruthy();
 
-    const nameInput = screen.getByDisplayValue(mockUser.fullName);
+    const nameInput = screen.getByDisplayValue(mockUser.full_name);
     fireEvent.change(nameInput, { target: { value: 'John Wick' } });
 
     expect(saveButton.disabled).toBeFalsy();
@@ -121,7 +117,7 @@ describe('ProfileForm component', () => {
   it('should ensure Reset button discards changes', async () => {
     renderWithQueryClient(<ProfileForm user={mockUser} />);
 
-    const nameInput = screen.getByDisplayValue(mockUser.fullName) as HTMLInputElement;
+    const nameInput = screen.getByDisplayValue(mockUser.full_name) as HTMLInputElement;
     const resetButton = screen.getByRole('button', { name: 'Reset' }) as HTMLButtonElement;
 
     fireEvent.change(nameInput, { target: { value: 'John Wick' } });
@@ -130,13 +126,13 @@ describe('ProfileForm component', () => {
     fireEvent.click(resetButton);
 
     await waitFor(() => {
-      expect(nameInput.value).toBe(mockUser.fullName);
+      expect(nameInput.value).toBe(mockUser.full_name);
     });
   });
 
   it('should check persistence after page refresh', async () => {
     const newData = {
-      fullName: 'John Smith',
+      full_name: 'John Smith',
       location: 'Bangalore',
       bio: 'This is a new bio',
       profile_icon: 'icon2',
@@ -146,15 +142,14 @@ describe('ProfileForm component', () => {
     };
     const { unmount } = renderWithQueryClient(<ProfileForm user={mockUser} />);
 
-    const nameInput = await waitFor(() => screen.getByDisplayValue(mockUser.fullName));
-
+    const nameInput = screen.getByDisplayValue(mockUser.full_name) as HTMLInputElement;
     const locationInput = screen.getByDisplayValue(mockUser.location) as HTMLInputElement;
     const bioInput = screen.getByDisplayValue(mockUser.bio) as HTMLInputElement;
     const twitterInput = screen.getByDisplayValue(mockUser.twitter) as HTMLInputElement;
     const instagramInput = screen.getByDisplayValue(mockUser.instagram) as HTMLInputElement;
     const websiteInput = screen.getByDisplayValue(mockUser.website) as HTMLInputElement;
 
-    fireEvent.change(nameInput, { target: { value: newData.fullName } });
+    fireEvent.change(nameInput, { target: { value: newData.full_name } });
     fireEvent.change(locationInput, { target: { value: newData.location } });
     fireEvent.change(bioInput, { target: { value: newData.bio } });
     fireEvent.change(twitterInput, { target: { value: newData.twitter } });
@@ -169,7 +164,7 @@ describe('ProfileForm component', () => {
     const updatedMockUser = { ...mockUser, ...newData };
     renderWithQueryClient(<ProfileForm user={updatedMockUser} />);
 
-    const updatedNameInput = screen.getByDisplayValue(newData.fullName) as HTMLInputElement;
+    const updatedNameInput = screen.getByDisplayValue(newData.full_name) as HTMLInputElement;
     const updatedLocationInput = screen.getByDisplayValue(newData.location) as HTMLInputElement;
     const updatedBioInput = screen.getByDisplayValue(newData.bio) as HTMLInputElement;
     const updatedTwitterInput = screen.getByDisplayValue(newData.twitter) as HTMLInputElement;
@@ -177,7 +172,7 @@ describe('ProfileForm component', () => {
     const updatedWebsiteInput = screen.getByDisplayValue(newData.website) as HTMLInputElement;
 
     await waitFor(() => {
-      expect(updatedNameInput.value).toBe(newData.fullName);
+      expect(updatedNameInput.value).toBe(newData.full_name);
       expect(updatedLocationInput.value).toBe(newData.location);
       expect(updatedBioInput.value).toBe(newData.bio);
       expect(updatedTwitterInput.value).toBe(newData.twitter);

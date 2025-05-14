@@ -12,8 +12,8 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Check } from 'lucide-react';
-import { ChevronsUpDown } from 'lucide-react';
+import { CheckIcon } from '@heroicons/react/24/solid';
+import { ChevronUpDownIcon } from '@heroicons/react/16/solid';
 
 type Props = {
   placeholder?: string;
@@ -55,7 +55,7 @@ export function ComboboxSelect({
         >
           {value ? options.find((option) => option.value === value)?.label : placeholder}
 
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
@@ -80,7 +80,7 @@ export function ComboboxSelect({
                   }}
                 >
                   {option.label}
-                  <Check
+                  <CheckIcon
                     className={cn(
                       'ml-auto h-4 w-4',
                       value === option.value ? 'opacity-100' : 'opacity-0'

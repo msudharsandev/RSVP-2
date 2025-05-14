@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
-import { CheckCircle2 } from 'lucide-react';
-import { ArrowUpRight } from 'lucide-react';
+import { CheckCircleIcon } from '@heroicons/react/16/solid';
+import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import { Button } from '../ui/button';
@@ -56,12 +56,12 @@ const Card = ({ className, event, type }: CardProps) => {
         <>
           <Link href={`/events/${event?.id}/manage`} passHref className="block">
             <Button variant="tertiary" radius="default" className="w-full border-primary">
-              Manage <ArrowUpRight className="ml-2 h-4 w-4" />
+              Manage <ArrowUpRightIcon className="ml-2 h-4 w-4" />
             </Button>
           </Link>
           <Link href={`/${event?.slug}`} passHref className="block">
             <Button variant="tertiary" radius="default" className="w-full border-primary">
-              Public View <ArrowUpRight className="ml-2 h-4 w-4" />
+              Public View <ArrowUpRightIcon className="ml-2 h-4 w-4" />
             </Button>
           </Link>
         </>
