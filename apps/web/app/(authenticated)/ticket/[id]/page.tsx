@@ -48,7 +48,7 @@ const TicketPage = () => {
         <div className="mb-6 w-full font-medium md:m-auto md:w-1/2">
           <p dangerouslySetInnerHTML={{ __html: event?.description }} />
         </div>
-        <div className="flex w-full flex-col items-center justify-between gap-x-10 gap-y-3 md:w-1/2 md:flex-row">
+        <div className="flex w-full flex-col items-center justify-end gap-x-10 gap-y-3 md:w-1/2 md:flex-row">
           {eventData?.event?.isVirtual ? (
             <Link href={event?.venueUrl || ''} target="_blank" className="w-full md:w-1/2">
               <Button className="h-12 w-full rounded-[6px]">

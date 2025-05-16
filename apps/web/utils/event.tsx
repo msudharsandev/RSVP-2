@@ -12,7 +12,7 @@ export const venueDisplay = (event: Event | null) => {
     case VenueType.Virtual:
       return trimText(event?.venueUrl || '');
     case VenueType.Later:
-      return 'You will be notified once host updates the details';
+      return 'The event location will be announced soon.';
     default:
       return '';
   }

@@ -58,7 +58,7 @@ const ManageEventPage = () => {
       </header>
       <main>
         <Tabs defaultValue="overview" value={tabValue!} onValueChange={handleTabChange}>
-          <ScrollArea className="w-full sm:w-[calc(100vw-36px)]">
+          <ScrollArea className="w-full">
             <TabsList variant="underline" className="w-full">
               <TabsTrigger variant="underline" value="overview">
                 Overview
