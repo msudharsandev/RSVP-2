@@ -16,6 +16,8 @@ import { ApiError } from './utils/apiError';
 export const createServer = (): Express => {
   const app = express();
 
+  app.set('trust proxy', 1);
+
   const corsOptions: CorsOptions = {
     origin: [config.CLIENT_URL],
     credentials: true,
