@@ -10,9 +10,11 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
     const eventData = await eventAPI.getEventBySlug(slug);
     if (!eventData) notFound();
 
+    const serializedEvent = JSON.parse(JSON.stringify(eventData));
+
     return (
       <Container className="container-main pt-8">
-        <EventDetail eventData={eventData} />
+        <EventDetail eventData={serializedEvent} />
       </Container>
     );
   } catch (error) {

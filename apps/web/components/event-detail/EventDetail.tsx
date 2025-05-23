@@ -1,20 +1,30 @@
+'use client';
 import { Event } from '@/types/events';
 import { getProfilePictureUrl, venueDisplay } from '@/utils/event';
 import { CalendarDaysIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
-import { ClockIcon, LinkIcon } from 'lucide-react';
+import { ClockIcon, LinkIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '../ui/badge';
 import AvatarGroup from './AvatarGroup';
 import GetTicketsButton from './GetTicketsButton';
+import { useEffect, useState } from 'react';
 
 const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees: number } }) => {
-  const { event, totalAttendees } = eventData;
-  const formattedStartDate = dayjs(event.startTime).format('dddd, MMMM D');
-  const formattedStartTime = dayjs(event.startTime).format('h:mm A');
-  const formattedEndTime = dayjs(event.endTime).format('h:mm A');
+  const { event: eventInfo, totalAttendees } = eventData;
+  const event = new Event(eventInfo);
+  const [formattedStartDate, setFormattedStartDate] = useState('');
+  const [formattedStartTime, setFormattedStartTime] = useState('');
+  const [formattedEndTime, setFormattedEndTime] = useState('');
+
+  useEffect(() => {
+    setFormattedStartDate(dayjs(event.startTime).format('dddd, MMMM D'));
+    setFormattedStartTime(dayjs(event.startTime).format('h:mm A'));
+    setFormattedEndTime(dayjs(event.endTime).format('h:mm A'));
+  }, [event.startTime, event.endTime]);
+
   const additionalCount = totalAttendees > 4 ? totalAttendees - 4 : 0;
   const userAvatarLimit = totalAttendees > 4 ? 4 : totalAttendees;
 
@@ -67,10 +77,18 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
               <CalendarDaysIcon className="h-[24px] w-[24px]" />
             </div>
             <article className="font-bold">
-              <p>{formattedStartDate}</p>
-              <p className="text-sm text-secondary">
-                {formattedStartTime} - {formattedEndTime}
-              </p>
+              {formattedStartTime && formattedEndTime && formattedStartDate ? (
+                <>
+                  <p>{formattedStartDate}</p>
+                  <p className="text-sm text-secondary">
+                    {formattedStartTime} - {formattedEndTime}
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-secondary">
+                  <Loader2 data-testid="loader" className="h-6 w-6 animate-spin" />
+                </p>
+              )}
             </article>
           </section>
           <section className="flex items-center">
