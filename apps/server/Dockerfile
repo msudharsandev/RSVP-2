@@ -17,13 +17,15 @@ RUN npm install -g pnpm
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/prisma/schema.prisma ./src/prisma/schema.prisma
 COPY package.json ./
+COPY start.sh ./
 
 RUN pnpm install --prod
 RUN apk add --no-cache openssl
 RUN pnpm generate
+RUN chmod +x /app/start.sh
 
 ENV NODE_ENV=production
 
 EXPOSE 8000
 
-CMD ["node", "dist/app.js"]
+ENTRYPOINT ["/app/start.sh"]
