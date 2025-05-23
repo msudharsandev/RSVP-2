@@ -16,6 +16,7 @@ interface NoResultsProps {
   btnText?: string;
   btnLink?: string;
   btnIcon?: string;
+  onClick?: () => void;
 }
 
 const NoResults = ({
@@ -30,6 +31,7 @@ const NoResults = ({
   btnText,
   btnLink,
   btnIcon,
+  onClick,
 }: NoResultsProps) => {
   return (
     <Container className={cn('flex flex-col items-center justify-center max-w-96 p-0', className)}>
@@ -45,14 +47,25 @@ const NoResults = ({
       <h2 className="mb-2 text-center text-xl font-semibold">{title}</h2>
       <p className="text-center font-medium text-tertiary text-pretty">{message}</p>
       {showBtn && (
-        <Link href={btnLink || ''} className="max-w-sm mx-auto mt-5 flex justify-center">
-          <Button variant="default" className="max-w-sm w-full">
-            {btnIcon && (
-              <Image src={btnIcon} alt="add-icon" width={16.5} height={16.5} className="mr-2" />
-            )}
-            {btnText}
-          </Button>
-        </Link>
+        btnLink ? (
+          <Link href={btnLink} className="max-w-sm mx-auto mt-5 flex justify-center">
+            <Button variant="default" className="max-w-sm w-full">
+              {btnIcon && (
+                <Image src={btnIcon} alt="add-icon" width={16.5} height={16.5} className="mr-2" />
+              )}
+              {btnText}
+            </Button>
+          </Link>
+        ) : (
+          <div className="max-w-sm mx-auto mt-5 flex justify-center">
+            <Button variant="default" className="max-w-sm w-full" onClick={onClick}>
+              {btnIcon && (
+                <Image src={btnIcon} alt="add-icon" width={16.5} height={16.5} className="mr-2" />
+              )}
+              {btnText}
+            </Button>
+          </div>
+        )
       )}
     </Container>
   );

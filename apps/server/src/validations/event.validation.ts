@@ -99,6 +99,10 @@ export const eventsPlannedByUserReqSchema = z.object({
   limit: z.coerce.number().positive().default(10).optional(),
   sortBy: z.string().max(256).optional(),
   sortOrder: z.enum([PAGINATION_ORDER.ASC, PAGINATION_ORDER.DESC]).optional(),
+  status: z.enum(['active', 'cancel', 'all'])
+    .optional()
+    .default('all')
+    .or(z.literal('').transform(() => 'all')), // Transform empty string to 'all'
 });
 
 export const userUpdateSchema = z.object({

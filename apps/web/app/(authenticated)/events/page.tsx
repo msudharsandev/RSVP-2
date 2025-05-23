@@ -59,6 +59,52 @@ const Events = () => {
         <Loader2 data-testid="loader" className="h-10 w-10 animate-spin" />
       </div>
     );
+  
+  const hasActiveFilters = !!(filters.status || filters.search || value);
+
+  const getNoResultsProps = () => {
+    const defaultProps = {
+      image: "/images/no-event-image.svg",
+      altText: "no-event-image",
+      imgWidth: 200,
+      imgHeight: 200,
+      title: NO_EVENT_TITLE,
+      message: NO_EVENTS_MESSAGE,
+      showBtn: true,
+      btnText: "Create Event",
+      btnLink: "/create-event",
+      btnIcon: "/images/add-icon.svg",
+      onClick: undefined,
+    };
+
+    if (hasActiveFilters) {
+      return {
+        image: "/images/no-event-image.svg",
+        altText: "no-event-image",
+        imgWidth: 200,
+        imgHeight: 200,
+        title: "No events match your filters",
+        message: "Try adjusting your search or filters to see more results.",
+        btnText: "Clear Filters",
+        btnLink: undefined, 
+        showBtn: true,
+        onClick: handleClearFilters,
+      };
+    }
+
+    return defaultProps;
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      page: 1,
+      status: "",
+      sort: "",
+      search: "",
+    });
+    setSearchText("");
+    setValue("");
+  };
 
   if (error) return <div>{error.message}</div>;
 
@@ -195,18 +241,7 @@ const Events = () => {
         </main>
       ) : (
         <section className="mx-auto my-12 w-full text-center" data-testid="no-events">
-          <NoResults
-            image="/images/no-event-image.svg"
-            altText="no-event-image"
-            imgWidth={200}
-            imgHeight={200}
-            title={NO_EVENT_TITLE}
-            message={NO_EVENTS_MESSAGE}
-            showBtn={true}
-            btnText="Create Event"
-            btnLink="/create-event"
-            btnIcon="/images/add-icon.svg"
-          />
+          <NoResults {...getNoResultsProps()} />
         </section>
       )}
     </Container>

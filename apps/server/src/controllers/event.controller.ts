@@ -270,8 +270,8 @@ export const deleteEventController = catchAsync(
  */
 export const getplannedByUserController = catchAsync(
   async (req: IAuthenticatedRequest<{}, {}, {}>, res) => {
-    const { search, category, fromDate, toDate, venueType, page, limit, sortBy, sortOrder } =
-      eventsPlannedByUserReqSchema.parse(req.query);
+    const { search, category, fromDate, toDate, venueType, page, limit, sortBy, sortOrder, status } =
+    eventsPlannedByUserReqSchema.parse(req.query);
 
     const userId = req.userId;
     if (!userId) throw new TokenExpiredError();
@@ -287,6 +287,7 @@ export const getplannedByUserController = catchAsync(
         fromDate,
         toDate,
         venueType,
+        status,
       },
       pagination: {
         page,

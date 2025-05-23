@@ -45,7 +45,7 @@ export class EventRepository {
             lt: currentDateTime,
           },
           endTime: {
-            gt: currentDateTime, 
+            gt: currentDateTime,
           },
         },
       ],
@@ -142,52 +142,55 @@ export class EventRepository {
    * @param params - The filters and pagination options.
    * @returns An object containing the events and pagination metadata.
    */
-  static async findAllPlannedEvents({
-    filters,
-    pagination = { page: 1, limit: 10 },
-  }: {
-    filters: IEventFilters;
-    pagination: IPaginationParams;
-  }) {
-    const { userId, search, category, fromDate, toDate, venueType } = filters;
-    const eventsPaginator = new Paginator('event');
-    const { page = 1, limit = 10, sortBy = 'startTime', sortOrder = 'desc' } = pagination;
+static async findAllPlannedEvents({
+  filters,
+  pagination = { page: 1, limit: 10 },
+}: {
+  filters: IEventFilters;
+  pagination: IPaginationParams;
+}) {
+  const { userId, search, category, fromDate, toDate, venueType, status } = filters;
+  const eventsPaginator = new Paginator('event');
+  const { page = 1, limit = 10, sortBy = 'startTime', sortOrder = 'desc' } = pagination;
 
-    const where: Prisma.EventWhereInput = {
-      ...(userId && { creatorId: userId, isDeleted: false }),
-      ...(category && { category: category }),
-      ...(fromDate &&
-        toDate && {
-          AND: [
-            { startTime: { gte: fromDate, lte: toDate } },
-            { endTime: { gte: fromDate, lte: toDate } },
-          ],
-        }),
-      ...(search && {
-        OR: [
-          { name: { contains: search } },
-          { description: { contains: search } },
-          { category: { contains: search } },
+  const where: Prisma.EventWhereInput = {
+    ...(userId && { creatorId: userId, isDeleted: false }),
+    ...(category && { category: category }),
+    ...(fromDate &&
+      toDate && {
+        AND: [
+          { startTime: { gte: fromDate, lte: toDate } },
+          { endTime: { gte: fromDate, lte: toDate } },
         ],
       }),
-      ...(venueType && { venueType: venueType as VenueType }),
-    };
-
-    const { data, metadata } = await eventsPaginator.paginate(
-      {
-        page,
-        limit,
-        sortOrder,
-        sortBy,
-      },
-      { where: where, include: { creator: true } }
-    );
-
-    return {
-      events: data,
-      metadata,
-    };
+    ...(search && {
+      OR: [
+        { name: { contains: search } },
+        { description: { contains: search } },
+        { category: { contains: search } },
+      ],
+    }),
+    ...(venueType && { venueType: venueType as VenueType }),
+  };
+  if (status && status !== 'all') {
+    where.isActive = status === 'active';
   }
+
+  const { data, metadata } = await eventsPaginator.paginate(
+    {
+      page,
+      limit,
+      sortOrder,
+      sortBy,
+    },
+    { where: where, include: { creator: true } }
+  );
+
+  return {
+    events: data,
+    metadata,
+  };
+}
 
   /**
    * Finds an event by its unique ID.
