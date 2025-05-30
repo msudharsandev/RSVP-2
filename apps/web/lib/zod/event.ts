@@ -39,6 +39,7 @@ export const createEventFormSchema = z
       file: z.string().nullable(),
       url: z.string().nullable(),
       signedUrl: z.string().nullable(),
+      type: z.string().nullable().optional(),
     }),
     fromDateTime: z.string().optional(),
     toDateTime: z.string().optional(),

@@ -29,6 +29,7 @@ const defaultValues: CreateEventFormType = {
     signedUrl: '',
     file: '',
     url: '',
+    type: '',
   },
 };
 
@@ -71,7 +72,11 @@ const CreateEventForm = () => {
     if (data.eventImageUrl.file && data.eventImageUrl.signedUrl) {
       setIsLoading(true);
       const imageFile = await fileFromUrl(data.eventImageUrl.file, 'event-image');
-      await axios.put(data.eventImageUrl.signedUrl, imageFile);
+      await axios.put(data.eventImageUrl.signedUrl, imageFile, {
+        headers: {
+          'Content-Type': imageFile.type,
+        },
+      });
       mutate(submissionData);
       setIsLoading(false);
     }

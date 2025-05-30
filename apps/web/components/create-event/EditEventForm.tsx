@@ -58,7 +58,11 @@ const EditEventForm = () => {
     if (eventImageUrl.file && eventImageUrl.signedUrl) {
       const imageFile = await fileFromUrl(eventImageUrl.file, 'event-image');
       try {
-        await axios.put(eventImageUrl.signedUrl, imageFile);
+        await axios.put(eventImageUrl.signedUrl, imageFile, {
+          headers: {
+            'Content-Type': eventImageUrl.type,
+          },
+        });
       } catch (error) {
         console.error('Error uploading image', error);
       }
@@ -89,6 +93,7 @@ const EditEventForm = () => {
       signedUrl: '',
       file: event?.eventImageUrl ?? '',
       url: '',
+      type: '',
     },
   };
 

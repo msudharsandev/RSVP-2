@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import api from '@/lib/axios/instance';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Control, FieldPath, FieldValues, useController, useFormContext } from 'react-hook-form';
 import { Icons } from '../Icon';
 
@@ -35,6 +35,24 @@ function FormImageUpload<
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const { setValue } = useFormContext<TFieldValues>();
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile) handleSave(droppedFile);
+  }, []);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
   const removeImage = () => {
     setValue(
       name,
@@ -54,12 +72,17 @@ function FormImageUpload<
       const signedUrl = data.data.signedUrl;
       const fileUrl = URL.createObjectURL(file);
       const url = signedUrl.split('?')[0];
+      const type = file.type;
 
       if (fileUrl && url)
-        setValue(name, { file: fileUrl, url: url, signedUrl: signedUrl } as TFieldValues[TName], {
-          shouldDirty: true,
-          shouldTouch: true,
-        });
+        setValue(
+          name,
+          { file: fileUrl, url: url, signedUrl: signedUrl, type } as TFieldValues[TName],
+          {
+            shouldDirty: true,
+            shouldTouch: true,
+          }
+        );
 
       setUploadProgress(100);
     } catch (error) {
@@ -79,7 +102,12 @@ function FormImageUpload<
         <FormItem className={className}>
           {label && <FormLabel className={cn('text-white', labelClassName)}>{label}</FormLabel>}
           <FormControl>
-            <div className="mt-4 space-y-4">
+            <div
+              className="mt-4 space-y-4"
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+            >
               {value.file && (
                 <figure className="relative mx-auto mb-4 w-full max-w-3xl aspect-square">
                   <div className="relative w-full h-full overflow-hidden rounded-lg">
@@ -105,15 +133,15 @@ function FormImageUpload<
                 </figure>
               )}
               {!value.file && (
-                <div className="flex flex-col items-center gap-4">
+                <div className="relative flex flex-col items-center gap-4">
                   <input
+                    className="sr-only"
                     type="file"
-                    accept="image/png, image/jpeg, image/svg+xml, image/gif"
+                    accept=".png, .jpg, .svg"
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       if (file) handleSave(file);
                     }}
-                    className="sr-only"
                     id={`file-upload-${name}`}
                   />
                   {!isUploading && (
