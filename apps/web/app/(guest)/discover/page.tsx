@@ -193,7 +193,6 @@ const DiscoverEvents = () => {
                   <SelectGroup>
                     <SelectItem value="eventDate">Date</SelectItem>
                     <SelectItem value="capacity">Attendees</SelectItem>
-                    <SelectItem value="price">Price</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

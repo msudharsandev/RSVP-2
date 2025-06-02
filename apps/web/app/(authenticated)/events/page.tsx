@@ -34,7 +34,7 @@ const Events = () => {
   const [filters, setFilters] = useQueryStates(
     {
       page: parseAsInteger.withDefault(1),
-      status: parseAsString.withDefault(''),
+      status: parseAsString.withDefault('active'),
       sort: parseAsString.withDefault(''),
       search: parseAsString.withDefault(''),
     },
@@ -218,7 +218,6 @@ const Events = () => {
                     { value: 'all', label: 'All' },
                     { value: 'date', label: 'Date' },
                     { value: 'attendees', label: 'Attendees' },
-                    { value: 'price', label: 'Price' },
                   ]}
                   placeholder="Sort By"
                   ariaLabel="Sort By"
