@@ -10,7 +10,6 @@ import {
   AlertDialogCancel,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '../ui/input';
@@ -64,7 +63,7 @@ const ConfirmationAlert = ({
               <LoaderCircle className="animate-spin" />
             ) : (
               <span className="flex items-center gap-2">
-                <Trash2 /> {buttonText}
+                <Trash2 className="size-5" /> {buttonText}
               </span>
             )}
           </AlertDialogAction>

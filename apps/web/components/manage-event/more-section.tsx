@@ -51,8 +51,8 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
     <section className="space-y-8">
       <section className="space-y-6 md:w-1/2">
         <div className="mt-5">
-          <h3 className="mb-1 text-base">Event Page</h3>
-          <p className="text-sm">
+          <h3 className="mb-1 text-base font-semibold text-white">Event Page</h3>
+          <p className="text-sm text-secondary">
             When you choose a new URL, the current one will no longer work. Do not update your URL
             if you have already shared this
           </p>
@@ -87,17 +87,17 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
 
       <Separator className="my-11 bg-separator" />
       {!isActive ? (
-        <section className="space-y-6 md:w-1/2">
-          <h3>Event Cancelled</h3>
-          <p className="text-sm">
+        <section className="space-y-1 md:w-1/2">
+          <h3 className="font-semibold text-white">Event Cancelled</h3>
+          <p className="text-sm text-secondary">
             This event has been cancelled. Attendees have been notified of the cancellation.
           </p>
         </section>
       ) : (
-        <section className="space-y-6 md:w-1/2">
-          <h3>Cancel Event</h3>
+        <section className="md:w-1/2">
+          <h3 className="font-semibold text-white">Cancel Event</h3>
 
-          <p className="text-sm">
+          <p className="mt-1 mb-6  text-sm text-secondary">
             Canceling this event cannot be undone. All attendees will be notified of the
             cancellation. However, the host will still have access to the event details and related
             information.
@@ -109,27 +109,27 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
             onClick={() => setShowCancelDialog(true)}
             disabled={cancelLoading}
           >
-            {cancelLoading ? <LoaderCircle className="animate-spin" /> : <>Cancel Event</>}
+            {cancelLoading ? <LoaderCircle className="animate-spin" /> : <>Cancel</>}
           </Button>
           <ConfirmationAlert
             open={showCancelDialog}
             onOpenChange={setShowCancelDialog}
             onConfirm={handleCancelEvent}
             isLoading={cancelLoading}
-            title="Cancel Event"
-            description={`Are you sure you want to delete this event? To confirm, please type: "cancel this event".`}
-            confirmationText="cancel this event"
-            buttonText="Cancel this event"
+            title="Cancel"
+            description={`Are you sure you want to cancel this event? To confirm, please type the event name: "${event.name}".`}
+            confirmationText={event.name}
+            buttonText="Cancel"
           />
         </section>
       )}
       <Separator className="my-11 bg-separator" />
 
-      <section className="space-y-6 md:w-1/2">
-        <h3>Delete Event</h3>
+      <section className="md:w-1/2">
+        <h3 className="font-semibold text-white">Archive Event</h3>
 
-        <p className="text-sm">
-          Deleting this event will remove all event data and associated metadata. The host will no
+        <p className="mt-1 mb-6 text-sm text-secondary">
+          Archiving this event will remove all event data and associated metadata. The host will no
           longer have access to any information related to this event. This action cannot be undone.
         </p>
 
@@ -139,17 +139,17 @@ const MoreSection = ({ event, slug }: { event: Event; slug: string }) => {
           onClick={() => setShowDeleteDialog(true)}
           disabled={deleteLoading}
         >
-          {deleteLoading ? <LoaderCircle className="animate-spin" /> : <>Delete My Event</>}
+          {deleteLoading ? <LoaderCircle className="animate-spin" /> : <>Archive</>}
         </Button>
         <ConfirmationAlert
           open={showDeleteDialog}
           onOpenChange={setShowDeleteDialog}
           onConfirm={handleDeleteEvent}
           isLoading={deleteLoading}
-          title="Delete Event"
-          description={`Are you sure you want to delete this event? To confirm, please type: "delete this event".`}
-          confirmationText="delete this event"
-          buttonText="Delete this event"
+          title="Archive"
+          description={`Are you sure you want to archive this event? To confirm, please type the event name: "${event.name}".`}
+          confirmationText={event.name}
+          buttonText="Archive"
         />
       </section>
     </section>
