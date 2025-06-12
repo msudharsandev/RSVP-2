@@ -39,3 +39,57 @@
 - Email service.
 - AWS - S3, IAM user.
 - Active contributors.
+
+
+## User Types and Roles
+
+The platform supports three distinct user roles that can be dynamically assigned based on event context and permissions:
+
+### 1. Event Attendee (Regular User)
+**What they can do:**
+- Find and browse events
+- Buy tickets
+- Go to events
+- See event information and updates
+- Keep track of their tickets
+- Get event notifications
+
+**Main Features:**
+- Search and discover events
+- Buy tickets easily
+- Keep digital tickets
+- Set up their profile
+
+### 2. Event Creator (Main Host)
+**What they can do:**
+- Create new events
+- Add other hosts to help
+- Cancel events if needed
+- Delete events
+- Change event details
+- Handle ticket sales
+- See how many people are coming
+- Send messages to attendees thorough communications
+
+**Main Features:**
+- Easy event creation
+- Event management dashboard
+- Set up different ticket types
+- See sales and attendance numbers
+- Manage who's coming
+- Send updates to attendees
+- Add other hosts to help
+
+### 3. Event Manager (Helper Host)
+**What they can do:**
+- Check tickets at the enterance with ticket scan feature
+- allow only authorized users for the private event
+- Handle ticket sales
+- See how many people are coming
+- Send messages to attendees thorough communications
+
+**Main Features:**
+- Scan tickets
+- Manage guest list
+- Check-in system
+- Count attendees
