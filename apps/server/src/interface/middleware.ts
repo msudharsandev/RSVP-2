@@ -18,4 +18,8 @@ export interface EmailData {
   subject: string;
   recipient?: string;
   body: Record<string, string>;
+  cc?: string[];
+  bcc?: string[];
+  self?: boolean;
+  provider?: string;
 }

@@ -46,7 +46,7 @@ export const profileFormSchema = z.object({
   instagram: z.string().optional(),
   website: z
     .string()
-    .optional()
+    .min(1, 'Please enter a valid URL')
     .refine(
       (val) => {
         if (!val) return true;

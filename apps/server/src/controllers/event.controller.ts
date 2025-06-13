@@ -205,6 +205,35 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
     venueType: data.venueType.toUpperCase() as VenueType,
   });
 
+  // Send email notification to all attendees except for date changes
+  const { startTime, endTime, ...otherChanges } = data;
+  const hasOtherChanges = Object.keys(otherChanges).length > 0;
+
+  if (hasOtherChanges) {
+    const attendees = await AttendeeRepository.findAllAttendees(eventId);
+    const bccEmails = attendees.map((attendee: any) => attendee.user?.primaryEmail).filter(Boolean);
+
+    if (bccEmails.length > 0 && config.NODE_ENV !== 'development') {
+      await EmailService.send({
+        id: 6,
+        subject: 'Your event has been updated',
+        recipient: bccEmails[0],
+        bcc: bccEmails,
+        body: {
+          eventName: updatedEvent.name,
+          updatesLink: `${config.CLIENT_URL}/${updatedEvent.slug}`,
+          updatesText:
+            'The event details have been updated. Please check the event page for more information.',
+        },
+      });
+    } else {
+      logger.info('Email notification (event update):', {
+        bcc: bccEmails,
+        event: updatedEvent.name,
+      });
+    }
+  }
+
   return new SuccessResponse('success', updatedEvent).send(res);
 });
 

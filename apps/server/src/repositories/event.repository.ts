@@ -1,8 +1,7 @@
-import { ICreateEvent, IEventFilters } from '@/interface/event';
-import { IPaginationParams } from '@/interface/pagination';
+import { ICreateEvent } from '@/interface/event';
 import { Paginator } from '@/utils/pagination';
 import { EventFilter } from '@/validations/event.validation';
-import { Event, Prisma, VenueType, Status } from '@prisma/client';
+import { Event, Prisma } from '@prisma/client';
 import { prisma } from '@/utils/connection';
 
 /**
