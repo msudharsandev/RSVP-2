@@ -64,8 +64,8 @@ export const useSignout = () => {
       router.push('/');
       router.refresh();
     },
-    onError: (error) => {
-      console.error('Logout error:', error);
+    onError: () => {
+      toast.error('Failed to logout. Please try again.');
     },
   });
 };

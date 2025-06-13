@@ -6,15 +6,16 @@ import SuspenseBoundary from '@/components/common/SuspenseBoundary';
 import { Button } from '@/components/ui/button';
 import CustomSelect from '@/components/ui/CustomSelect';
 import useDebounce from '@/hooks/useDebounce';
-import { useGetMyEvents } from '@/lib/react-query/event.ts';
+import { useGetMyEvents, useGetMyEventsInifinite } from '@/lib/react-query/event.ts';
 import { cn } from '@/lib/utils.ts';
 import { NO_EVENT_TITLE, NO_EVENTS_MESSAGE } from '@/utils/constants.ts';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ArrowDownNarrowWideIcon, ArrowUpNarrowWideIcon, Loader2 } from 'lucide-react';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface HandleSearchEvent {
   target: {
@@ -23,6 +24,7 @@ interface HandleSearchEvent {
 }
 
 const Events = () => {
+  const pageEndRef = useRef<HTMLDivElement>(null);
   const [filters, setFilters] = useQueryStates(
     {
       page: parseAsInteger.withDefault(1),
@@ -33,14 +35,40 @@ const Events = () => {
     },
     { history: 'push' }
   );
+
   const debouncedSearchQuery = useDebounce(filters.search, 600);
-  const { data, isLoading, error } = useGetMyEvents({
-    ...filters,
-    sortOrder: filters.sortOrder as 'asc' | 'desc' | undefined,
-    search: debouncedSearchQuery,
-  });
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetMyEventsInifinite({
+      ...filters,
+      sortOrder: filters.sortOrder as 'asc' | 'desc' | undefined,
+      search: debouncedSearchQuery,
+    });
   const [value, setValue] = useState('');
   const [isFilterOpen] = useState(true);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '500px',
+      }
+    );
+
+    if (pageEndRef.current) {
+      observer.observe(pageEndRef.current);
+    }
+
+    return () => {
+      if (pageEndRef.current) {
+        observer.unobserve(pageEndRef.current);
+      }
+    };
+  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
   const handleSearch = (e: HandleSearchEvent) => {
     setFilters((prev) => ({ ...prev, search: e.target.value }));
@@ -113,7 +141,7 @@ const Events = () => {
           </h1>
         </div>
       </header>
-      {data?.events?.length != 0 ? (
+      {data?.pages[0]?.events?.length != 0 ? (
         <main>
           <section className="flex flex-col gap-6">
             <section className="flex w-full flex-col items-center justify-between md:flex-row">
@@ -197,10 +225,15 @@ const Events = () => {
             className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
             data-testid="events-list"
           >
-            {data?.events?.map((eventData) => (
-              <EventCard event={eventData} key={eventData.id} type="manage" />
-            ))}
+            {data?.pages
+              .flatMap((page) => page.events)
+              .map((eventData) => <EventCard event={eventData} key={eventData.id} type="manage" />)}
+            {isFetchingNextPage &&
+              Array.from({ length: 3 }).map((_, index) => (
+                <Skeleton key={index} className="w-full min-h-[20rem] rounded-md" />
+              ))}
           </div>
+          <div ref={pageEndRef} className="h-4 w-full" />
         </main>
       ) : (
         <section className="mx-auto my-12 w-full text-center" data-testid="no-events">

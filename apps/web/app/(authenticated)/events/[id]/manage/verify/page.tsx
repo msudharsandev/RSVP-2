@@ -42,7 +42,7 @@ const ScannerPage = () => {
         });
       }
     } catch (error) {
-      const axiosError = error as AxiosError<any>;
+      const axiosError = error as AxiosError<{ message: string }>;
       setError(axiosError.response?.data?.message ?? 'Please try again later.');
     } finally {
       setIsLoading(false);

@@ -52,6 +52,18 @@ export const useGetMyEvents = (filters: EventParams) => {
   });
 };
 
+export const useGetMyEventsInifinite = (filters: EventParams) => {
+  return useInfiniteQuery({
+    queryKey: [EVENTS_QUERY_KEY, 'my-events', filters],
+    queryFn: ({ pageParam }) =>
+      eventAPI.getMyEvents({ ...filters, page: Number(pageParam ?? '1') }),
+    getNextPageParam: (lastPage: { metadata?: PaginationMetadata }) => {
+      return lastPage.metadata?.hasMore ? lastPage.metadata?.page + 1 : undefined;
+    },
+    initialPageParam: 1,
+  });
+};
+
 export const useGetUpcomingEvents = (filters: EventParams) => {
   return useQuery({
     queryKey: [EVENTS_QUERY_KEY, 'upcoming-events', filters],

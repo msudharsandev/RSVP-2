@@ -97,7 +97,7 @@ export const eventAPI = {
   ): Promise<{ events: Event[]; metadata: PaginationMetadata }> => {
     const response = await api.get('/event', { params });
     const events = response.data.data.events.map((event: Event) => new Event(event));
-    const metadata = response.data.metadata;
+    const metadata = response.data.data.metadata;
     return { events, metadata };
   },
 
@@ -106,7 +106,7 @@ export const eventAPI = {
   ): Promise<{ events: Event[]; metadata: PaginationMetadata }> => {
     const response = await api.get('/event/user', { params });
     const events = response.data.data.events.map((event: Event) => new Event(event));
-    const metadata = response.data.metadata;
+    const metadata = response.data.data.metadata;
     return { events, metadata };
   },
 
@@ -115,7 +115,7 @@ export const eventAPI = {
   ): Promise<{ events: Event[]; metadata: PaginationMetadata }> => {
     const response = await api.get('/event/upcoming', { params });
     const events = response.data.data.events.map((event: Event) => new Event(event));
-    const metadata = response.data.metadata;
+    const metadata = response.data.data.metadata;
     return { events, metadata };
   },
 

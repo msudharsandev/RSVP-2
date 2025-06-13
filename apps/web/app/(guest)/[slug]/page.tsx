@@ -18,8 +18,7 @@ const EventDetailPage = async ({ params }: { params: { slug: string } }) => {
       </Container>
     );
   } catch (error) {
-    console.error('Error fetching event:', error);
-    const axiosError = error as AxiosError;
+    const axiosError = error as AxiosError<{ message: string }>;
     if (axiosError.response?.status === 404) {
       notFound();
     }

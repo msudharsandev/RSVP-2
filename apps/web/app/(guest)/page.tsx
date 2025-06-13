@@ -20,7 +20,7 @@ function Home() {
     if (token) {
       mutate({ token });
     }
-  }, []);
+  }, [mutate, searchParams]);
 
   return (
     <>

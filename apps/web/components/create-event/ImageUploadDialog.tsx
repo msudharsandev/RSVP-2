@@ -60,7 +60,6 @@ const ImageUploadDialog = ({ children }: Props) => {
         setUrl(actualUrl);
         setSignedUrl(signedUrl);
       } catch (error) {
-        console.error('Upload failed:', error);
         setImage(null);
       } finally {
         setIsUploading(false);

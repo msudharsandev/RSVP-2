@@ -1,8 +1,4 @@
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -11,13 +7,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '../ui/button';
+import { useCurrentUser } from '@/lib/react-query/auth';
 import { formatDateTime } from '@/lib/utils';
 import { Event } from '@/types/events';
-import { CalendarIcon, Check, MapPinIcon } from 'lucide-react';
-import { useCurrentUser } from '@/lib/react-query/auth';
 import { isCurrentUserCohost } from '@/utils/event';
-import { toast } from 'sonner';
+import { CalendarIcon, Check, MapPinIcon } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound, useParams } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '../ui/button';
 
 type CustomiseEventCarDProps = {
   className: string;

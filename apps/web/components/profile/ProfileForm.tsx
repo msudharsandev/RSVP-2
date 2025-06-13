@@ -54,12 +54,7 @@ const ProfileForm = ({ user }: Props) => {
   }, [profileIcon]);
 
   return (
-    <FormProvider
-      methods={form}
-      onSubmit={form.handleSubmit(onSubmit, (error) => {
-        console.log(error);
-      })}
-    >
+    <FormProvider methods={form} onSubmit={form.handleSubmit(onSubmit)}>
       <ProfileSection title="Public profile" description="This will be displayed on your profile.">
         <div className="flex items-end">
           <Image
