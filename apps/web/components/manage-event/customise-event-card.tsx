@@ -10,8 +10,8 @@ import {
 import { useCurrentUser } from '@/lib/react-query/auth';
 import { formatDateTime } from '@/lib/utils';
 import { Event } from '@/types/events';
-import { isCurrentUserCohost } from '@/utils/event';
-import { CalendarIcon, Check, MapPinIcon } from 'lucide-react';
+import { isCurrentUserCohost, venueDisplay } from '@/utils/event';
+import { CalendarIcon, Check, ClockIcon, LinkIcon, MapPinIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
@@ -51,6 +51,43 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
       }, 400);
     } catch (error) {
       console.error('Failed to copy:', error);
+    }
+  };
+
+  const renderVenueInfo = () => {
+    if (event.isPhysical) {
+      return (
+        <div className="flex items-center gap-3.5">
+          <MapPinIcon className="size-5 shrink-0" />
+          <p className="line-clamp-2 max-w-sm truncate font-medium text-white">
+            {venueDisplay(event)}
+          </p>
+        </div>
+      );
+    }
+
+    if (event.isVirtual) {
+      return (
+        <div className="flex items-center gap-3.5">
+          <LinkIcon className="size-5 shrink-0" />
+          <Link
+            href={event.venueUrl ?? ''}
+            target="_blank"
+            className="line-clamp-2 max-w-sm truncate font-medium text-white hover:underline hover:text-primary"
+          >
+            {venueDisplay(event)}
+          </Link>
+        </div>
+      );
+    }
+
+    if (event.isLater) {
+      return (
+        <div className="flex items-center gap-3.5">
+          <ClockIcon className="size-5 shrink-0" />
+          <p className="line-clamp-2 max-w-sm truncate font-medium text-white">To be announced</p>
+        </div>
+      );
     }
   };
 
