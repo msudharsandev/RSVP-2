@@ -1,14 +1,40 @@
 ## Jump To
 
-- [Architecture & System Design](#architecture-and-system-design)
+- [Jump To](#jump-to)
+  - [Architecture and System Design](#architecture-and-system-design)
+    - [Frontend](#frontend)
+    - [Backend](#backend)
+    - [Help Center](#help-center)
+    - [Key System Design Decisions](#key-system-design-decisions)
+    - [Security Considerations](#security-considerations)
 - [API Design](#api-design)
 - [Security and Authentication](#security-and-authentication)
-- [Scalability & Performance](#scalability--performance)
+- [Scalability \& Performance](#scalability--performance)
 - [Deployment Strategy](#deployment-strategy)
-- [Failure Handling & Monitoring](#failure-handling--monitoring)
+- [Failure Handling \& Monitoring](#failure-handling--monitoring)
+    - [🧱 Frontend \& Backend Error Handling](#-frontend--backend-error-handling)
+    - [📡 Monitoring \& Observability](#-monitoring--observability)
 - [OAuth2 Flow](#oauth2-flow)
 - [Class UML Diagram](#class-uml-diagram)
-- [ER Diagram](#entity-relationship-diagram)
+    - [About This Diagram](#about-this-diagram)
+- [Entity-Relationship Diagram](#entity-relationship-diagram)
+- [Deployment and CI/CD Strategy](#deployment-and-cicd-strategy)
+- [🚀 Deployment Strategy](#-deployment-strategy)
+- [🛠️ CI/CD Workflows](#️-cicd-workflows)
+  - [✅ Common Features](#-common-features)
+- [🧪 Environments: Staging vs Production](#-environments-staging-vs-production)
+- [📦 Backend Deployment (Node.js Server)](#-backend-deployment-nodejs-server)
+  - [🔄 Flow:](#-flow)
+  - [🐳 Docker Tags:](#-docker-tags)
+  - [🔐 Required Secrets:](#-required-secrets)
+- [🌐 Frontend Deployment (Next.js)](#-frontend-deployment-nextjs)
+  - [🔄 Flow:](#-flow-1)
+  - [🔐 Required Secrets:](#-required-secrets-1)
+- [🆘 Help Center Deployment](#-help-center-deployment)
+  - [🔄 Flow:](#-flow-2)
+  - [🔐 Required Secrets:](#-required-secrets-2)
+- [🔐 Secrets \& Environment Variable Management](#-secrets--environment-variable-management)
+- [CI/CD Pipeline Flow](#cicd-pipeline-flow)
 - [Endpoints](#endpoints)
 
 ### Architecture and System Design
@@ -292,6 +318,171 @@ erDiagram
   EVENTS ||--o{ UPDATES : eventId
   EVENTS ||--o{ ATTENDEES : eventId
   EVENTS ||--o{ COHOSTS : eventId
+```
+
+## Deployment and CI/CD Strategy
+
+## 🚀 Deployment Strategy
+
+This project uses a streamlined CI/CD pipeline for automatic deployments using **GitHub Actions**, with hosting on **Docker Hub** (for backend) and **Vercel** (for frontend and help center). Environment variables are managed securely via **GitHub Secrets**.
+
+---
+
+## 🛠️ CI/CD Workflows
+
+We use **GitHub Actions** to automate builds and deployments triggered by pushes to the `main` branch or via manual dispatch (`workflow_dispatch`). Each application has a dedicated workflow file in `.github/workflows/`.
+
+### ✅ Common Features
+
+- Triggered on `main` branch push or manual trigger
+- Uses `pnpm` for fast and deterministic installs
+- Built with timeouts to prevent hanging jobs
+- Secrets securely injected via GitHub Secrets
+
+---
+
+## 🧪 Environments: Staging vs Production
+
+Currently, deployments target the **production** environment only.
+
+To enable staging:
+- Use separate branches (e.g., `staging`)
+- Configure Vercel with `--environment=preview`
+- Tag Docker images appropriately (e.g., `staging-<tag>`)
+
+---
+
+## 📦 Backend Deployment (Node.js Server)
+
+- **Target**: Docker Hub
+- **Workflow File**: `.github/workflows/deploy-backend.yml`
+
+### 🔄 Flow:
+1. Login to Docker using credentials from secrets
+2. Check for Docker repo and create it if missing
+3. Fetch latest image tag and increment
+4. Build and push Docker images
+
+### 🐳 Docker Tags:
+- username/repository:latest
+- username/repository:<auto-incremented-tag>
+
+
+### 🔐 Required Secrets:
+- `DATABASE_URL`
+- `DOCKER_USERNAME`
+- `DOCKER_TOKEN`
+- `DOCKER_REPOSITORY_NAME`
+
+---
+
+## 🌐 Frontend Deployment (Next.js)
+
+- **Target**: Vercel
+- **Workflow File**: `.github/workflows/deploy-frontend.yml`
+
+### 🔄 Flow:
+1. Install Vercel CLI
+2. Pull Vercel project environment
+3. Build project artifacts
+4. Deploy using `vercel deploy --prod`
+
+### 🔐 Required Secrets:
+- `VERCEL_PROJECT_ID`
+- `VERCEL_ORG_ID`
+- `VERCEL_TOKEN`
+
+---
+
+## 🆘 Help Center Deployment
+
+- **Target**: Vercel (Different project ID from frontend)
+- **Workflow File**: `.github/workflows/deploy-help-center.yml`
+
+### 🔄 Flow:
+Same steps as frontend deployment.
+
+### 🔐 Required Secrets:
+- `VERCEL_HELP_PROJECT_ID`
+- `VERCEL_ORG_ID`
+- `VERCEL_TOKEN`
+
+---
+
+## 🔐 Secrets & Environment Variable Management
+
+We manage all sensitive credentials and configs using **GitHub Secrets**. These are injected into the workflows using `${{ secrets.SECRET_NAME }}` and **never committed to the codebase**.
+
+**Examples:**
+```yml
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+```
+
+## CI/CD Pipeline Flow
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'textColor': 'inherit', 'fontSize': '16px'}}}%%
+graph TD
+    A[Pull Request Created] --> B[PR Review Process]
+    B --> C[PR Merged to main branch]
+    
+    C --> D{Changed Files Location?}
+    
+    D -->|apps/server/** changes| E[Backend Workflow]
+    D -->|apps/web/** changes| F[Frontend Workflow]
+    D -->|apps/help-center/** changes| G[Help Center Workflow]
+    
+    E --> E1[Build Docker Image]
+    E1 --> E2[Push to Docker Hub]
+    E2 --> E3[Deploy to Railway]
+    
+    F --> F1[Install Dependencies]
+    F1 --> F2[Build Next.js App]
+    F2 --> F3[Deploy to Vercel Production]
+    
+    G --> G1[Install Dependencies]
+    G1 --> G2[Build Astro Site]
+    G2 --> G3[Deploy to Vercel Production]
+    
+    subgraph "Backend Pipeline"
+        E1
+        E2
+        E3
+    end
+    
+    subgraph "Frontend Pipeline"
+        F1
+        F2
+        F3
+    end
+    
+    subgraph "Help Center Pipeline"
+        G1
+        G2
+        G3
+    end
+
+    %% Backend Pipeline with adaptive text color
+    classDef backendClass fill:#ff9999,stroke:#333,stroke-width:2px,color:inherit
+    class E1,E2,E3 backendClass
+
+    %% Frontend Pipeline with adaptive text color
+    classDef frontendClass fill:#99ccff,stroke:#333,stroke-width:2px,color:inherit
+    class F1,F2,F3 frontendClass
+
+    %% Help Center Pipeline with adaptive text color
+    classDef helpcenterClass fill:#90EE90,stroke:#333,stroke-width:2px,color:inherit
+    class G1,G2,G3 helpcenterClass
+
+    %% Flow nodes with adaptive text color
+    classDef flowClass fill:#e6e6e6,stroke:#333,stroke-width:3px,color:inherit
+    class A,B,C flowClass
+
+    %% Decision node with adaptive text color
+    classDef decisionClass fill:#ffeb99,stroke:#333,stroke-width:3px,color:inherit
+    class D decisionClass
 ```
 
 <details>
@@ -2037,3 +2228,5 @@ erDiagram
 > }
 > ```
 > </details>
+>
+> 
