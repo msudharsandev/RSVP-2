@@ -200,8 +200,8 @@ const EventForm = ({ defaultValues, isEditing = false, isLoading, onSubmit }: Pr
                 Preview
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 pb-[28px] lg:hidden">
-              <EventPreview />
+            <DrawerContent className="max-h-[80vh] bg-[linear-gradient(162.44deg,#5162FF_0%,#413DEB_100%)] px-6 pb-[28px] lg:hidden">
+              <EventPreview className="overflow-y-scroll" />
             </DrawerContent>
           </Drawer>
           {errors.eventImageUrl && (

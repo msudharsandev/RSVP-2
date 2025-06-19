@@ -45,7 +45,7 @@ const EventPreview = ({ className, children, venueType }: EventPreviewProps) => 
             />
           </div>
           <Button
-            className="absolute -top-3 -right-3 z-20 bg-opacity-80 hover:bg-destructive hover:bg-opacity-100 hover:text-white"
+            className="absolute top-0 right-0 z-20 bg-opacity-80 hover:bg-destructive hover:bg-opacity-100 hover:text-white"
             onClick={removeImage}
             variant="destructive"
             size="icon"
