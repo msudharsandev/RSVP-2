@@ -41,8 +41,9 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
 
   const handleShare = async () => {
     try {
-      const currentUrl = window.location.href;
-      await navigator.clipboard.writeText(currentUrl);
+      const currentUrl = new URL(window.location.href);
+      const eventPublicURL = `${currentUrl.protocol}//${currentUrl.host}/${event.slug}`;
+      await navigator.clipboard.writeText(eventPublicURL);
 
       setShowCopied(true);
 

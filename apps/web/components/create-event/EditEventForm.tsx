@@ -4,13 +4,13 @@ import { UpdateEventSubmissionType } from '@/lib/axios/event-API';
 import { useGetEventById, useUpdateEvent } from '@/lib/react-query/event';
 import { fileFromUrl } from '@/lib/utils';
 import { CreateEventFormType } from '@/lib/zod/event';
+import { VenueType } from '@/types/events';
 import { combineDateAndTime } from '@/utils/time';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { useParams } from 'next/navigation';
 import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
-import { VenueType } from '@/types/events';
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
 allowedDate.setDate(allowedDate.getDate() + 1);
@@ -82,7 +82,7 @@ const EditEventForm = () => {
     category: event?.category ?? '',
     description: event?.description ?? '',
     venueType: event?.venueType ?? VenueType.Physical,
-    location: event?.venueAddress ?? '',
+    location: event?.venueAddress ?? event?.venueUrl ?? '',
     hostPermissionRequired: event?.hostPermissionRequired ?? false,
     fromTime: dayjs(event?.startTime).format('HH:mm'),
     fromDate: event?.eventDate ?? allowedDate,
