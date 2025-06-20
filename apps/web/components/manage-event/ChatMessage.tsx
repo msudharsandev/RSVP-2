@@ -13,7 +13,6 @@ const stripHtml = (html: string) => {
 };
 
 const ChatMessage = ({ message, time, user }: ChatMessageProps) => {
-  const cleanMessage = stripHtml(message);
   const profilePictureUrl = useMemo(() => {
     const profileUrl = userAvatarOptions.find((option) => option.id === user?.profileIcon);
     return profileUrl?.src ?? userAvatarOptions[0]?.src;
@@ -33,7 +32,12 @@ const ChatMessage = ({ message, time, user }: ChatMessageProps) => {
           <div className="text-sm font-semibold text-white">{user.full_name}</div>
           <div className="text-xs text-gray-500">{time}</div>
         </div>
-        <div className="bg-dark-900 p-4 text-sm text-gray-400">{cleanMessage}</div>
+        <div
+          className="prose prose-invert text-white"
+          dangerouslySetInnerHTML={{
+            __html: message,
+          }}
+        />
       </div>
     </div>
   );
