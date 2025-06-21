@@ -401,11 +401,13 @@ export const createAttendeeController = controller(attendeePayloadSchema, async 
 
   const emailData = {
     id: 5,
-    subject: 'Event Registration Confirmation',
+    subject: 'Ticket Confirmed',
     recipient: user.primaryEmail,
     body: {
-      email: user.primaryEmail,
-      qrLink: url,
+      ticketLink: url,
+      name: user.fullName ?? 'Guest',
+      eventName: event.name,
+      badgeNumber: newAttendee.qrToken,
     },
   };
   if (config.NODE_ENV !== 'development') {

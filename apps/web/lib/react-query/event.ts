@@ -154,6 +154,14 @@ export const useGetEventById = (eventId: string) => {
   });
 };
 
+export const useGetEventBySlug = (slug: string) => {
+  return useQuery({
+    queryFn: async () => eventAPI.getEventBySlug(slug),
+    enabled: !!slug,
+    queryKey: [EVENTS_QUERY_KEY, slug],
+  });
+};
+
 export const useGetAttendeeByEventId = (filter: GetAttendeeByEventIdParams) => {
   return useQuery<{ attendees: Attendee[]; total: number }, AxiosError<ErrorResponse>>({
     queryFn: async () => {

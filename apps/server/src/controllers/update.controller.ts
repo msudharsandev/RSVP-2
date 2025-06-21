@@ -63,7 +63,7 @@ export const sendMessageController = controller(userUpdateSchema, async (req, re
     body: {
       eventName: event.name,
       updatesText: notificationDeta.content,
-      updatesLink: `${config.CLIENT_URL}/event/${notificationDeta.eventId}/communication`,
+      updatesLink: `${config.CLIENT_URL}/${event.slug}/communication`,
     },
     bcc: usersList.map((user) => user.primaryEmail),
   };

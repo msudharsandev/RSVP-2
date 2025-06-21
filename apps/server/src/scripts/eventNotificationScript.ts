@@ -90,7 +90,7 @@ async function processEventNotifications() {
           updatesText: `Just a quick reminder that your event ${event.name} is starting soon at ${event.startTime}`,
           updatesLink: `${config.CLIENT_URL}/${event.slug}`,
         },
-        bcc: recipients.slice(0, 100),
+        bcc: recipients
       };
 
       try {
