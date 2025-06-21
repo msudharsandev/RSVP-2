@@ -73,7 +73,7 @@ const Communication = ({ eventId }: CommunicationProps) => {
         {communicationsData?.data?.length > 0 && (
           <section>
             <Card className="w-full border-none bg-transparent lg:w-1/2">
-              <CardContent className='px-0'>
+              <CardContent className="px-0">
                 <ScrollArea className={cn(communicationsData?.data?.length > 3 && 'h-96 ')}>
                   {(communicationsData as CommunicationsData)?.data?.map(
                     (msg: CommunicationMessage, index: number) => (
