@@ -362,7 +362,6 @@ export const createAttendeeController = controller(attendeePayloadSchema, async 
 
   const existingAttendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId, null);
   if (existingAttendee) {
-    console.log(existingAttendee.status);
     const isUserTicketCancelled =
       existingAttendee.isDeleted && existingAttendee.status === Status.CANCELLED;
     if (isUserTicketCancelled) {
