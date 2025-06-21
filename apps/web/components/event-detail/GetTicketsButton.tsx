@@ -19,6 +19,7 @@ type GetTicketsButtonProps = {
   isPermissionRequired: boolean;
   creatorId: string;
   remainingSeats: number;
+  eventSlug: string;
 };
 
 const GetTicketsButton = ({
@@ -27,6 +28,7 @@ const GetTicketsButton = ({
   isPermissionRequired,
   creatorId,
   remainingSeats,
+  eventSlug,
 }: GetTicketsButtonProps) => {
   const { data: userData, isLoading: userDataLoading } = useCurrentUser();
   const { mutate, isSuccess, isPending: createAttendeeLoading } = useCreateAttendee();
@@ -94,8 +96,13 @@ const GetTicketsButton = ({
   ) {
     return (
       <div className="flex w-full flex-col gap-4">
+        <Link href={`${eventSlug}/communication`}>
+          <Button className="mt-4 w-full rounded-full px-4 py-2">
+            Updates
+          </Button>
+        </Link>
         <Link href={`/ticket/${eventId}`}>
-          <Button variant="subtle" className="mt-4 w-full rounded-full px-4 py-2">
+          <Button variant="subtle" className="w-full rounded-full px-4 py-2">
             Show Tickets
           </Button>
         </Link>

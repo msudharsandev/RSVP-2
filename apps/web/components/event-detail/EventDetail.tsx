@@ -190,6 +190,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
                 cohosts={event.cohosts}
                 creatorId={event.creatorId}
                 eventId={event.id}
+                eventSlug={event.slug}
                 isPermissionRequired={event?.hostPermissionRequired}
               />
             )}
