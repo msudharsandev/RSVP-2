@@ -16,6 +16,7 @@ export const changelogs: Changelog[] = [
       'sasidharan19',
       'sudharsan3110',
       'theprogrammerinyou',
+      'azeemuddinaziz',
     ],
     sections: [
       {
@@ -113,6 +114,15 @@ export const changelogs: Changelog[] = [
           {
             summary: 'API Rate Limiting - Prevent spam with rate-limited API requests.',
             contributors: ['ManasVerma007 '],
+          },
+        ],
+      },
+      {
+        title: 'Others',
+        items: [
+          {
+            summary: 'Automation, Testing cum Documentation',
+            contributors: ['azeemuddinaziz'],
           },
         ],
       },
