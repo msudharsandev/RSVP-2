@@ -7,7 +7,7 @@ CREATE TABLE `users` (
     `full_name` VARCHAR(50) NULL,
     `user_name` VARCHAR(50) NULL,
     `magic_token` VARCHAR(100) NULL,
-    `refresh_token` VARCHAR(100) NULL,
+    `refresh_token` VARCHAR(512) NULL,
     `is_completed` BOOLEAN NOT NULL DEFAULT false,
     `location` VARCHAR(100) NULL,
     `bio` VARCHAR(500) NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `updates` (
     `id` VARCHAR(36) NOT NULL,
     `user_id` VARCHAR(36) NOT NULL,
     `event_id` VARCHAR(36) NOT NULL,
-    `content` VARCHAR(100) NOT NULL,
+    `content` VARCHAR(1000) NOT NULL,
     `is_notification` BOOLEAN NOT NULL DEFAULT false,
     `scheduled_notification_time` DATETIME(3) NULL,
     `is_deleted` BOOLEAN NOT NULL DEFAULT false,
@@ -52,7 +52,7 @@ CREATE TABLE `events` (
     `end_time` DATETIME(3) NOT NULL,
     `event_date` DATETIME(3) NOT NULL,
     `description` VARCHAR(1000) NULL,
-    `event_image_url` VARCHAR(100) NULL,
+    `event_image_url` VARCHAR(256) NULL,
     `venue_type` ENUM('PHYSICAL', 'VIRTUAL', 'LATER') NOT NULL,
     `venue_address` VARCHAR(256) NULL,
     `venue_url` VARCHAR(256) NULL,
@@ -77,13 +77,14 @@ CREATE TABLE `attendees` (
     `check_in_time` DATETIME(3) NULL,
     `feedback` VARCHAR(100) NULL,
     `qr_token` VARCHAR(100) NOT NULL,
-    `status` ENUM('1', '2', '3', '4', '5') NOT NULL DEFAULT '3',
+    `status` ENUM('1', '2', '3', '4', '5', '6') NOT NULL DEFAULT '3',
     `allowed_status` BOOLEAN NOT NULL DEFAULT true,
     `is_deleted` BOOLEAN NOT NULL DEFAULT false,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `attendees_qr_token_key`(`qr_token`),
+    UNIQUE INDEX `attendees_event_id_user_id_key`(`event_id`, `user_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
