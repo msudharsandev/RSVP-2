@@ -17,6 +17,7 @@ export const changelogs: Changelog[] = [
       'sudharsan3110',
       'theprogrammerinyou',
       'azeemuddinaziz',
+      'hassanrahim26',
     ],
     sections: [
       {
@@ -122,7 +123,7 @@ export const changelogs: Changelog[] = [
         items: [
           {
             summary: 'Automation, Testing cum Documentation',
-            contributors: ['azeemuddinaziz'],
+            contributors: ['azeemuddinaziz', 'hassanrahim26'],
           },
         ],
       },
