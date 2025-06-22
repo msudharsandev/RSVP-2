@@ -44,13 +44,21 @@ const Communication = ({ eventId }: CommunicationProps) => {
     },
   });
 
-  const { mutate: createCommunication } = useCreateEventCommunication(eventId);
+  const { mutate: createCommunication, isPending } = useCreateEventCommunication(eventId);
   const { data: communicationsData } = useEventCommunications(eventId);
-  const { setValue } = form;
+  const { setValue, watch } = form;
+
+  const content = watch('content');
+  const plaintextContent = watch('plaintextContent');
+
+  const hasContent = plaintextContent?.trim().length > 0;
 
   const onSubmit = (data: CommunicationForm) => {
     createCommunication(data, {
-      onSuccess: () => form.reset(),
+      onSuccess: () => {
+        form.reset();
+        form.setValue('content', '');
+      },
     });
   };
 
@@ -70,8 +78,8 @@ const Communication = ({ eventId }: CommunicationProps) => {
         {communicationsData?.data?.length > 0 && (
           <section>
             <Card className="w-full border-none bg-transparent lg:w-1/2">
-              <CardContent>
-                <ScrollArea className={cn(communicationsData?.data?.length > 3 && 'h-96 p-4')}>
+              <CardContent className="px-0">
+                <ScrollArea className={cn(communicationsData?.data?.length > 3 && 'h-96 ')}>
                   {(communicationsData as CommunicationsData)?.data?.map(
                     (msg: CommunicationMessage, index: number) => (
                       <ChatMessage
@@ -104,8 +112,8 @@ const Communication = ({ eventId }: CommunicationProps) => {
               </FormItem>
             )}
           />
-          <Button className="float-end mt-2 rounded-[6px]" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? <LoaderCircle className="animate-spin" /> : <>Send</>}
+          <Button className="float-end mt-2 rounded-[6px]" disabled={isPending || !hasContent}>
+            {isPending ? <LoaderCircle className="animate-spin" /> : <>Send</>}
           </Button>
         </FormProvider>
       </section>
