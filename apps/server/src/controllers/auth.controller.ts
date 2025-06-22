@@ -63,7 +63,7 @@ export const verifySigninController = controller(verifySigninSchema, async (req,
   if (!decodedToken) throw new TokenExpiredError();
 
   logger.info('Verifying token in verifySigninController ...');
-  const user = await UserRepository.verifyToken(decodedToken.tokenId);
+  const user = await UserRepository.verifyToken(decodedToken.userId, decodedToken.tokenId);
   if (!user) throw new TokenExpiredError();
 
   const accessToken = generateAccessToken({ userId: user.id });

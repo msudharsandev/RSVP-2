@@ -182,7 +182,7 @@ const EventForm = ({ defaultValues, isEditing = false, isLoading, onSubmit }: Pr
                 name="location"
                 control={control}
                 placeholder={
-                  venueType === VenueType.Physical ? 'One Line Address Of Venue' : 'Event Link'
+                  venueType === VenueType.Physical ? 'One Line Address Of Venue' : 'Meeting Link'
                 }
                 className="mt-2"
               />
