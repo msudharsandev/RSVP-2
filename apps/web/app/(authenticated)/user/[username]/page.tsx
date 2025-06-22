@@ -42,13 +42,16 @@ const Page = () => {
               </div>
               <div className="mt-10 flex items-center justify-start gap-4">
                 {userDetails?.data?.data.instagram && (
-                  <Link href={userDetails?.data?.data.instagram} target="_blank">
+                  <Link
+                    href={`https://instagram.com/${userDetails?.data?.data.instagram}`}
+                    target="_blank"
+                  >
                     <Icons.instagram className="cursor-pointer" />
                   </Link>
                 )}
 
                 {userDetails?.data?.data.twitter && (
-                  <Link href={userDetails?.data?.data.twitter} target="_blank">
+                  <Link href={`https://x.com/${userDetails?.data?.data.twitter}`} target="_blank">
                     <Icons.twitter className="cursor-pointer" />
                   </Link>
                 )}
