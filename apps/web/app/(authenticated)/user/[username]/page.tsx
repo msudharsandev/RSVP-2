@@ -57,10 +57,9 @@ const Page = () => {
 
             <div className="mt-4 space-y-3">
               <h3 className="text-2xl font-bold">{userDetails?.data?.data.username}</h3>
-              <p className="text-base text-secondary">
-                We&apos;re excited to have you join our community of creators! To securely access
-                your account, simply click the magic link below:
-              </p>
+              {userDetails?.data?.data.bio && (
+                 <p className="text-base text-secondary">{userDetails?.data?.data.bio}</p>
+              )}
               {formatted_date && (
                 <div className="flex items-center justify-start gap-4 space-y-4">
                   <Icons.calendar />
