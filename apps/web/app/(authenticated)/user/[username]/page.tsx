@@ -58,7 +58,7 @@ const Page = () => {
             <div className="mt-4 space-y-3">
               <h3 className="text-2xl font-bold">{userDetails?.data?.data.username}</h3>
               {userDetails?.data?.data.bio && (
-                 <p className="text-base text-secondary">{userDetails?.data?.data.bio}</p>
+                <p className="text-base text-secondary">{userDetails?.data?.data.bio}</p>
               )}
               {formatted_date && (
                 <div className="flex items-center justify-start gap-4 space-y-4">

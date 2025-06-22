@@ -14,7 +14,6 @@ import { useEffect, useState } from 'react';
 
 const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees: number } }) => {
   const { event: eventInfo, totalAttendees } = eventData;
-  console.log('Event Detail Data:', eventInfo, totalAttendees);
   const event = new Event(eventInfo);
   const [formattedStartDate, setFormattedStartDate] = useState('');
   const [formattedStartTime, setFormattedStartTime] = useState('');
