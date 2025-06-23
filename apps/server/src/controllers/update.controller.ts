@@ -21,6 +21,9 @@ export const sendMessageController = controller(userUpdateSchema, async (req, re
   const data = req.body;
   const param = req.params;
   const RSVP_SUBJECT_MSG = 'Updates from your event';
+  const messageCreatorId = req.userId;
+
+  if (!messageCreatorId) throw new BadRequestError('Message creator id is required.');
 
   const event = await EventRepository.findById(param.eventId);
   if (!event) throw new NotFoundError('Event not found');
@@ -37,7 +40,7 @@ export const sendMessageController = controller(userUpdateSchema, async (req, re
     eventId: param.eventId as string,
     isNotification: true,
     scheduledNotificationTime: new Date(),
-    userId: getUserDetails.id,
+    userId: messageCreatorId,
   };
 
   const newNotification = await UpdateRepository.create(notificationData);

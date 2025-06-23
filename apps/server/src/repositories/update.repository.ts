@@ -14,6 +14,7 @@ export class UpdateRepository {
   static async findAllById(eventId: string) {
     const events = await prisma.update.findMany({
       where: { eventId, isDeleted: false },
+      orderBy: { createdAt: 'asc' },
       include: {
         user: {
           select: {

@@ -65,6 +65,9 @@ const Communication = ({ eventId }: CommunicationProps) => {
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
       hour12: true,
