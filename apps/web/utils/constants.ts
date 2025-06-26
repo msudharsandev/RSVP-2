@@ -84,6 +84,15 @@ export const eventCategoryOptions: FormSelectOption[] = [
   { value: 'others', label: 'Others...' },
 ];
 
+export const capacityOptions: FormCapacityOption[] = [
+  { value: 20, label: '20' },
+  { value: 40, label: '40' },
+  { value: 80, label: '80' },
+  { value: 100, label: '100' },
+  { value: 200, label: '200' },
+  { value: 0, label: 'Others', isOthers: true },
+];
+
 export const eventCategoryColors = {
   all: 'bg-[#F2F2F2]',
   entertainment: 'bg-[#F2F2F2]',

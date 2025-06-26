@@ -7,6 +7,12 @@ type FormSelectOption = {
   label: string;
 };
 
+type FormCapacityOption = {
+  value : number, 
+  label : string,
+  isOthers? : boolean
+}
+
 type EmailAttachmentOptions = {
   filename: string;
   path: string;

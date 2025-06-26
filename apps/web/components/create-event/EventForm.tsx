@@ -5,7 +5,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { createEventFormSchema, CreateEventFormType } from '@/lib/zod/event';
 import { VenueType } from '@/types/events';
-import { eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
+import { capacityOptions, eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
 import { BuildingOfficeIcon, LinkIcon } from '@heroicons/react/16/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Clock1, Link, LoaderCircle } from 'lucide-react';
@@ -19,6 +19,7 @@ import FormImageUpload from '../common/form/FormUploadImage';
 import Tiptap from '../ui/tiptap';
 import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import EventPreview from './EventPreview';
+import FormSelectInput from '../common/form/FormSelectInput';
 
 type Props = {
   defaultValues: CreateEventFormType;
@@ -209,12 +210,18 @@ const EventForm = ({ defaultValues, isEditing = false, isLoading, onSubmit }: Pr
             label="Required Approval"
             description="Needs host permission to join event"
           />
-          <FormInput
+          <FormSelectInput
             control={control}
             label="Capacity"
             name="capacity"
-            type="number"
-            inputClassName={`[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+            options={capacityOptions}
+            placeholder="Select or enter Capacity"
+            defaultValue={20}
+            allowCustomInput={true}
+            ariaLabel="Select Capacity"
+            className="w-full"
+            emptyMessage="No options found"
+            disabled={false}
           />
           <Drawer>
             <DrawerTrigger asChild className="lg:hidden">
