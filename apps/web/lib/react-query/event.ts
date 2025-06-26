@@ -196,10 +196,18 @@ export const useUpdateEvent = () => {
 export const useCreateAttendee = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  return useMutation<AxiosResponse, AxiosError<ErrorResponse>, string>({
-    mutationFn: eventAPI.createAttendee,
-    onSuccess: (_, eventId) => {
-      toast.success('Attendee created successfully!');
+  return useMutation<
+    AxiosResponse,
+    AxiosError<ErrorResponse>,
+    { eventId: string; requiresApproval: boolean }
+  >({
+    mutationFn: ({ eventId }) => eventAPI.createAttendee(eventId),
+    onSuccess: (_, { eventId, requiresApproval }) => {
+      if (requiresApproval) {
+        toast.success("You've successfully registered. We'll notify you once it's approved.");
+      } else {
+        toast.success("Ticket confirmed! You're registered for the event.");
+      }
       queryClient.invalidateQueries({ queryKey: ['event', eventId, 'ticket-details'] });
       router.refresh();
     },

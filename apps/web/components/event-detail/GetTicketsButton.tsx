@@ -48,7 +48,10 @@ const GetTicketsButton = ({
 
   const handleGetTickets = async () => {
     resetCancelRegistration();
-    mutate(eventId);
+    mutate({
+      eventId,
+      requiresApproval: isPermissionRequired,
+    });
   };
 
   const handleCancelRegistration = () => {
