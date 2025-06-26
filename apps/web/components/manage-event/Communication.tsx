@@ -7,13 +7,14 @@ import {
 import { cn } from '@/lib/utils';
 import { communication, CommunicationForm } from '@/lib/zod/communication';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { FormField, FormItem } from '../ui/form';
 import FormProvider from '../ui/form-provider';
 import { ScrollArea } from '../ui/scroll-area';
-import Tiptap from '../ui/tiptap';
+import Tiptap, { EditorRefType } from '../ui/tiptap';
 import ChatMessage from './ChatMessage';
 import { LoaderCircle } from 'lucide-react';
 
@@ -53,6 +54,8 @@ const Communication = ({ eventId }: CommunicationProps) => {
 
   const hasContent = plaintextContent?.trim().length > 0;
 
+  const tiptapEditorRef = useRef<EditorRefType | null>(null);
+
   const onSubmit = (data: CommunicationForm) => {
     createCommunication(data, {
       onSuccess: () => {
@@ -60,6 +63,8 @@ const Communication = ({ eventId }: CommunicationProps) => {
         form.setValue('content', '');
       },
     });
+
+    tiptapEditorRef.current?.editor?.commands.clearContent();
   };
 
   const formatTime = (timestamp: string) => {
@@ -105,6 +110,7 @@ const Communication = ({ eventId }: CommunicationProps) => {
             render={({ field }) => (
               <FormItem>
                 <Tiptap
+                  ref={tiptapEditorRef}
                   description={field.value}
                   limit={300}
                   onChange={(richtext, plaintext) => {

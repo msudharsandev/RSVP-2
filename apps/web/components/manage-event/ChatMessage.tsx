@@ -33,7 +33,7 @@ const ChatMessage = ({ message, time, user }: ChatMessageProps) => {
           <div className="text-xs text-gray-500">{time}</div>
         </div>
         <div
-          className="prose prose-invert text-white"
+          className="prose prose-invert text-white break-all"
           dangerouslySetInnerHTML={{
             __html: message,
           }}
