@@ -35,6 +35,7 @@
   - [🔐 Required Secrets:](#-required-secrets-2)
 - [🔐 Secrets \& Environment Variable Management](#-secrets--environment-variable-management)
 - [CI/CD Pipeline Flow](#cicd-pipeline-flow)
+- [Postman Collection](../postman/)
 - [Endpoints](#endpoints)
 
 ### Architecture and System Design

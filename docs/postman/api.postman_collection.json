@@ -1,0 +1,2992 @@
+{
+	"info": {
+		"_postman_id": "d4102b94-cf52-4e71-8e90-bca1ed9443d7",
+		"name": "rsvp",
+		"description": "# Postman API Collection Setup Guide\n\n### Activate the Environment\n\n1. Import the \\`api.postman_collection.json\\` and \\`env.postman_environment.json\\`\n    \n2. In the top-right corner of Postman, click on the environment dropdown\n    \n3. Select **rsvp-env** from the list\n    \n4. The environment should now be active (you'll see it highlighted)\n    \n\n## Getting Started\n\n### 1\\. Start the API Server\n\nMake sure your RSVP API server is running:\n\n```\ncd apps/server\npnpm run dev\n\n ```\n\nThe server should be running on `http://localhost:8000` by default.\n\n### 2\\. Test the Connection\n\nIt should call the health API to check server status, but this endpoint is currently under development.\n\n#### Step 1: Send Sign-In Request\n\n1. Open the **Auth** folder in the collection\n    \n2. Select the **signin** request\n    \n3. { \"email\": \"[your-email@example.com](https://mailto:your-email@example.com)\" }\n    \n4. Click **Send**\n    \n5. { \"statusCode\": \"10000\", \"status\": 200, \"message\": \"success\" }\n    \n\n#### Step 2: Get Token from Server Console\n\n1. After sending the signin request, check your **server console**\n    \n2. You'll see a magic link.\n    \n3. **Copy the token part** (everything after `?token=`)\n    \n\n#### Step 3: Update Environment Variable\n\n1. Click on the **Environments** tab in the left sidebar\n    \n2. Select **rsvp-env**\n    \n3. Find the `accessToken` variable\n    \n4. Update its **Current Value** with the copied token **wrapped in double quotes**\n    \n5. Click **Save**",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "25467702"
+	},
+	"item": [
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "username",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/users/abc"
+					},
+					"response": [
+						{
+							"name": "username",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/users/abc"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4997"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 17 Jun 2025 18:32:35 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750186032"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "449"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1c1-Aqz2q5FWcSsaQWPdMDrBYqTEjZ4\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"primaryEmail\": \"abc@gmail.com\",\n        \"secondaryEmail\": null,\n        \"contact\": null,\n        \"fullName\": null,\n        \"userName\": \"abc\",\n        \"isCompleted\": false,\n        \"location\": null,\n        \"bio\": null,\n        \"twitter\": null,\n        \"instagram\": null,\n        \"website\": null,\n        \"profileIcon\": 1,\n        \"eventParticipationEnabled\": false,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-04-27T15:51:11.795Z\",\n        \"updatedAt\": \"2025-06-17T18:21:27.297Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "profile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"fullName\": \"John Doe\",\n     \"location\": \"San Francisco, CA\",\n     \"bio\": \"Full-stack developer passionate about React and Node.js\",\n     \"profileIcon\": 3\n   }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/users/profile"
+					},
+					"response": [
+						{
+							"name": "profile",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n     \"fullName\": \"John Doe\",\n     \"location\": \"San Francisco, CA\",\n     \"bio\": \"Full-stack developer passionate about React and Node.js\",\n     \"profileIcon\": 3\n   }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/users/profile"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4995"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 17 Jun 2025 18:34:46 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750186032"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "751"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2ef-sQiOGNHVY/FtwxvokWFYwixWqUE\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"primaryEmail\": \"abc@gmail.com\",\n        \"secondaryEmail\": null,\n        \"contact\": null,\n        \"fullName\": \"John Doe\",\n        \"userName\": \"abc\",\n        \"magicToken\": null,\n        \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJpYXQiOjE3NTAxODQ0ODcsImV4cCI6MTc1MDc4OTI4N30.m5jmAz3NhobsY5KhMrpUThmvy-cmP126Q4gPF0DGpKI\",\n        \"isCompleted\": false,\n        \"location\": \"San Francisco, CA\",\n        \"bio\": \"Full-stack developer passionate about React and Node.js\",\n        \"twitter\": null,\n        \"instagram\": null,\n        \"website\": null,\n        \"profileIcon\": 3,\n        \"eventParticipationEnabled\": false,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-04-27T15:51:11.795Z\",\n        \"updatedAt\": \"2025-06-17T18:34:46.871Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/users"
+					},
+					"response": [
+						{
+							"name": "delete",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/users"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4976"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 17 Jun 2025 18:43:39 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750186032"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "accessToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "486"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1e6-PuF/5oJnfb1CaRblEvbDHI2r3Aw\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"dd9c0530-58d5-4293-b4de-ddd6ef2d9c54\",\n        \"primaryEmail\": \"test@xyz.com\",\n        \"secondaryEmail\": null,\n        \"contact\": null,\n        \"fullName\": null,\n        \"userName\": \"test\",\n        \"magicToken\": null,\n        \"refreshToken\": null,\n        \"isCompleted\": false,\n        \"location\": null,\n        \"bio\": null,\n        \"twitter\": null,\n        \"instagram\": null,\n        \"website\": null,\n        \"profileIcon\": 1,\n        \"eventParticipationEnabled\": false,\n        \"isDeleted\": true,\n        \"createdAt\": \"2025-06-17T18:39:59.087Z\",\n        \"updatedAt\": \"2025-06-17T18:43:39.976Z\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "verify-signin",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": {{accessToken}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/auth/verify-signin"
+					},
+					"response": [
+						{
+							"name": "verify-signin",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJ0b2tlbklkIjoiMTJlMDE0ZGQtYmM4Ny00YzM5LWExMzEtMjYwYTkzYmIxOGI1IiwiaWF0IjoxNzUwNDkyOTk0LCJleHAiOjE3NTA0OTM4OTR9.aD3yk3uNe3qTeNs9Q7bOc2PAsxqkt2tKhTIwlZB-GU8\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/auth/verify-signin"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4999"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 21 Jun 2025 08:09:10 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750494251"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJpYXQiOjE3NTA0OTMzNTAsImV4cCI6MTc1MDQ5NDI1MH0.oqRbbktBCwKUJjjP0lbM-NqlgJN2iUmsh8u-6E6iNdk; Max-Age=900; Path=/; Expires=Sat, 21 Jun 2025 08:24:10 GMT; HttpOnly; Secure; SameSite=None"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJpYXQiOjE3NTA0OTMzNTAsImV4cCI6MTc1MTA5ODE1MH0.fQjCZGrq0OmlLun6exSw7ItlyCfNr77M-9tWjSE6gNM; Max-Age=604800; Path=/; Expires=Sat, 28 Jun 2025 08:09:10 GMT; HttpOnly; Secure; SameSite=None"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "92"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"5c-wH0wGS53VGZox0G5UTLCV9PZQHQ\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"user\": {\n            \"isCompleted\": true\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "me",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/auth/me"
+					},
+					"response": [
+						{
+							"name": "me",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/auth/me"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4990"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 17 Jun 2025 18:22:01 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750185223"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "449"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1c1-Aqz2q5FWcSsaQWPdMDrBYqTEjZ4\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"primaryEmail\": \"abc@gmail.com\",\n        \"secondaryEmail\": null,\n        \"contact\": null,\n        \"fullName\": null,\n        \"userName\": \"abc\",\n        \"isCompleted\": false,\n        \"location\": null,\n        \"bio\": null,\n        \"twitter\": null,\n        \"instagram\": null,\n        \"website\": null,\n        \"profileIcon\": 1,\n        \"eventParticipationEnabled\": false,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-04-27T15:51:11.795Z\",\n        \"updatedAt\": \"2025-06-17T18:21:27.297Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "signin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hassanrahim26@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/auth/signin"
+					},
+					"response": [
+						{
+							"name": "signin",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"abc@gmail.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/auth/signin"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4969"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 21 Jun 2025 07:58:41 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750493121"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-FRbdyfdGSqQqiLZB0RC9lvV3cC8\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "logout",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/auth/logout"
+					},
+					"response": [
+						{
+							"name": "logout",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/auth/logout"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4991"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 17 Jun 2025 18:51:23 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750187049"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "accessToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "55"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"37-FRbdyfdGSqQqiLZB0RC9lvV3cC8\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "event",
+			"item": [
+				{
+					"name": "createEvent",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"AI & Machine Learning Seminar\",\n  \"category\": \"Education\",\n  \"description\": \"Educational seminar focused on the latest developments in artificial intelligence and machine learning.\",\n  \"eventImageUrl\": \"https://www.shutterstock.com/image-vector/artificial-intelligence-icon-machine-learning-600nw-2302980833.jpg\",\n  \"venueType\": \"PHYSICAL\",\n  \"venueAddress\": \"IIT Bombay, Powai, Mumbai, Maharashtra 400076\",\n  \"hostPermissionRequired\": true,\n  \"capacity\": 100,\n  \"startTime\": \"2025-07-12T11:00:00.000Z\",\n  \"endTime\": \"2025-07-12T15:00:00.000Z\",\n  \"eventDate\": \"2025-07-12T00:00:00.000Z\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/event/"
+					},
+					"response": [
+						{
+							"name": "createEvent",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"React Developer Meetup Mumbai\",\n  \"category\": \"Meetup\",\n  \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n  \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n  \"venueType\": \"PHYSICAL\",\n  \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n  \"hostPermissionRequired\": false,\n  \"capacity\": 50,\n  \"startTime\": \"2025-07-15T14:00:00.000Z\",\n  \"endTime\": \"2025-07-15T17:00:00.000Z\",\n  \"eventDate\": \"2025-07-15T00:00:00.000Z\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/event/"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4972"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 17:25:08 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750267733"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "915"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"393-dwZUYNvsXOwOZ+7cpUWS3WBwXE4\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"name\": \"React Developer Meetup Mumbai\",\n        \"slug\": \"react-developer-meetup-mumbai-mc2830uy\",\n        \"category\": \"Meetup\",\n        \"startTime\": \"2025-07-15T14:00:00.000Z\",\n        \"endTime\": \"2025-07-15T17:00:00.000Z\",\n        \"eventDate\": \"2025-07-15T00:00:00.000Z\",\n        \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n        \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n        \"venueType\": \"PHYSICAL\",\n        \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n        \"venueUrl\": null,\n        \"hostPermissionRequired\": false,\n        \"capacity\": 50,\n        \"isActive\": true,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n        \"updatedAt\": \"2025-06-18T17:25:08.507Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "getEventById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95"
+					},
+					"response": [
+						{
+							"name": "getEventById",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4971"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 17:27:45 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750267733"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1106"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"452-xqaoa9lV0i39okvJHlb2Lu6Z7p4\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"event\": {\n            \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n            \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n            \"name\": \"React Developer Meetup Mumbai\",\n            \"slug\": \"react-developer-meetup-mumbai-mc2830uy\",\n            \"category\": \"Meetup\",\n            \"startTime\": \"2025-07-15T14:00:00.000Z\",\n            \"endTime\": \"2025-07-15T17:00:00.000Z\",\n            \"eventDate\": \"2025-07-15T00:00:00.000Z\",\n            \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n            \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n            \"venueType\": \"PHYSICAL\",\n            \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n            \"venueUrl\": null,\n            \"hostPermissionRequired\": false,\n            \"capacity\": 50,\n            \"isActive\": true,\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n            \"updatedAt\": \"2025-06-18T17:25:08.507Z\",\n            \"creator\": {\n                \"profileIcon\": 3,\n                \"fullName\": \"John Doe\",\n                \"userName\": \"abc\"\n            },\n            \"cohosts\": [\n                {\n                    \"role\": \"CREATOR\",\n                    \"user\": {\n                        \"profileIcon\": 3,\n                        \"fullName\": \"John Doe\",\n                        \"userName\": \"abc\"\n                    }\n                }\n            ]\n        },\n        \"totalAttendees\": 0\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "filterEvent",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/event/?category=Meetup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"event",
+								""
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "Meetup"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "filterEvent",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/v1/event/?category=Meetup",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"event",
+										""
+									],
+									"query": [
+										{
+											"key": "category",
+											"value": "Meetup"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4996"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 17:31:46 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750268653"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1858"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"742-ENy7UMzanu7/5ztEjnvV57sylKQ\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"events\": [\n            {\n                \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n                \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                \"name\": \"React Developer Meetup Mumbai\",\n                \"slug\": \"react-developer-meetup-mumbai-mc2830uy\",\n                \"category\": \"Meetup\",\n                \"startTime\": \"2025-07-15T14:00:00.000Z\",\n                \"endTime\": \"2025-07-15T17:00:00.000Z\",\n                \"eventDate\": \"2025-07-15T00:00:00.000Z\",\n                \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n                \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n                \"venueType\": \"PHYSICAL\",\n                \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n                \"venueUrl\": null,\n                \"hostPermissionRequired\": false,\n                \"capacity\": 50,\n                \"isActive\": true,\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n                \"updatedAt\": \"2025-06-18T17:25:08.507Z\",\n                \"creator\": {\n                    \"profileIcon\": 3,\n                    \"fullName\": \"John Doe\",\n                    \"userName\": \"abc\"\n                },\n                \"attendees\": []\n            },\n            {\n                \"id\": \"d7bb15e6-9ab0-4c06-be66-ca10f466b3b9\",\n                \"creatorId\": \"9f3d4444-f8bf-4d29-a0ef-5fc8da98c333\",\n                \"name\": \"AWS\",\n                \"slug\": \"aws-mbbyuccc\",\n                \"category\": \"meetup\",\n                \"startTime\": \"2025-06-20T11:30:00.000Z\",\n                \"endTime\": \"2025-06-20T14:30:00.000Z\",\n                \"eventDate\": \"2025-06-20T00:00:00.000Z\",\n                \"description\": \"\",\n                \"eventImageUrl\": \"https://rsvp-dev-554046444188-ap-southeast-2.s3.ap-southeast-2.amazonaws.com/1c929959-599c-458e-9996-db50e0cc8c07-about-amazon-hero-riv23-d4general-01708a.jpg\",\n                \"venueType\": \"VIRTUAL\",\n                \"venueAddress\": null,\n                \"venueUrl\": \"https://meet.google.com/\",\n                \"hostPermissionRequired\": false,\n                \"capacity\": 20,\n                \"isActive\": true,\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-05-31T08:24:26.367Z\",\n                \"updatedAt\": \"2025-05-31T08:24:26.367Z\",\n                \"creator\": {\n                    \"profileIcon\": 3,\n                    \"fullName\": \"Hassan \",\n                    \"userName\": \"hassanrahim26\"\n                },\n                \"attendees\": []\n            }\n        ],\n        \"metadata\": {\n            \"total\": 2,\n            \"page\": 1,\n            \"limit\": 10,\n            \"hasMore\": false\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "getEventBySlug",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/slug/web-design-masterclass-mc28m7zm"
+					},
+					"response": [
+						{
+							"name": "getEventBySlug",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/slug/react-developer-meetup-mumbai-mc2830uy"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4995"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 17:34:28 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750268653"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1106"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"452-xqaoa9lV0i39okvJHlb2Lu6Z7p4\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"event\": {\n            \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n            \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n            \"name\": \"React Developer Meetup Mumbai\",\n            \"slug\": \"react-developer-meetup-mumbai-mc2830uy\",\n            \"category\": \"Meetup\",\n            \"startTime\": \"2025-07-15T14:00:00.000Z\",\n            \"endTime\": \"2025-07-15T17:00:00.000Z\",\n            \"eventDate\": \"2025-07-15T00:00:00.000Z\",\n            \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n            \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n            \"venueType\": \"PHYSICAL\",\n            \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n            \"venueUrl\": null,\n            \"hostPermissionRequired\": false,\n            \"capacity\": 50,\n            \"isActive\": true,\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n            \"updatedAt\": \"2025-06-18T17:25:08.507Z\",\n            \"creator\": {\n                \"profileIcon\": 3,\n                \"fullName\": \"John Doe\",\n                \"userName\": \"abc\"\n            },\n            \"cohosts\": [\n                {\n                    \"role\": \"CREATOR\",\n                    \"user\": {\n                        \"profileIcon\": 3,\n                        \"fullName\": \"John Doe\",\n                        \"userName\": \"abc\"\n                    }\n                }\n            ]\n        },\n        \"totalAttendees\": 0\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "getPopularEvent",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/event/popular?limit=3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"event",
+								"popular"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getPopularEvent",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/v1/event/popular?limit=3",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"event",
+										"popular"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4979"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 17:43:08 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750268653"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2471"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"9a7-NKp4FMnuxhV7T1jKQviVjrsrevM\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": [\n        {\n            \"id\": \"0fc1ce92-c26d-495f-97c6-a904a2f03503\",\n            \"creatorId\": \"9f3d4444-f8bf-4d29-a0ef-5fc8da98c333\",\n            \"name\": \"Networking\",\n            \"slug\": \"networking-mbbybwjn\",\n            \"category\": \"networking\",\n            \"startTime\": \"2025-06-21T11:30:00.000Z\",\n            \"endTime\": \"2025-06-21T14:30:00.000Z\",\n            \"eventDate\": \"2025-06-21T00:00:00.000Z\",\n            \"description\": \"\",\n            \"eventImageUrl\": \"https://rsvp-dev-554046444188-ap-southeast-2.s3.ap-southeast-2.amazonaws.com/e1ea9d46-46bf-4707-9cd4-b6ff19a77847-networking.jpg\",\n            \"venueType\": \"PHYSICAL\",\n            \"venueAddress\": \"Bangalore\",\n            \"venueUrl\": null,\n            \"hostPermissionRequired\": false,\n            \"capacity\": 40,\n            \"isActive\": true,\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-05-31T08:10:06.084Z\",\n            \"updatedAt\": \"2025-05-31T08:10:06.084Z\",\n            \"creator\": {\n                \"fullName\": \"Hassan \",\n                \"profileIcon\": 3,\n                \"userName\": \"hassanrahim26\"\n            },\n            \"attendees\": []\n        },\n        {\n            \"id\": \"47eb0457-af7f-45e5-9f14-44c2e3e1faa6\",\n            \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n            \"name\": \"Startup Networking\",\n            \"slug\": \"startup-networking-mc28nbsb\",\n            \"category\": \"Networking\",\n            \"startTime\": \"2025-09-05T18:30:00.000Z\",\n            \"endTime\": \"2025-09-05T21:30:00.000Z\",\n            \"eventDate\": \"2025-09-05T00:00:00.000Z\",\n            \"description\": \"Connect with fellow entrepreneurs, investors, and professionals in a vibrant networking environment.\",\n            \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHX9O3Z0OG16XuQHv33cmhevUnT-ZrL_c6yA&s\",\n            \"venueType\": \"PHYSICAL\",\n            \"venueAddress\": \"Social, Lower Parel, Mumbai, Maharashtra 400013\",\n            \"venueUrl\": null,\n            \"hostPermissionRequired\": false,\n            \"capacity\": 100,\n            \"isActive\": true,\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-06-18T17:40:55.787Z\",\n            \"updatedAt\": \"2025-06-18T17:40:55.787Z\",\n            \"creator\": {\n                \"fullName\": \"John Doe\",\n                \"profileIcon\": 3,\n                \"userName\": \"abc\"\n            },\n            \"attendees\": []\n        },\n        {\n            \"id\": \"4d0b9658-2660-4034-b159-d8540e4edbc8\",\n            \"creatorId\": \"9f3d4444-f8bf-4d29-a0ef-5fc8da98c333\",\n            \"name\": \"AI Hackathon\",\n            \"slug\": \"ai-hackathon-mbbymmlr\",\n            \"category\": \"others\",\n            \"startTime\": \"2025-07-10T11:30:00.000Z\",\n            \"endTime\": \"2025-07-13T11:30:00.000Z\",\n            \"eventDate\": \"2025-07-10T00:00:00.000Z\",\n            \"description\": \"\",\n            \"eventImageUrl\": \"https://rsvp-dev-554046444188-ap-southeast-2.s3.ap-southeast-2.amazonaws.com/11477370-de74-451b-9bf5-4e4a72f7ec34-ai-hackathon.png\",\n            \"venueType\": \"PHYSICAL\",\n            \"venueAddress\": \"San Francisco \",\n            \"venueUrl\": null,\n            \"hostPermissionRequired\": false,\n            \"capacity\": 100,\n            \"isActive\": true,\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-05-31T08:18:26.416Z\",\n            \"updatedAt\": \"2025-05-31T08:18:26.416Z\",\n            \"creator\": {\n                \"fullName\": \"Hassan \",\n                \"profileIcon\": 3,\n                \"userName\": \"hassanrahim26\"\n            },\n            \"attendees\": []\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "getUserUpcomingEvent",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/upcoming"
+					},
+					"response": [
+						{
+							"name": "getUserUpcomingEvent",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/upcoming"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4999"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 19:06:37 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750274498"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1041"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"411-iFRpisbO+/nd1JYXbhdYLy6LHhc\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"Registered events retrieved successfully\",\n    \"data\": {\n        \"events\": [\n            {\n                \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n                \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                \"name\": \"React and React Native Developer Meetup\",\n                \"slug\": \"react-and-react-native-developer-meetup-mc2830uy\",\n                \"category\": \"Meetup\",\n                \"startTime\": \"2025-06-18T19:44:10.329Z\",\n                \"endTime\": \"2025-06-19T03:23:00.000Z\",\n                \"eventDate\": \"2025-06-19T00:00:00.000Z\",\n                \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n                \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n                \"venueType\": \"PHYSICAL\",\n                \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n                \"venueUrl\": null,\n                \"hostPermissionRequired\": false,\n                \"capacity\": 100,\n                \"isActive\": true,\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n                \"updatedAt\": \"2025-06-18T18:44:58.198Z\"\n            }\n        ],\n        \"metadata\": {\n            \"totalItems\": 1,\n            \"totalPages\": 1,\n            \"currentPage\": 1\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "uploadEventImage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/event/upload-image?filename=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRih8W-b_tD-kZFZlUktp78gH0meb4kLeDz3Q%26s",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"event",
+								"upload-image"
+							],
+							"query": [
+								{
+									"key": "filename",
+									"value": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRih8W-b_tD-kZFZlUktp78gH0meb4kLeDz3Q&s"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "uploadEventImage",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/v1/event/upload-image?filename=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRih8W-b_tD-kZFZlUktp78gH0meb4kLeDz3Q%26s",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"event",
+										"upload-image"
+									],
+									"query": [
+										{
+											"key": "filename",
+											"value": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRih8W-b_tD-kZFZlUktp78gH0meb4kLeDz3Q%26s"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4996"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 17:50:09 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750269631"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "827"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"33b-hQvkPXRan9AN2ZigMtrq1YQunhs\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"signedUrl\": \"https://rsvp-dev-554046444188-ap-southeast-2.s3.ap-southeast-2.amazonaws.com/a647260a-5940-4c40-b546-fb8060dc3fda-https%3A//encrypted-tbn0.gstatic.com/images%3Fq%3Dtbn%3AANd9GcRih8W-b_tD-kZFZlUktp78gH0meb4kLeDz3Q%26s?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAYB7552KOAM54WUOA%2F20250618%2Fap-southeast-2%2Fs3%2Faws4_request&X-Amz-Date=20250618T175009Z&X-Amz-Expires=3600&X-Amz-Signature=ad58c8daae4700ad46a872ebd11039e93b59aa7514ae50183435e6d6b6435f7b&X-Amz-SignedHeaders=host&x-amz-checksum-crc32=AAAAAA%3D%3D&x-amz-sdk-checksum-algorithm=CRC32&x-id=PutObject\",\n        \"key\": \"a647260a-5940-4c40-b546-fb8060dc3fda-https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRih8W-b_tD-kZFZlUktp78gH0meb4kLeDz3Q&s\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "getplannedByUser",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/event/user?page=1&limit=5&status=active&sort=attendees&sortOrder=desc&search=meetup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"event",
+								"user"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								},
+								{
+									"key": "status",
+									"value": "active"
+								},
+								{
+									"key": "sort",
+									"value": "attendees"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								},
+								{
+									"key": "search",
+									"value": "meetup"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getplannedByUser",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/v1/event/user?page=1&limit=5&status=active&sort=attendees&sortOrder=desc&search=meetup",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"v1",
+										"event",
+										"user"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "5"
+										},
+										{
+											"key": "status",
+											"value": "active"
+										},
+										{
+											"key": "sort",
+											"value": "attendees"
+										},
+										{
+											"key": "sortOrder",
+											"value": "desc"
+										},
+										{
+											"key": "search",
+											"value": "meetup"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4993"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 17:55:55 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750269631"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJpYXQiOjE3NTAyNjkzNTUsImV4cCI6MTc1MDI3MDI1NX0.NLsWY4M42mJ8PNBTW104iBBhOLyn4ZEs2sqL_0JkTNA; Max-Age=900; Path=/; Expires=Wed, 18 Jun 2025 18:10:55 GMT; HttpOnly; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1717"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6b5-mtHOGLczYT9s9W3yooL3oAqRUbw\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"events\": [\n            {\n                \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n                \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                \"name\": \"React Developer Meetup Mumbai\",\n                \"slug\": \"react-developer-meetup-mumbai-mc2830uy\",\n                \"category\": \"Meetup\",\n                \"startTime\": \"2025-07-15T14:00:00.000Z\",\n                \"endTime\": \"2025-07-15T17:00:00.000Z\",\n                \"eventDate\": \"2025-07-15T00:00:00.000Z\",\n                \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n                \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n                \"venueType\": \"PHYSICAL\",\n                \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n                \"venueUrl\": null,\n                \"hostPermissionRequired\": false,\n                \"capacity\": 50,\n                \"isActive\": true,\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n                \"updatedAt\": \"2025-06-18T17:25:08.507Z\",\n                \"creator\": {\n                    \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                    \"primaryEmail\": \"abc@gmail.com\",\n                    \"secondaryEmail\": null,\n                    \"contact\": \"1234567890\",\n                    \"fullName\": \"John Doe\",\n                    \"userName\": \"abc\",\n                    \"magicToken\": null,\n                    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJpYXQiOjE3NTAyNjcwMTMsImV4cCI6MTc1MDg3MTgxM30.G_JnSvySX0AQDrXYwjCexK3Sw-hsebUYHSuknJkCNOs\",\n                    \"isCompleted\": true,\n                    \"location\": \"San Francisco, CA\",\n                    \"bio\": \"Full-stack developer passionate about React and Node.js\",\n                    \"twitter\": \"xyz\",\n                    \"instagram\": \"xyz\",\n                    \"website\": \"google.com\",\n                    \"profileIcon\": 3,\n                    \"eventParticipationEnabled\": false,\n                    \"isDeleted\": false,\n                    \"createdAt\": \"2025-04-27T15:51:11.795Z\",\n                    \"updatedAt\": \"2025-06-18T17:24:54.392Z\"\n                },\n                \"attendees\": []\n            }\n        ],\n        \"metadata\": {\n            \"total\": 1,\n            \"page\": 1,\n            \"limit\": 5,\n            \"hasMore\": false\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "updateEvent",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"React and React Native Developer Meetup\",\n    \"capacity\": 100,\n    \"venueType\": \"PHYSICAL\",\n    \"startTime\": \"2025-06-19T01:30:00.000Z\",\n    \"endTime\": \"2025-06-19T03:09:00.000Z\",\n    \"eventDate\": \"2025-06-19T00:00:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95"
+					},
+					"response": [
+						{
+							"name": "updateEvent",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"React and React Native Developer Meetup\",\n    \"capacity\": 100,\n    \"venueType\": \"PHYSICAL\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4996"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:06:29 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750270550"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "926"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"39e-1QKIVNmGHdEr+hJISku/UmiWCnI\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"name\": \"React and React Native Developer Meetup\",\n        \"slug\": \"react-developer-meetup-mumbai-mc2830uy\",\n        \"category\": \"Meetup\",\n        \"startTime\": \"2025-07-15T14:00:00.000Z\",\n        \"endTime\": \"2025-07-15T17:00:00.000Z\",\n        \"eventDate\": \"2025-07-15T00:00:00.000Z\",\n        \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n        \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n        \"venueType\": \"PHYSICAL\",\n        \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n        \"venueUrl\": null,\n        \"hostPermissionRequired\": false,\n        \"capacity\": 100,\n        \"isActive\": true,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n        \"updatedAt\": \"2025-06-18T18:06:29.183Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "cancelEvent",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/d0585b39-6632-4338-9fcd-b6da6c5d9fa3/cancel"
+					},
+					"response": [
+						{
+							"name": "cancelEvent",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/d0585b39-6632-4338-9fcd-b6da6c5d9fa3/cancel"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4994"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:08:37 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750270550"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "867"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"363-R0eI3j27p87zy37zteKQFdzq+kU\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"d0585b39-6632-4338-9fcd-b6da6c5d9fa3\",\n        \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"name\": \"Tech Leaders Summit 2025\",\n        \"slug\": \"tech-leaders-summit-2025-mc28kmb9\",\n        \"category\": \"Conference\",\n        \"startTime\": \"2025-11-20T09:00:00.000Z\",\n        \"endTime\": \"2025-11-20T18:00:00.000Z\",\n        \"eventDate\": \"2025-11-20T00:00:00.000Z\",\n        \"description\": \"Annual conference for tech leaders to discuss innovation, trends, and leadership in the digital age.\",\n        \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNrX9CcXkrFSlmsUhQ2ocgl8NHJGK-xRb29w&s\",\n        \"venueType\": \"PHYSICAL\",\n        \"venueAddress\": \"Taj Lands End, Bandra, Mumbai, Maharashtra 400050\",\n        \"venueUrl\": null,\n        \"hostPermissionRequired\": true,\n        \"capacity\": 100,\n        \"isActive\": false,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T17:38:49.462Z\",\n        \"updatedAt\": \"2025-06-18T18:08:37.327Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "deleteEvent",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/d0585b39-6632-4338-9fcd-b6da6c5d9fa3"
+					},
+					"response": [
+						{
+							"name": "deleteEvent",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/d0585b39-6632-4338-9fcd-b6da6c5d9fa3"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4991"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:10:40 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750270550"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "885"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"375-YM/R8WUB4v91BoAJzRNEcPrU7mQ\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"Event deleted successfully\",\n    \"data\": {\n        \"id\": \"d0585b39-6632-4338-9fcd-b6da6c5d9fa3\",\n        \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"name\": \"Tech Leaders Summit 2025\",\n        \"slug\": \"tech-leaders-summit-2025-mc28kmb9\",\n        \"category\": \"Conference\",\n        \"startTime\": \"2025-11-20T09:00:00.000Z\",\n        \"endTime\": \"2025-11-20T18:00:00.000Z\",\n        \"eventDate\": \"2025-11-20T00:00:00.000Z\",\n        \"description\": \"Annual conference for tech leaders to discuss innovation, trends, and leadership in the digital age.\",\n        \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNrX9CcXkrFSlmsUhQ2ocgl8NHJGK-xRb29w&s\",\n        \"venueType\": \"PHYSICAL\",\n        \"venueAddress\": \"Taj Lands End, Bandra, Mumbai, Maharashtra 400050\",\n        \"venueUrl\": null,\n        \"hostPermissionRequired\": true,\n        \"capacity\": 100,\n        \"isActive\": false,\n        \"isDeleted\": true,\n        \"createdAt\": \"2025-06-18T17:38:49.462Z\",\n        \"updatedAt\": \"2025-06-18T18:10:40.232Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "updateEventSlug",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"slug\": \"react-and-react-native-developer-meetup-mc2830uy\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/slug"
+					},
+					"response": [
+						{
+							"name": "updateEventSlug",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"slug\": \"react-and-react-native-developer-meetup-mc2830uy\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/slug"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4987"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:12:58 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750270550"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "936"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3a8-QApb9tbEWraHSzXrzwUlTcE4i4I\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"name\": \"React and React Native Developer Meetup\",\n        \"slug\": \"react-and-react-native-developer-meetup-mc2830uy\",\n        \"category\": \"Meetup\",\n        \"startTime\": \"2025-07-15T14:00:00.000Z\",\n        \"endTime\": \"2025-07-15T17:00:00.000Z\",\n        \"eventDate\": \"2025-07-15T00:00:00.000Z\",\n        \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n        \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n        \"venueType\": \"PHYSICAL\",\n        \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n        \"venueUrl\": null,\n        \"hostPermissionRequired\": false,\n        \"capacity\": 100,\n        \"isActive\": true,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n        \"updatedAt\": \"2025-06-18T18:12:58.987Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "createAttendee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"feedback\": \"Really excited to attend this React meetup! Looking forward to learning about the latest updates.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees"
+					},
+					"response": [
+						{
+							"name": "createAttendee",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"feedback\": \"Really excited to attend this React meetup! Looking forward to learning about the latest updates.\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4999"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:17:13 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750271534"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "459"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1cb-+/hM1iqLiqxPOO+zDt6fF55L7eQ\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"9813b107-7090-402c-822f-fd52d9ee16c9\",\n        \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"registrationTime\": \"2025-06-18T18:17:13.077Z\",\n        \"hasAttended\": false,\n        \"checkInTime\": null,\n        \"feedback\": null,\n        \"qrToken\": \"+QO7oB\",\n        \"status\": \"GOING\",\n        \"allowedStatus\": true,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T18:17:13.077Z\",\n        \"updatedAt\": \"2025-06-18T18:17:13.077Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "getAttendee",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees"
+					},
+					"response": [
+						{
+							"name": "getAttendee",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4997"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:19:23 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750271534"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "691"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"2b3-ee5tFQrcKMIk5e7SyKrt1snOi9U\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"data\": [\n            {\n                \"id\": \"9813b107-7090-402c-822f-fd52d9ee16c9\",\n                \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n                \"registrationTime\": \"2025-06-18T18:17:13.077Z\",\n                \"hasAttended\": false,\n                \"checkInTime\": null,\n                \"feedback\": null,\n                \"qrToken\": \"+QO7oB\",\n                \"status\": \"GOING\",\n                \"allowedStatus\": true,\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-06-18T18:17:13.077Z\",\n                \"updatedAt\": \"2025-06-18T18:17:13.077Z\",\n                \"user\": {\n                    \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                    \"fullName\": \"John Doe\",\n                    \"primaryEmail\": \"abc@gmail.com\",\n                    \"contact\": \"1234567890\",\n                    \"userName\": \"abc\",\n                    \"profileIcon\": 3\n                }\n            }\n        ],\n        \"metadata\": {\n            \"total\": 1,\n            \"page\": 1,\n            \"limit\": 10,\n            \"hasMore\": false\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "getExcelSheet",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees/excel"
+					},
+					"response": [
+						{
+							"name": "getExcelSheet",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees/excel"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "xml",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4996"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:21:47 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750271534"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+								},
+								{
+									"key": "Content-Disposition",
+									"value": "attachment; filename=attendees-9e080564-a1b1-43fc-a255-6c7e8522db95.xlsx"
+								},
+								{
+									"key": "Content-Length",
+									"value": "17500"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"445c-nnHux/J8R2xJN8FD9Mw8hYZzqpQ\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�\u0001���\u0002\u0000\u0000�\u0002\u0000\u0000\u001a\u0000\u0000\u0000xl/_rels/workbook.xml.rels\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n    <Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"worksheets/sheet1.xml\"/>\n    <Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme\" Target=\"theme/theme1.xml\"/>\n    <Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>\n    <Relationship Id=\"rId4\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sheetMetadata\" Target=\"metadata.xml\"/>\n</Relationships>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00000\u000f�k�\u001d\u0000\u0000�\u001d\u0000\u0000\u0013\u0000\u0000\u0000xl/theme/theme1.xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<a:theme xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" name=\"Office Theme\">\n    <a:themeElements>\n        <a:clrScheme name=\"Office\">\n            <a:dk1>\n                <a:sysClr val=\"windowText\" lastClr=\"000000\"/>\n            </a:dk1>\n            <a:lt1>\n                <a:sysClr val=\"window\" lastClr=\"FFFFFF\"/>\n            </a:lt1>\n            <a:dk2>\n                <a:srgbClr val=\"1F497D\"/>\n            </a:dk2>\n            <a:lt2>\n                <a:srgbClr val=\"EEECE1\"/>\n            </a:lt2>\n            <a:accent1>\n                <a:srgbClr val=\"4F81BD\"/>\n            </a:accent1>\n            <a:accent2>\n                <a:srgbClr val=\"C0504D\"/>\n            </a:accent2>\n            <a:accent3>\n                <a:srgbClr val=\"9BBB59\"/>\n            </a:accent3>\n            <a:accent4>\n                <a:srgbClr val=\"8064A2\"/>\n            </a:accent4>\n            <a:accent5>\n                <a:srgbClr val=\"4BACC6\"/>\n            </a:accent5>\n            <a:accent6>\n                <a:srgbClr val=\"F79646\"/>\n            </a:accent6>\n            <a:hlink>\n                <a:srgbClr val=\"0000FF\"/>\n            </a:hlink>\n            <a:folHlink>\n                <a:srgbClr val=\"800080\"/>\n            </a:folHlink>\n        </a:clrScheme>\n        <a:fontScheme name=\"Office\">\n            <a:majorFont>\n                <a:latin typeface=\"Cambria\"/>\n                <a:ea typeface=\"\"/>\n                <a:cs typeface=\"\"/>\n                <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>\n                <a:font script=\"Hang\" typeface=\"맑은 고딕\"/>\n                <a:font script=\"Hans\" typeface=\"宋体\"/>\n                <a:font script=\"Hant\" typeface=\"新細明體\"/>\n                <a:font script=\"Arab\" typeface=\"Times New Roman\"/>\n                <a:font script=\"Hebr\" typeface=\"Times New Roman\"/>\n                <a:font script=\"Thai\" typeface=\"Tahoma\"/>\n                <a:font script=\"Ethi\" typeface=\"Nyala\"/>\n                <a:font script=\"Beng\" typeface=\"Vrinda\"/>\n                <a:font script=\"Gujr\" typeface=\"Shruti\"/>\n                <a:font script=\"Khmr\" typeface=\"MoolBoran\"/>\n                <a:font script=\"Knda\" typeface=\"Tunga\"/>\n                <a:font script=\"Guru\" typeface=\"Raavi\"/>\n                <a:font script=\"Cans\" typeface=\"Euphemia\"/>\n                <a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/>\n                <a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/>\n                <a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/>\n                <a:font script=\"Thaa\" typeface=\"MV Boli\"/>\n                <a:font script=\"Deva\" typeface=\"Mangal\"/>\n                <a:font script=\"Telu\" typeface=\"Gautami\"/>\n                <a:font script=\"Taml\" typeface=\"Latha\"/>\n                <a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/>\n                <a:font script=\"Orya\" typeface=\"Kalinga\"/>\n                <a:font script=\"Mlym\" typeface=\"Kartika\"/>\n                <a:font script=\"Laoo\" typeface=\"DokChampa\"/>\n                <a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/>\n                <a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/>\n                <a:font script=\"Viet\" typeface=\"Times New Roman\"/>\n                <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>\n                <a:font script=\"Geor\" typeface=\"Sylfaen\"/>\n            </a:majorFont>\n            <a:minorFont>\n                <a:latin typeface=\"Calibri\"/>\n                <a:ea typeface=\"\"/>\n                <a:cs typeface=\"\"/>\n                <a:font script=\"Jpan\" typeface=\"ＭＳ Ｐゴシック\"/>\n                <a:font script=\"Hang\" typeface=\"맑은 고딕\"/>\n                <a:font script=\"Hans\" typeface=\"宋体\"/>\n                <a:font script=\"Hant\" typeface=\"新細明體\"/>\n                <a:font script=\"Arab\" typeface=\"Arial\"/>\n                <a:font script=\"Hebr\" typeface=\"Arial\"/>\n                <a:font script=\"Thai\" typeface=\"Tahoma\"/>\n                <a:font script=\"Ethi\" typeface=\"Nyala\"/>\n                <a:font script=\"Beng\" typeface=\"Vrinda\"/>\n                <a:font script=\"Gujr\" typeface=\"Shruti\"/>\n                <a:font script=\"Khmr\" typeface=\"DaunPenh\"/>\n                <a:font script=\"Knda\" typeface=\"Tunga\"/>\n                <a:font script=\"Guru\" typeface=\"Raavi\"/>\n                <a:font script=\"Cans\" typeface=\"Euphemia\"/>\n                <a:font script=\"Cher\" typeface=\"Plantagenet Cherokee\"/>\n                <a:font script=\"Yiii\" typeface=\"Microsoft Yi Baiti\"/>\n                <a:font script=\"Tibt\" typeface=\"Microsoft Himalaya\"/>\n                <a:font script=\"Thaa\" typeface=\"MV Boli\"/>\n                <a:font script=\"Deva\" typeface=\"Mangal\"/>\n                <a:font script=\"Telu\" typeface=\"Gautami\"/>\n                <a:font script=\"Taml\" typeface=\"Latha\"/>\n                <a:font script=\"Syrc\" typeface=\"Estrangelo Edessa\"/>\n                <a:font script=\"Orya\" typeface=\"Kalinga\"/>\n                <a:font script=\"Mlym\" typeface=\"Kartika\"/>\n                <a:font script=\"Laoo\" typeface=\"DokChampa\"/>\n                <a:font script=\"Sinh\" typeface=\"Iskoola Pota\"/>\n                <a:font script=\"Mong\" typeface=\"Mongolian Baiti\"/>\n                <a:font script=\"Viet\" typeface=\"Arial\"/>\n                <a:font script=\"Uigh\" typeface=\"Microsoft Uighur\"/>\n                <a:font script=\"Geor\" typeface=\"Sylfaen\"/>\n            </a:minorFont>\n        </a:fontScheme>\n        <a:fmtScheme name=\"Office\">\n            <a:fillStyleLst>\n                <a:solidFill>\n                    <a:schemeClr val=\"phClr\"/>\n                </a:solidFill>\n                <a:gradFill rotWithShape=\"1\">\n                    <a:gsLst>\n                        <a:gs pos=\"0\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"50000\"/>\n                                <a:satMod val=\"300000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                        <a:gs pos=\"35000\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"37000\"/>\n                                <a:satMod val=\"300000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                        <a:gs pos=\"100000\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"15000\"/>\n                                <a:satMod val=\"350000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                    </a:gsLst>\n                    <a:lin ang=\"16200000\" scaled=\"1\"/>\n                </a:gradFill>\n                <a:gradFill rotWithShape=\"1\">\n                    <a:gsLst>\n                        <a:gs pos=\"0\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"100000\"/>\n                                <a:shade val=\"100000\"/>\n                                <a:satMod val=\"130000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                        <a:gs pos=\"100000\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"50000\"/>\n                                <a:shade val=\"100000\"/>\n                                <a:satMod val=\"350000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                    </a:gsLst>\n                    <a:lin ang=\"16200000\" scaled=\"0\"/>\n                </a:gradFill>\n            </a:fillStyleLst>\n            <a:lnStyleLst>\n                <a:ln w=\"9525\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\">\n                    <a:solidFill>\n                        <a:schemeClr val=\"phClr\">\n                            <a:shade val=\"95000\"/>\n                            <a:satMod val=\"105000\"/>\n                        </a:schemeClr>\n                    </a:solidFill>\n                    <a:prstDash val=\"solid\"/>\n                </a:ln>\n                <a:ln w=\"25400\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\">\n                    <a:solidFill>\n                        <a:schemeClr val=\"phClr\"/>\n                    </a:solidFill>\n                    <a:prstDash val=\"solid\"/>\n                </a:ln>\n                <a:ln w=\"38100\" cap=\"flat\" cmpd=\"sng\" algn=\"ctr\">\n                    <a:solidFill>\n                        <a:schemeClr val=\"phClr\"/>\n                    </a:solidFill>\n                    <a:prstDash val=\"solid\"/>\n                </a:ln>\n            </a:lnStyleLst>\n            <a:effectStyleLst>\n                <a:effectStyle>\n                    <a:effectLst>\n                        <a:outerShdw blurRad=\"40000\" dist=\"20000\" dir=\"5400000\" rotWithShape=\"0\">\n                            <a:srgbClr val=\"000000\">\n                                <a:alpha val=\"38000\"/>\n                            </a:srgbClr>\n                        </a:outerShdw>\n                    </a:effectLst>\n                </a:effectStyle>\n                <a:effectStyle>\n                    <a:effectLst>\n                        <a:outerShdw blurRad=\"40000\" dist=\"23000\" dir=\"5400000\" rotWithShape=\"0\">\n                            <a:srgbClr val=\"000000\">\n                                <a:alpha val=\"35000\"/>\n                            </a:srgbClr>\n                        </a:outerShdw>\n                    </a:effectLst>\n                </a:effectStyle>\n                <a:effectStyle>\n                    <a:effectLst>\n                        <a:outerShdw blurRad=\"40000\" dist=\"23000\" dir=\"5400000\" rotWithShape=\"0\">\n                            <a:srgbClr val=\"000000\">\n                                <a:alpha val=\"35000\"/>\n                            </a:srgbClr>\n                        </a:outerShdw>\n                    </a:effectLst>\n                    <a:scene3d>\n                        <a:camera prst=\"orthographicFront\">\n                            <a:rot lat=\"0\" lon=\"0\" rev=\"0\"/>\n                        </a:camera>\n                        <a:lightRig rig=\"threePt\" dir=\"t\">\n                            <a:rot lat=\"0\" lon=\"0\" rev=\"1200000\"/>\n                        </a:lightRig>\n                    </a:scene3d>\n                    <a:sp3d>\n                        <a:bevelT w=\"63500\" h=\"25400\"/>\n                    </a:sp3d>\n                </a:effectStyle>\n            </a:effectStyleLst>\n            <a:bgFillStyleLst>\n                <a:solidFill>\n                    <a:schemeClr val=\"phClr\"/>\n                </a:solidFill>\n                <a:gradFill rotWithShape=\"1\">\n                    <a:gsLst>\n                        <a:gs pos=\"0\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"40000\"/>\n                                <a:satMod val=\"350000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                        <a:gs pos=\"40000\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"45000\"/>\n                                <a:shade val=\"99000\"/>\n                                <a:satMod val=\"350000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                        <a:gs pos=\"100000\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:shade val=\"20000\"/>\n                                <a:satMod val=\"255000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                    </a:gsLst>\n                    <a:path path=\"circle\">\n                        <a:fillToRect l=\"50000\" t=\"-80000\" r=\"50000\" b=\"180000\"/>\n                    </a:path>\n                </a:gradFill>\n                <a:gradFill rotWithShape=\"1\">\n                    <a:gsLst>\n                        <a:gs pos=\"0\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:tint val=\"80000\"/>\n                                <a:satMod val=\"300000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                        <a:gs pos=\"100000\">\n                            <a:schemeClr val=\"phClr\">\n                                <a:shade val=\"30000\"/>\n                                <a:satMod val=\"200000\"/>\n                            </a:schemeClr>\n                        </a:gs>\n                    </a:gsLst>\n                    <a:path path=\"circle\">\n                        <a:fillToRect l=\"50000\" t=\"50000\" r=\"50000\" b=\"50000\"/>\n                    </a:path>\n                </a:gradFill>\n            </a:bgFillStyleLst>\n        </a:fmtScheme>\n    </a:themeElements>\n    <a:objectDefaults>\n        <a:spDef>\n            <a:spPr/>\n            <a:bodyPr/>\n            <a:lstStyle/>\n            <a:style>\n                <a:lnRef idx=\"1\">\n                    <a:schemeClr val=\"accent1\"/>\n                </a:lnRef>\n                <a:fillRef idx=\"3\">\n                    <a:schemeClr val=\"accent1\"/>\n                </a:fillRef>\n                <a:effectRef idx=\"2\">\n                    <a:schemeClr val=\"accent1\"/>\n                </a:effectRef>\n                <a:fontRef idx=\"minor\">\n                    <a:schemeClr val=\"lt1\"/>\n                </a:fontRef>\n            </a:style>\n        </a:spDef>\n        <a:lnDef>\n            <a:spPr/>\n            <a:bodyPr/>\n            <a:lstStyle/>\n            <a:style>\n                <a:lnRef idx=\"2\">\n                    <a:schemeClr val=\"accent1\"/>\n                </a:lnRef>\n                <a:fillRef idx=\"0\">\n                    <a:schemeClr val=\"accent1\"/>\n                </a:fillRef>\n                <a:effectRef idx=\"1\">\n                    <a:schemeClr val=\"accent1\"/>\n                </a:effectRef>\n                <a:fontRef idx=\"minor\">\n                    <a:schemeClr val=\"tx1\"/>\n                </a:fontRef>\n            </a:style>\n        </a:lnDef>\n    </a:objectDefaults>\n    <a:extraClrSchemeLst/>\n</a:theme>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000U�\u0004�Z\u0004\u0000\u0000Z\u0004\u0000\u0000\r\u0000\u0000\u0000xl/styles.xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">\n    <numFmts count=\"1\">\n        <numFmt numFmtId=\"56\" formatCode=\"&quot;上午/下午 &quot;hh&quot;時&quot;mm&quot;分&quot;ss&quot;秒 &quot;\"/>\n    </numFmts>\n    <fonts count=\"1\">\n        <font>\n            <sz val=\"12\"/>\n            <color theme=\"1\"/>\n            <name val=\"Calibri\"/>\n            <family val=\"2\"/>\n            <scheme val=\"minor\"/>\n        </font>\n    </fonts>\n    <fills count=\"2\">\n        <fill>\n            <patternFill patternType=\"none\"/>\n        </fill>\n        <fill>\n            <patternFill patternType=\"gray125\"/>\n        </fill>\n    </fills>\n    <borders count=\"1\">\n        <border>\n            <left/>\n            <right/>\n            <top/>\n            <bottom/>\n            <diagonal/>\n        </border>\n    </borders>\n    <cellStyleXfs count=\"1\">\n        <xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/>\n    </cellStyleXfs>\n    <cellXfs count=\"1\">\n        <xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" xfId=\"0\" applyNumberFormat=\"1\"/>\n    </cellXfs>\n    <cellStyles count=\"1\">\n        <cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\"/>\n    </cellStyles>\n    <dxfs count=\"0\"/>\n    <tableStyles count=\"0\" defaultTableStyle=\"TableStyleMedium9\" defaultPivotStyle=\"PivotStyleMedium4\"/>\n</styleSheet>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000��_\u0004F\b\u0000\u0000F\b\u0000\u0000\u0018\u0000\u0000\u0000xl/worksheets/sheet1.xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">\n    <dimension ref=\"A1:L2\"/>\n    <sheetViews>\n        <sheetView workbookViewId=\"0\"/>\n    </sheetViews>\n    <cols>\n        <col min=\"1\" max=\"1\" width=\"36.83203125\" customWidth=\"1\"/>\n        <col min=\"2\" max=\"2\" width=\"10.83203125\" customWidth=\"1\"/>\n        <col min=\"3\" max=\"3\" width=\"30.83203125\" customWidth=\"1\"/>\n        <col min=\"4\" max=\"4\" width=\"30.83203125\" customWidth=\"1\"/>\n        <col min=\"5\" max=\"5\" width=\"15.83203125\" customWidth=\"1\"/>\n        <col min=\"6\" max=\"6\" width=\"20.83203125\" customWidth=\"1\"/>\n        <col min=\"7\" max=\"7\" width=\"15.83203125\" customWidth=\"1\"/>\n        <col min=\"8\" max=\"8\" width=\"12.83203125\" customWidth=\"1\"/>\n        <col min=\"9\" max=\"9\" width=\"20.83203125\" customWidth=\"1\"/>\n        <col min=\"10\" max=\"10\" width=\"40.83203125\" customWidth=\"1\"/>\n        <col min=\"11\" max=\"11\" width=\"10.83203125\" customWidth=\"1\"/>\n        <col min=\"12\" max=\"12\" width=\"15.83203125\" customWidth=\"1\"/>\n        <col min=\"13\" max=\"13\" width=\"20.83203125\" customWidth=\"1\"/>\n    </cols>\n    <sheetData>\n        <row r=\"1\">\n            <c r=\"A1\" t=\"str\">\n                <v>Sr. No</v>\n            </c>\n            <c r=\"B1\" t=\"str\">\n                <v>Full Name</v>\n            </c>\n            <c r=\"C1\" t=\"str\">\n                <v>Email</v>\n            </c>\n            <c r=\"D1\" t=\"str\">\n                <v>Contact</v>\n            </c>\n            <c r=\"E1\" t=\"str\">\n                <v>Registration Time</v>\n            </c>\n            <c r=\"F1\" t=\"str\">\n                <v>Status</v>\n            </c>\n            <c r=\"G1\" t=\"str\">\n                <v>Has Attended</v>\n            </c>\n            <c r=\"H1\" t=\"str\">\n                <v>Check-in Time</v>\n            </c>\n            <c r=\"I1\" t=\"str\">\n                <v>Feedback</v>\n            </c>\n            <c r=\"J1\" t=\"str\">\n                <v>QR Token</v>\n            </c>\n            <c r=\"K1\" t=\"str\">\n                <v>Allowed Status</v>\n            </c>\n            <c r=\"L1\" t=\"str\">\n                <v>Last Updated</v>\n            </c>\n        </row>\n        <row r=\"2\">\n            <c r=\"A2\">\n                <v>1</v>\n            </c>\n            <c r=\"B2\" t=\"str\">\n                <v>John Doe</v>\n            </c>\n            <c r=\"C2\" t=\"str\">\n                <v>abc@gmail.com</v>\n            </c>\n            <c r=\"D2\" t=\"str\">\n                <v>1234567890</v>\n            </c>\n            <c r=\"E2\" t=\"str\">\n                <v>6/18/2025, 11:47:13 PM</v>\n            </c>\n            <c r=\"F2\" t=\"str\">\n                <v>GOING</v>\n            </c>\n            <c r=\"G2\" t=\"str\">\n                <v>No</v>\n            </c>\n            <c r=\"H2\" t=\"str\">\n                <v>-</v>\n            </c>\n            <c r=\"I2\" t=\"str\">\n                <v>-</v>\n            </c>\n            <c r=\"J2\" t=\"str\">\n                <v>+QO7oB</v>\n            </c>\n            <c r=\"K2\" t=\"str\">\n                <v>Yes</v>\n            </c>\n            <c r=\"L2\" t=\"str\">\n                <v>6/18/2025, 11:47:13 PM</v>\n            </c>\n        </row>\n    </sheetData>\n    <ignoredErrors>\n        <ignoredError numberStoredAsText=\"1\" sqref=\"A1:L2\"/>\n    </ignoredErrors>\n</worksheet>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000`�\u0000��\u0003\u0000\u0000�\u0003\u0000\u0000\u000f\u0000\u0000\u0000xl/metadata.xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<metadata xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:xlrd=\"http://schemas.microsoft.com/office/spreadsheetml/2017/richdata\" xmlns:xda=\"http://schemas.microsoft.com/office/spreadsheetml/2017/dynamicarray\">\n    <metadataTypes count=\"1\">\n        <metadataType name=\"XLDAPR\" minSupportedVersion=\"120000\" copy=\"1\" pasteAll=\"1\" pasteValues=\"1\" merge=\"1\" splitFirst=\"1\" rowColShift=\"1\" clearFormats=\"1\" clearComments=\"1\" assign=\"1\" coerce=\"1\" cellMeta=\"1\"/>\n    </metadataTypes>\n    <futureMetadata name=\"XLDAPR\" count=\"1\">\n        <bk>\n            <extLst>\n                <ext uri=\"{bdbb8cdc-fa1e-496e-a857-3c3f30c029c3}\">\n                    <xda:dynamicArrayProperties fDynamic=\"1\" fCollapsed=\"0\"/>\n                </ext>\n            </extLst>\n        </bk>\n    </futureMetadata>\n    <cellMetadata count=\"1\">\n        <bk>\n            <rc t=\"1\" v=\"0\"/>\n        </bk>\n    </cellMetadata>\n</metadata>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000v\u001a߭E\u0001\u0000\u0000E\u0001\u0000\u0000\u000f\u0000\u0000\u0000xl/workbook.xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">\n    <workbookPr codeName=\"ThisWorkbook\"/>\n    <sheets>\n        <sheet name=\"Attendees\" sheetId=\"1\" r:id=\"rId1\"/>\n    </sheets>\n</workbook>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Jj\u0011�L\u0002\u0000\u0000L\u0002\u0000\u0000\u000b\u0000\u0000\u0000_rels/.rels\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\n    <Relationship Id=\"rId2\" Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"docProps/core.xml\"/>\n    <Relationship Id=\"rId3\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties\" Target=\"docProps/app.xml\"/>\n    <Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"/>\n</Relationships>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Q&K�5\u0002\u0000\u00005\u0002\u0000\u0000\u0010\u0000\u0000\u0000docProps/app.xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<Properties xmlns=\"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties\" xmlns:vt=\"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes\">\n    <Application>SheetJS</Application>\n    <HeadingPairs>\n        <vt:vector size=\"2\" baseType=\"variant\">\n            <vt:variant>\n                <vt:lpstr>Worksheets</vt:lpstr>\n            </vt:variant>\n            <vt:variant>\n                <vt:i4>1</vt:i4>\n            </vt:variant>\n        </vt:vector>\n    </HeadingPairs>\n    <TitlesOfParts>\n        <vt:vector size=\"1\" baseType=\"lpstr\">\n            <vt:lpstr>Attendees</vt:lpstr>\n        </vt:vector>\n    </TitlesOfParts>\n</Properties>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000֒|\u0011Z\u0001\u0000\u0000Z\u0001\u0000\u0000\u0011\u0000\u0000\u0000docProps/core.xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<cp:coreProperties xmlns:cp=\"http://schemas.openxmlformats.org/package/2006/metadata/core-properties\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:dcmitype=\"http://purl.org/dc/dcmitype/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>PK\u0003\u0004\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000��j�\u0015\b\u0000\u0000\u0015\b\u0000\u0000\u0013\u0000\u0000\u0000[Content_Types].xml\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n    <Default Extension=\"xml\" ContentType=\"application/xml\"/>\n    <Default Extension=\"bin\" ContentType=\"application/vnd.ms-excel.sheet.binary.macroEnabled.main\"/>\n    <Default Extension=\"vml\" ContentType=\"application/vnd.openxmlformats-officedocument.vmlDrawing\"/>\n    <Default Extension=\"data\" ContentType=\"application/vnd.openxmlformats-officedocument.model+data\"/>\n    <Default Extension=\"bmp\" ContentType=\"image/bmp\"/>\n    <Default Extension=\"png\" ContentType=\"image/png\"/>\n    <Default Extension=\"gif\" ContentType=\"image/gif\"/>\n    <Default Extension=\"emf\" ContentType=\"image/x-emf\"/>\n    <Default Extension=\"wmf\" ContentType=\"image/x-wmf\"/>\n    <Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>\n    <Default Extension=\"jpeg\" ContentType=\"image/jpeg\"/>\n    <Default Extension=\"tif\" ContentType=\"image/tiff\"/>\n    <Default Extension=\"tiff\" ContentType=\"image/tiff\"/>\n    <Default Extension=\"pdf\" ContentType=\"application/pdf\"/>\n    <Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>\n    <Override PartName=\"/xl/workbook.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\"/>\n    <Override PartName=\"/xl/worksheets/sheet1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>\n    <Override PartName=\"/xl/theme/theme1.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.theme+xml\"/>\n    <Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>\n    <Override PartName=\"/docProps/core.xml\" ContentType=\"application/vnd.openxmlformats-package.core-properties+xml\"/>\n    <Override PartName=\"/docProps/app.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.extended-properties+xml\"/>\n    <Override PartName=\"/xl/metadata.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheetMetadata+xml\"/>\n</Types>PK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�\u0001���\u0002\u0000\u0000�\u0002\u0000\u0000\u001a\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000xl/_rels/workbook.xml.relsPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u00000\u000f�k�\u001d\u0000\u0000�\u001d\u0000\u0000\u0013\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�\u0002\u0000\u0000xl/theme/theme1.xmlPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000U�\u0004�Z\u0004\u0000\u0000Z\u0004\u0000\u0000\r\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000� \u0000\u0000xl/styles.xmlPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000��_\u0004F\b\u0000\u0000F\b\u0000\u0000\u0018\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�%\u0000\u0000xl/worksheets/sheet1.xmlPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000`�\u0000��\u0003\u0000\u0000�\u0003\u0000\u0000\u000f\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�-\u0000\u0000xl/metadata.xmlPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000v\u001a߭E\u0001\u0000\u0000E\u0001\u0000\u0000\u000f\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�1\u0000\u0000xl/workbook.xmlPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Jj\u0011�L\u0002\u0000\u0000L\u0002\u0000\u0000\u000b\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000$3\u0000\u0000_rels/.relsPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000Q&K�5\u0002\u0000\u00005\u0002\u0000\u0000\u0010\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�5\u0000\u0000docProps/app.xmlPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000֒|\u0011Z\u0001\u0000\u0000Z\u0001\u0000\u0000\u0011\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�7\u0000\u0000docProps/core.xmlPK\u0001\u0002\u0000\u0000\u0014\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000��j�\u0015\b\u0000\u0000\u0015\b\u0000\u0000\u0013\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000�9\u0000\u0000[Content_Types].xmlPK\u0005\u0006\u0000\u0000\u0000\u0000\n\u0000\n\u0000{\u0002\u0000\u0000�A\u0000\u0000\u0000\u0000"
+						}
+					]
+				},
+				{
+					"name": "sendMessage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"The event time has been changed to 4 PM. Please update your calendars!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/communications"
+					},
+					"response": [
+						{
+							"name": "sendMessage",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"content\": \"The event time has been changed to 4 PM. Please update your calendars!\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/communications"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4995"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:25:32 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750271534"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "556"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"22c-Fa11XS7kdbvFHC0VNSS0d6x/bEo\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"dba5b3a3-497b-43a8-9eb8-5f3133793b6e\",\n        \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"content\": \"The event time has been changed to 4 PM. Please update your calendars!\",\n        \"isNotification\": true,\n        \"scheduledNotificationTime\": \"2025-06-18T18:25:32.918Z\",\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T18:25:32.919Z\",\n        \"updatedAt\": \"2025-06-18T18:25:32.919Z\",\n        \"user\": {\n            \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n            \"name\": \"John Doe\",\n            \"email\": \"abc@gmail.com\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "getMessage",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/communications"
+					},
+					"response": [
+						{
+							"name": "getMessage",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/communications"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4994"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:26:42 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750271534"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJpYXQiOjE3NTAyNzEyMDIsImV4cCI6MTc1MDI3MjEwMn0.RAlLBi_1mCcUmJ0UbFfqvMTduq5T7CCsemI_7rQJLcc; Max-Age=900; Path=/; Expires=Wed, 18 Jun 2025 18:41:42 GMT; HttpOnly; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "585"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"249-b4K9+AF6OTkGfp8uUAYczgxiYII\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": [\n        {\n            \"id\": \"dba5b3a3-497b-43a8-9eb8-5f3133793b6e\",\n            \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n            \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n            \"content\": \"The event time has been changed to 4 PM. Please update your calendars!\",\n            \"isNotification\": true,\n            \"scheduledNotificationTime\": \"2025-06-18T18:25:32.918Z\",\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-06-18T18:25:32.919Z\",\n            \"updatedAt\": \"2025-06-18T18:25:32.919Z\",\n            \"user\": {\n                \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                \"fullName\": \"John Doe\",\n                \"primaryEmail\": \"abc@gmail.com\",\n                \"profileIcon\": 3\n            }\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "getAttendeeTicket",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees/ticket"
+					},
+					"response": [
+						{
+							"name": "getAttendeeTicket",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendees/ticket"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4993"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:28:42 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750271534"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "459"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1cb-+/hM1iqLiqxPOO+zDt6fF55L7eQ\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"9813b107-7090-402c-822f-fd52d9ee16c9\",\n        \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"registrationTime\": \"2025-06-18T18:17:13.077Z\",\n        \"hasAttended\": false,\n        \"checkInTime\": null,\n        \"feedback\": null,\n        \"qrToken\": \"+QO7oB\",\n        \"status\": \"GOING\",\n        \"allowedStatus\": true,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T18:17:13.077Z\",\n        \"updatedAt\": \"2025-06-18T18:17:13.077Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "scanTicket",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee/qr/+QO7oB"
+					},
+					"response": [
+						{
+							"name": "scanTicket",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee/qr/+QO7oB"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4991"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:31:12 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750271534"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "544"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"220-ajlRhRqXW5B7k+lOIkG9oq12BCw\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"9813b107-7090-402c-822f-fd52d9ee16c9\",\n        \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"registrationTime\": \"2025-06-18T18:17:13.077Z\",\n        \"hasAttended\": false,\n        \"checkInTime\": null,\n        \"feedback\": null,\n        \"qrToken\": \"+QO7oB\",\n        \"status\": \"GOING\",\n        \"allowedStatus\": true,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T18:17:13.077Z\",\n        \"updatedAt\": \"2025-06-18T18:17:13.077Z\",\n        \"user\": {\n            \"fullName\": \"John Doe\",\n            \"primaryEmail\": \"abc@gmail.com\",\n            \"contact\": \"1234567890\"\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "verifyQr",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee/9813b107-7090-402c-822f-fd52d9ee16c9/verify"
+					},
+					"response": [
+						{
+							"name": "verifyQr",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee/9813b107-7090-402c-822f-fd52d9ee16c9/verify"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4997"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:45:01 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750273151"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "92"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"5c-r1+Qm3yP1DVit6Xi3SUTSv57sBs\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"message\": \"Ticket is valid\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "updateAttendeeStatus",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"allowedStatus\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee/9813b107-7090-402c-822f-fd52d9ee16c9/status"
+					},
+					"response": [
+						{
+							"name": "updateAttendeeStatus",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"allowedStatus\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee/9813b107-7090-402c-822f-fd52d9ee16c9/status"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4998"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 18:48:12 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750273291"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "518"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"206-4iSesXuneB9Nho2QR7yYQ6wl/XA\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"Attendee allow status updated successfully\",\n    \"data\": {\n        \"id\": \"9813b107-7090-402c-822f-fd52d9ee16c9\",\n        \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"registrationTime\": \"2025-06-18T18:17:13.077Z\",\n        \"hasAttended\": true,\n        \"checkInTime\": \"2025-06-18T18:45:01.509Z\",\n        \"feedback\": null,\n        \"qrToken\": \"+QO7oB\",\n        \"status\": \"WAITING\",\n        \"allowedStatus\": false,\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T18:17:13.077Z\",\n        \"updatedAt\": \"2025-06-18T18:48:12.110Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "deleteAttendee",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee"
+					},
+					"response": [
+						{
+							"name": "deleteAttendee",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/event/9e080564-a1b1-43fc-a255-6c7e8522db95/attendee"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4993"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 19:18:13 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750274498"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "506"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1fa-H6VYGEykppxlP3T1pmo1nljJtlw\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"Attendee removed successfully\",\n    \"data\": {\n        \"id\": \"9813b107-7090-402c-822f-fd52d9ee16c9\",\n        \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n        \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"registrationTime\": \"2025-06-18T18:17:13.077Z\",\n        \"hasAttended\": true,\n        \"checkInTime\": \"2025-06-18T18:45:01.509Z\",\n        \"feedback\": null,\n        \"qrToken\": \"+QO7oB\",\n        \"status\": \"CANCELLED\",\n        \"allowedStatus\": false,\n        \"isDeleted\": true,\n        \"createdAt\": \"2025-06-18T18:17:13.077Z\",\n        \"updatedAt\": \"2025-06-18T19:18:13.901Z\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "cohost",
+			"item": [
+				{
+					"name": "getEventHost",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"url": "{{baseUrl}}/v1/cohosts/events/9e080564-a1b1-43fc-a255-6c7e8522db95"
+					},
+					"response": [
+						{
+							"name": "getEventHost",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"url": "{{baseUrl}}/v1/cohosts/events/9e080564-a1b1-43fc-a255-6c7e8522db95"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4997"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 19:10:27 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750274498"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1364"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"554-+f2rLls1UKASnqkI1Kf04r4w+l8\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": [\n        {\n            \"id\": \"5282dd49-547b-4e3b-b7bb-0bc06dbca96d\",\n            \"userId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n            \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n            \"role\": \"CREATOR\",\n            \"isDeleted\": false,\n            \"createdAt\": \"2025-06-18T17:25:08.512Z\",\n            \"updatedAt\": \"2025-06-18T17:25:08.512Z\",\n            \"user\": {\n                \"id\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                \"fullName\": \"John Doe\",\n                \"primaryEmail\": \"abc@gmail.com\",\n                \"contact\": \"1234567890\",\n                \"userName\": \"abc\",\n                \"profileIcon\": 3\n            },\n            \"event\": {\n                \"id\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n                \"creatorId\": \"18f04a8f-c552-4e07-bd16-25c29fff25f6\",\n                \"name\": \"React and React Native Developer Meetup\",\n                \"slug\": \"react-and-react-native-developer-meetup-mc2830uy\",\n                \"category\": \"Meetup\",\n                \"startTime\": \"2025-06-18T19:44:10.329Z\",\n                \"endTime\": \"2025-06-19T03:23:00.000Z\",\n                \"eventDate\": \"2025-06-19T00:00:00.000Z\",\n                \"description\": \"Monthly gathering of React developers in Mumbai to share knowledge, network, and learn about the latest trends in React development.\",\n                \"eventImageUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFi4_-9fNmkOc4nkBq6YLPG8higxuZsBuXGQ&s\",\n                \"venueType\": \"PHYSICAL\",\n                \"venueAddress\": \"WeWork BKC, Bandra Kurla Complex, Mumbai, Maharashtra 400051\",\n                \"venueUrl\": null,\n                \"hostPermissionRequired\": false,\n                \"capacity\": 100,\n                \"isActive\": true,\n                \"isDeleted\": false,\n                \"createdAt\": \"2025-06-18T17:25:08.507Z\",\n                \"updatedAt\": \"2025-06-18T18:44:58.198Z\"\n            }\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "addEventHost",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"brucewayne@batman.com\",\n    \"eventId\": \"7dcda215-2982-45c0-95cd-48edf7b49e64\",\n    \"role\": \"Manager\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{baseUrl}}/v1/cohosts/"
+					},
+					"response": [
+						{
+							"name": "addEventHost",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{accessToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"brucewayne@batman.com\",\n    \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n    \"role\": \"Manager\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{baseUrl}}/v1/cohosts/"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4995"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 19:13:57 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750274498"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "318"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"13e-pwoAmUbmzft7KOlrPFRclbgEg8g\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"success\",\n    \"data\": {\n        \"id\": \"6c673c6c-e1a5-4d71-86d9-8c39c80288f3\",\n        \"userId\": \"60a3a667-fd7f-4834-a251-012c22a1e33d\",\n        \"eventId\": \"9e080564-a1b1-43fc-a255-6c7e8522db95\",\n        \"role\": \"MANAGER\",\n        \"isDeleted\": false,\n        \"createdAt\": \"2025-06-18T19:13:57.708Z\",\n        \"updatedAt\": \"2025-06-18T19:13:57.708Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "removeEventCohost",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{baseUrl}}/v1/cohosts/events/9e080564-a1b1-43fc-a255-6c7e8522db95/6c673c6c-e1a5-4d71-86d9-8c39c80288f3"
+					},
+					"response": [
+						{
+							"name": "removeEventCohost",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{baseUrl}}/v1/cohosts/events/9e080564-a1b1-43fc-a255-6c7e8522db95/6c673c6c-e1a5-4d71-86d9-8c39c80288f3"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "X-RateLimit-Limit",
+									"value": "5000"
+								},
+								{
+									"key": "X-RateLimit-Remaining",
+									"value": "4994"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 18 Jun 2025 19:16:49 GMT"
+								},
+								{
+									"key": "X-RateLimit-Reset",
+									"value": "1750274498"
+								},
+								{
+									"key": "Set-Cookie",
+									"value": "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOGYwNGE4Zi1jNTUyLTRlMDctYmQxNi0yNWMyOWZmZjI1ZjYiLCJpYXQiOjE3NTAyNzQyMDksImV4cCI6MTc1MDI3NTEwOX0.tiaP9-I8CGqin8kFXwS_dHTqdw8Ik55VWg3KlGVFFXg; Max-Age=900; Path=/; Expires=Wed, 18 Jun 2025 19:31:49 GMT; HttpOnly; SameSite=Strict"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "87"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"57-c4Yn2lGsftLWgdSlXbzYnFS8DWE\""
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"statusCode\": \"10000\",\n    \"status\": 200,\n    \"message\": \"Cohost removed successfully\",\n    \"data\": true\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}
