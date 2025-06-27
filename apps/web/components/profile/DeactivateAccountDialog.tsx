@@ -67,7 +67,6 @@ export function DeactivateAccountDialog({ userId }: DeactivateAccountDialogProps
             {isPending ? (
               <>
                 <LoaderCircle className="animate-spin" />
-                Deactivating...
               </>
             ) : (
               'Deactivate'

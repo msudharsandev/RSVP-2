@@ -119,7 +119,6 @@ const ProfileForm = ({ user }: Props) => {
           <Button type="submit" radius="sm" disabled={!form.formState.isDirty || isPending}>
             {isPending ? (
               <>
-                Saving
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               </>
             ) : (
