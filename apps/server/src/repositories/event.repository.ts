@@ -1,7 +1,7 @@
 import { ICreateEvent } from '@/interface/event';
 import { Paginator } from '@/utils/pagination';
 import { EventFilter } from '@/validations/event.validation';
-import { Event, Prisma } from '@prisma/client';
+import { Event, Prisma, Status } from '@prisma/client';
 import { prisma } from '@/utils/connection';
 
 /**
@@ -218,27 +218,35 @@ export class EventRepository {
    */
   static async findAllPopularEvents(take: number) {
     const currentDateTime = new Date();
-
+  
+    const popularEventGroups = await prisma.attendee.groupBy({
+      by: ['eventId'],
+      where: {
+        isDeleted: false,
+        status: Status.GOING,
+        event: {
+          isActive: true,
+          isDeleted: false,
+          hostPermissionRequired: false,
+          OR: [{ startTime: { gte: currentDateTime } }, { startTime: { lt: currentDateTime }, endTime: { gt: currentDateTime } }],
+        },
+      },
+      _count: { id: true },
+      having: {
+        id: { _count: { gte: 10 } },
+      },
+      orderBy: {
+        _count: { id: 'desc' },
+      },
+    });
+  
+    const popularEventIds = popularEventGroups.map(g => g.eventId);
+  
+    if (popularEventIds.length === 0) return [];
+  
     const events = await prisma.event.findMany({
       where: {
-        OR: [
-          {
-            startTime: {
-              gte: currentDateTime,
-            },
-          },
-          {
-            startTime: {
-              lt: currentDateTime,
-            },
-            endTime: {
-              gt: currentDateTime,
-            },
-          },
-        ],
-        isActive: true,
-        isDeleted: false,
-        hostPermissionRequired: false,
+        id: { in: popularEventIds }
       },
       include: {
         creator: {
@@ -248,18 +256,17 @@ export class EventRepository {
             userName: true,
           },
         },
-        attendees: true,
       },
-      orderBy: {
-        attendees: {
-          _count: 'desc',
-        },
-      },
-      take,
+      take: take,
     });
-    return events;
+  
+    // Step 3: Preserve the popularity order
+    const eventMap = new Map(events.map(e => [e.id, e]));
+    return popularEventIds
+      .map(id => eventMap.get(id))
+      .filter((e): e is typeof events[0] => e !== undefined);
   }
-
+  
   /**
    * Creates a new event.
    * @param eventDetails - The details of the event to create.
