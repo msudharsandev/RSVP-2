@@ -5,17 +5,14 @@ on:
   pull_request:
     types: [opened, ready_for_review, synchronize]
     branches:
-      - main
-
-permissions:
-  contents: read
+      - stage
+      - prod
 
 jobs:
   standards:
-    name: Check coding standards
-    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 3
+    environment: ${{ github.base_ref == 'stage' && 'STAGE' || 'PROD' }}
     permissions:
       issues: read
       pull-requests: write
