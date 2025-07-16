@@ -61,17 +61,22 @@ const ChangelogCard = ({ changelog }: Props) => {
           <span className="relative -top-2 mb-4 block whitespace-nowrap sm:hidden">
             {dayjs(changelog.releaseDate).format('MMM D, YYYY')}
           </span>
-          <Image
-            src={changelog.bannerImageUrl}
-            alt={`version-${changelog.version}`}
-            className="h-auto w-full overflow-hidden rounded-sm"
-            placeholder="blur"
-            loading="eager"
-            blurDataURL="/images/version/release-blur.svg"
-            priority={true}
-            width={800}
-            height={500}
-          />
+          <figure className="relative">
+            <p className="absolute left-4 top-4 font-bold  text-lg md:text-xl xl:text-2xl text-white">
+              Version {changelog.version}
+            </p>
+            <Image
+              src={changelog.bannerImageUrl}
+              alt={`version-${changelog.version}`}
+              className="h-auto w-full overflow-hidden rounded-sm"
+              placeholder="blur"
+              loading="eager"
+              blurDataURL="/images/version/release-blur.svg"
+              priority={true}
+              width={800}
+              height={500}
+            />
+          </figure>
           <div className="mt-8">
             <h2 className="mb-4 text-[1.75rem] font-semibold text-white"> Contributors </h2>
             <ul className="flex items-end gap-2 flex-wrap">

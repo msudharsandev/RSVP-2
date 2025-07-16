@@ -3,8 +3,8 @@ import Changelog from '@/types/changelog';
 export const changelogs: Changelog[] = [
   {
     releaseDate: new Date('2025-03-01'),
-    bannerImageUrl: '/images/version/version-0.21-dev.png',
-    version: '1.0',
+    bannerImageUrl: '/images/version/changelog.png',
+    version: '0.10',
     contributors: [
       '0xatulpatil',
       'DeltaDynamo',
