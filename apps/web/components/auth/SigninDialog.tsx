@@ -78,6 +78,7 @@ const SigninDialog: React.FC<SigninDialogProps> = ({ children, variant }) => {
   }, [isEmailSent]);
 
   async function onSubmit(values: SignInFormType) {
+    window.localStorage.setItem('redirect', window.location.pathname);
     mutate(values, {
       onSuccess: () => {
         setIsEmailSent(true);

@@ -33,10 +33,16 @@ export const useVerifySignin = () => {
   return useMutation<AxiosResponse<VerifySignInResponse>, Error, VerifySigninPayload>({
     mutationFn: authAPI.verifySignin,
     onSuccess: ({ data }) => {
-      if (data.data.user.isCompleted) {
-        router.push('/events');
+      const redirectUrl = window.localStorage.getItem('redirect');
+
+      if (redirectUrl) {
+        router.push(redirectUrl);
       } else {
-        router.push('/profile');
+        if (data.data.user.isCompleted) {
+          router.push('/events');
+        } else {
+          router.push('/profile');
+        }
       }
     },
     onError: ({ message }) => {
