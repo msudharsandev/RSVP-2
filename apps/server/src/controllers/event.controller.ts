@@ -13,6 +13,7 @@ import {
 } from '@/utils/apiError';
 import { SuccessResponse } from '@/utils/apiResponse';
 import catchAsync from '@/utils/catchAsync';
+import { prisma } from '@/utils/connection';
 import { controller } from '@/utils/controller';
 import { sluggify } from '@/utils/function';
 import logger from '@/utils/logger';
@@ -38,7 +39,7 @@ import {
   updateEventSlugSchema,
   verifyQrSchema,
 } from '@/validations/event.validation';
-import { Attendee, Prisma, Status, VenueType } from '@prisma/client';
+import { Attendee, AttendeeStatus, Prisma, VenueType } from '@prisma/client';
 import { createHash, randomUUID } from 'crypto';
 import * as XLSX from 'xlsx';
 
@@ -56,7 +57,10 @@ export const getEventBySlugController = controller(eventSlugSchema, async (req, 
   if (!event) throw new NotFoundError('Event not found');
   const totalAttendees = await AttendeeRepository.countAttendees(event.id);
 
-  return new SuccessResponse('success', { event, totalAttendees }).send(res);
+  return new SuccessResponse('success', {
+    event: { ...event, cohosts: event.hosts },
+    totalAttendees,
+  }).send(res);
 });
 
 /**
@@ -73,7 +77,15 @@ export const getEventByIdController = controller(getEventByIdSchema, async (req,
   if (!event) throw new NotFoundError('Event not found');
   const totalAttendees = await AttendeeRepository.countAttendees(event.id);
 
-  return new SuccessResponse('success', { event, totalAttendees }).send(res);
+  let category;
+  if (event.categoryId) {
+    category = await prisma.category.findFirst({ where: { id: event.categoryId } });
+  }
+
+  return new SuccessResponse('success', {
+    event: { ...event, cohosts: event.hosts, category: category?.name },
+    totalAttendees,
+  }).send(res);
 });
 
 /**
@@ -157,7 +169,7 @@ export const getUserUpcomingEventController = controller(
  * @returns The newly created event object.
  */
 export const createEventController = controller(CreateEventSchema, async (req, res) => {
-  const { richtextDescription, plaintextDescription, ...data } = req.body;
+  const { richtextDescription, plaintextDescription, category, ...data } = req.body;
   const userId = req.userId;
   if (!userId) throw new TokenExpiredError();
 
@@ -170,8 +182,18 @@ export const createEventController = controller(CreateEventSchema, async (req, r
     throw new BadRequestError('Description cannot be greater than 300 characters.');
 
   logger.info('Formatting data for create event in createEventController ...');
+
+  // Find `category` in the `categories` table.
+  let categoryData = await prisma.category.findFirst({ where: { name: category } });
+
+  // If not exists - create a new record.
+  if (!categoryData) {
+    categoryData = await prisma.category.create({ data: { name: category } });
+  }
+
   const formattedData = {
     ...data,
+    categoryId: categoryData.id,
     description: richtextDescription,
     creatorId: userId,
     slug: sluggify(data.name),
@@ -196,12 +218,20 @@ export const createEventController = controller(CreateEventSchema, async (req, r
  */
 export const updateEventController = controller(UpdateEventSchema, async (req, res) => {
   const { eventId } = req.params;
-  const { richtextDescription, plaintextDescription, ...data } = req.body;
+  const { richtextDescription, plaintextDescription, category, ...data } = req.body;
 
   if (!data.venueType) throw new BadRequestError('Venue type cannot be updated');
 
   if (plaintextDescription && plaintextDescription.length > 300)
     throw new BadRequestError('Description cannot be greater than 300 characters.');
+
+  // Find `category` in the `categories` table.
+  let categoryData = await prisma.category.findFirst({ where: { name: category } });
+
+  // If not exists - create a new record.
+  if (!categoryData && category) {
+    categoryData = await prisma.category.create({ data: { name: category } });
+  }
 
   logger.info('Updating event in updateEventController ...');
   const event = await EventRepository.findById(eventId);
@@ -210,14 +240,15 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
   if (event?.hostPermissionRequired == true && data.hostPermissionRequired == false) {
     const where: Prisma.AttendeeWhereInput = {
       eventId,
-      status: Status.WAITING,
+      status: AttendeeStatus.WAITING,
       isDeleted: false,
     };
-    await AttendeeRepository.updateMultipleAttendeesStatus(where, Status.GOING);
+    await AttendeeRepository.updateMultipleAttendeesStatus(where, AttendeeStatus.GOING);
   }
 
   const updatedEvent = await EventRepository.update(eventId, {
     ...data,
+    categoryId: categoryData?.id,
     description: richtextDescription,
     venueType: data.venueType.toUpperCase() as VenueType,
   });
@@ -349,6 +380,7 @@ export const createAttendeeController = controller(attendeePayloadSchema, async 
   const { eventId } = req.params;
 
   logger.info('Finding event by id in createAttendeeController ...');
+
   const event = await EventRepository.findById(eventId);
   if (!event) throw new NotFoundError('Event not found');
   if (!event.isActive) throw new BadRequestError('Event is not active');
@@ -358,28 +390,30 @@ export const createAttendeeController = controller(attendeePayloadSchema, async 
 
   if (event.capacity) {
     const currentAttendeeCount = await AttendeeRepository.countAttendees(eventId);
-    if (currentAttendeeCount >= event.capacity) {
+
+    // -1 is depicted to be a capacity of infinite
+    if (currentAttendeeCount != -1 && currentAttendeeCount >= event.capacity) {
       throw new BadRequestError('Event is at full capacity. No seats available.');
     }
   }
 
   if (!event.hostPermissionRequired) {
-    attendeeStatus = { allowedStatus: true, status: Status.GOING };
+    attendeeStatus = { allowedStatus: true, status: AttendeeStatus.GOING };
   } else {
-    attendeeStatus = { allowedStatus: false, status: Status.WAITING };
+    attendeeStatus = { allowedStatus: false, status: AttendeeStatus.WAITING };
   }
 
   const existingAttendee = await AttendeeRepository.findByUserIdAndEventId(userId, eventId, null);
   if (existingAttendee) {
     const isUserTicketCancelled =
-      existingAttendee.isDeleted && existingAttendee.status === Status.CANCELLED;
+      existingAttendee.isDeleted && existingAttendee.status === AttendeeStatus.CANCELLED;
     if (isUserTicketCancelled) {
       const restoredAttendee = await AttendeeRepository.restore(
         existingAttendee.id,
-        event.hostPermissionRequired ? Status.WAITING : Status.GOING,
+        event.hostPermissionRequired ? AttendeeStatus.WAITING : AttendeeStatus.GOING,
         event.hostPermissionRequired ? false : true
       );
-      attendeeStatus = { isDeleted: false, status: Status.GOING };
+      attendeeStatus = { isDeleted: false, status: AttendeeStatus.GOING };
       return new SuccessResponse('Attendee restored successfully', restoredAttendee).send(res);
     }
     throw new BadRequestError('User already registered for this event');

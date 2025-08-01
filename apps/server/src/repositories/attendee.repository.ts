@@ -1,5 +1,5 @@
 import { Paginator } from '@/utils/pagination';
-import { Attendee, Prisma, Status } from '@prisma/client';
+import { AttendeeStatus, Prisma } from '@prisma/client';
 import { prisma } from '@/utils/connection';
 import { IRegisteredEvent, IAttendeesByEvent } from '@/interface/attendees';
 
@@ -205,7 +205,7 @@ export class AttendeeRepository {
       ...(status &&
         status.length > 0 && {
           status: {
-            in: status.map((s) => s as Status),
+            in: status.map((s) => s as AttendeeStatus),
           },
         }),
     };
@@ -304,7 +304,7 @@ export class AttendeeRepository {
       },
       data: {
         allowedStatus,
-        status: allowedStatus ? Status.GOING : Status.WAITING,
+        status: allowedStatus ? AttendeeStatus.GOING : AttendeeStatus.WAITING,
       },
     });
   }
@@ -335,7 +335,7 @@ export class AttendeeRepository {
     return await prisma.attendee.update({
       where: { id, isDeleted: false },
       data: {
-        status: Status.CANCELLED,
+        status: AttendeeStatus.CANCELLED,
         isDeleted: true,
         allowedStatus: false,
       },
@@ -347,9 +347,9 @@ export class AttendeeRepository {
    * @param id - The unique ID of the attendee.
    * @returns The updated attendee object with `isDeleted` set to false.
    */
-  static async restore(id: string, status: Status, allowedStatus: boolean) {
+  static async restore(id: string, status: AttendeeStatus, allowedStatus: boolean) {
     return await prisma.attendee.update({
-      where: { id, isDeleted: true, status: Status.CANCELLED },
+      where: { id, isDeleted: true, status: AttendeeStatus.CANCELLED },
       data: {
         status: status,
         isDeleted: false,

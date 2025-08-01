@@ -72,19 +72,16 @@ const CreateEventForm = () => {
       capacity,
       startTime: combineDateAndTime(fromDate, fromTime),
       endTime: combineDateAndTime(toDate, toTime),
-      eventDate: new Date(
-        Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())
-      ),
     };
 
     if (data.eventImageUrl.file && data.eventImageUrl.signedUrl) {
       setIsLoading(true);
-      const imageFile = await fileFromUrl(data.eventImageUrl.file, 'event-image');
-      await axios.put(data.eventImageUrl.signedUrl, imageFile, {
-        headers: {
-          'Content-Type': imageFile.type,
-        },
-      });
+      // const imageFile = await fileFromUrl(data.eventImageUrl.file, 'event-image');
+      // await axios.put(data.eventImageUrl.signedUrl, imageFile, {
+      //   headers: {
+      //     'Content-Type': imageFile.type,
+      //   },
+      // });
       mutate(submissionData);
       setIsLoading(false);
     }

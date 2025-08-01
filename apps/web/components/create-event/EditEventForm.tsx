@@ -9,8 +9,7 @@ import { combineDateAndTime } from '@/utils/time';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { useParams } from 'next/navigation';
-import { Separator } from '../ui/separator';
-import EventForm from './EventForm';
+import { useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +19,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog';
-import { useState } from 'react';
+import { Separator } from '../ui/separator';
+import EventForm from './EventForm';
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
 allowedDate.setDate(allowedDate.getDate() + 1);
@@ -79,9 +79,6 @@ const EditEventForm = () => {
       capacity,
       startTime: combineDateAndTime(fromDate, fromTime),
       endTime: combineDateAndTime(toDate, toTime),
-      eventDate: new Date(
-        Date.UTC(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate())
-      ),
     };
 
     // Upload image if it's a new image

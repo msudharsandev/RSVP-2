@@ -7,7 +7,7 @@ const secondaryEmailSchema = z
 
 const contactNumberSchema = z.object({ contact: z.string() }).strict();
 
-const fullProfileSchema = z
+export const fullProfileSchema = z
   .object({
     fullName: z.string().min(1),
     location: z.string(),

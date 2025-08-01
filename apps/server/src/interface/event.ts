@@ -16,10 +16,9 @@ export interface ICreateEvent {
   creatorId: string;
   name: string;
   slug: string;
-  category?: string;
+  categoryId?: string;
   startTime: Date;
   endTime: Date;
-  eventDate: Date;
   description?: string;
   eventImageUrl?: string;
   venueType: VenueType;

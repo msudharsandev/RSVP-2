@@ -15,7 +15,7 @@ import {
   eventParamsSchema,
   removeCohostSchema,
 } from '@/validations/cohost.validation';
-import { Role } from '@prisma/client';
+import { HostRole } from '@prisma/client';
 import { API_MESSAGES } from '../constants/apiMessages';
 /**
  * Retrieves all hosts and cohosts for a specific event.
@@ -49,7 +49,7 @@ export const addEventHostController = controller(addCohostSchema, async (req, re
   const event = await EventRepository.findById(eventId);
   if (!event) throw new NotFoundError(API_MESSAGES.EVENT.NOT_FOUND);
 
-  const isUserMod = await CohostRepository.FindhostOrCohost(userId, eventId, [Role.MANAGER]);
+  const isUserMod = await CohostRepository.FindhostOrCohost(userId, eventId, [HostRole.MANAGER]);
   if (userId !== event.creatorId && !isUserMod)
     throw new ForbiddenError(
       API_MESSAGES.COHOST.ADD.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED
@@ -66,7 +66,7 @@ export const addEventHostController = controller(addCohostSchema, async (req, re
   const host = await CohostRepository.create({
     eventId,
     userId: user.id,
-    role: role.toUpperCase() as Role,
+    role: role.toUpperCase() as HostRole,
   });
 
   return new SuccessResponse('success', host).send(res);
@@ -86,16 +86,16 @@ export const removeEventCohostController = controller(removeCohostSchema, async 
   const cohostRole = await CohostRepository.FindhostOrCohost(
     cohostId,
     eventId,
-    [Role.MANAGER, Role.CREATOR],
+    [HostRole.MANAGER, HostRole.CREATOR],
     true
   );
 
-  if (cohostRole === Role.CREATOR)
+  if (cohostRole === HostRole.CREATOR)
     throw new BadRequestError(API_MESSAGES.COHOST.REMOVE.CANNOT_REMOVE_CREATOR);
 
   if (userId === cohostId) throw new BadRequestError(API_MESSAGES.COHOST.REMOVE.CANNOT_REMOVE_SELF);
 
-  if (cohostRole === Role.MANAGER && userRole === Role.MANAGER)
+  if (cohostRole === HostRole.MANAGER && userRole === HostRole.MANAGER)
     throw new BadRequestError(
       API_MESSAGES.COHOST.REMOVE.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED
     );

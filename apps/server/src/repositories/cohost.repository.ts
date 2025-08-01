@@ -1,5 +1,5 @@
 import { prisma } from '@/utils/connection';
-import { Cohost, Role, Prisma } from '@prisma/client';
+import { Host, HostRole, Prisma } from '@prisma/client';
 
 /**
  * CohostRepository class provides methods to interact with the Cohosts table in the database.
@@ -11,8 +11,8 @@ export class CohostRepository {
    * @param id - The unique ID of the cohost.
    * @returns The cohost object if found, otherwise null.
    */
-  static async findById(id: string): Promise<Cohost | null> {
-    return await prisma.cohost.findFirst({
+  static async findById(id: string): Promise<Host | null> {
+    return await prisma.host.findFirst({
       where: { id, isDeleted: false },
     });
   }
@@ -23,8 +23,8 @@ export class CohostRepository {
    * @param eventId - The unique ID of the event.
    * @returns The cohost object if found, otherwise null.
    */
-  static async findByUserIdAndEventId(userId: string, eventId: string): Promise<Cohost | null> {
-    return await prisma.cohost.findFirst({
+  static async findByUserIdAndEventId(userId: string, eventId: string): Promise<Host | null> {
+    return await prisma.host.findFirst({
       where: {
         userId,
         eventId,
@@ -39,7 +39,7 @@ export class CohostRepository {
    * @returns An array of cohosts for the event, including their roles and user details.
    */
   static async findAllByEventId(eventId: string) {
-    return await prisma.cohost.findMany({
+    return await prisma.host.findMany({
       where: { eventId, isDeleted: false },
       include: {
         user: {
@@ -62,8 +62,8 @@ export class CohostRepository {
    * @param data - The data for the new cohost.
    * @returns The newly created cohost object.
    */
-  static async create(data: Prisma.CohostCreateManyInput): Promise<Cohost> {
-    return await prisma.cohost.create({
+  static async create(data: Prisma.HostCreateManyInput): Promise<Host> {
+    return await prisma.host.create({
       data,
     });
   }
@@ -74,8 +74,8 @@ export class CohostRepository {
    * @param data - The data to update.
    * @returns The updated cohost object.
    */
-  static async update(id: string, data: Prisma.CohostUpdateInput): Promise<Cohost> {
-    return await prisma.cohost.update({
+  static async update(id: string, data: Prisma.HostUpdateInput): Promise<Host> {
+    return await prisma.host.update({
       where: { id, isDeleted: false },
       data,
     });
@@ -88,7 +88,7 @@ export class CohostRepository {
    * @returns A boolean indicating whether the cohost was successfully removed.
    */
   static async removeCoHost(cohostId: string, eventId: string): Promise<boolean> {
-    const removedCohost = await prisma.cohost.updateMany({
+    const removedCohost = await prisma.host.updateMany({
       where: {
         id: cohostId,
         eventId,
@@ -97,7 +97,7 @@ export class CohostRepository {
       data: { isDeleted: true },
     });
 
-    return !!removedCohost;
+    return removedCohost.count > 0;
   }
 
   /**
@@ -105,8 +105,8 @@ export class CohostRepository {
    * @param id - The unique ID of the cohost.
    * @returns The updated cohost object with `isDeleted` set to true.
    */
-  static async delete(id: string): Promise<Cohost> {
-    return await prisma.cohost.update({
+  static async delete(id: string): Promise<Host> {
+    return await prisma.host.update({
       where: { id, isDeleted: false },
       data: { isDeleted: true },
     });
@@ -122,10 +122,15 @@ export class CohostRepository {
   static async FindhostOrCohost(
     userId: string,
     eventId: string,
-    roles: Role[] = [Role.CREATOR, Role.MANAGER, Role.CELEBRITY, Role.READ_ONLY],
+    roles: HostRole[] = [
+      HostRole.CREATOR,
+      HostRole.MANAGER,
+      HostRole.CELEBRITY,
+      HostRole.READ_ONLY,
+    ],
     returnType: boolean = false
-  ): Promise<Role | boolean> {
-    const cohost = await prisma.cohost.findFirst({
+  ): Promise<HostRole | boolean> {
+    const cohost = await prisma.host.findFirst({
       where: {
         userId,
         eventId,

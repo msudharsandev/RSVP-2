@@ -124,5 +124,4 @@ export type CreateEventSubmissionType = {
   capacity: number;
   startTime: Date;
   endTime: Date;
-  eventDate: Date;
 };

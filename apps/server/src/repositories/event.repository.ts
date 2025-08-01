@@ -1,7 +1,7 @@
 import { ICreateEvent } from '@/interface/event';
 import { Paginator } from '@/utils/pagination';
 import { EventFilter } from '@/validations/event.validation';
-import { Event, Prisma, Status } from '@prisma/client';
+import { Event, Prisma, AttendeeStatus } from '@prisma/client';
 import { prisma } from '@/utils/connection';
 
 /**
@@ -17,7 +17,7 @@ export class EventRepository {
   static async findEvents({
     page,
     limit,
-    category,
+    categoryId, // renamed from 'category'
     location,
     startDate,
     endDate,
@@ -37,9 +37,10 @@ export class EventRepository {
 
     const where: Prisma.EventWhereInput = {
       ...(location && { location: location }),
-      ...(category && { category: category }),
+      ...(categoryId && { categoryId: categoryId }),
       isDeleted: false,
       isActive: true,
+      discoverable: true,
       endTime: { gte: currentDateTime },
     };
 
@@ -53,7 +54,8 @@ export class EventRepository {
       where.OR = [
         { name: { contains: search } },
         { description: { contains: search } },
-        { category: { contains: search } },
+        // search by category name via relation
+        { category: { name: { contains: search } } },
       ];
     }
 
@@ -72,6 +74,13 @@ export class EventRepository {
           attendees: {
             where: {
               isDeleted: false,
+            },
+          },
+          category: {
+            // include category relation to get name
+            select: {
+              id: true,
+              name: true,
             },
           },
         },
@@ -96,7 +105,7 @@ export class EventRepository {
             userName: true,
           },
         },
-        cohosts: {
+        hosts: {
           where: {
             isDeleted: false,
           },
@@ -156,7 +165,8 @@ export class EventRepository {
       where.OR = [
         { name: { contains: search } },
         { description: { contains: search } },
-        { category: { contains: search } },
+        // search by category name via relation
+        { category: { name: { contains: search } } },
       ];
     }
 
@@ -169,6 +179,12 @@ export class EventRepository {
           attendees: {
             where: {
               isDeleted: false,
+            },
+          },
+          category: {
+            select: {
+              id: true,
+              name: true,
             },
           },
         },
@@ -193,7 +209,7 @@ export class EventRepository {
             userName: true,
           },
         },
-        cohosts: {
+        hosts: {
           where: { isDeleted: false },
           select: {
             role: true,
@@ -223,11 +239,12 @@ export class EventRepository {
       by: ['eventId'],
       where: {
         isDeleted: false,
-        status: Status.GOING,
+        status: AttendeeStatus.GOING,
         event: {
           isActive: true,
           isDeleted: false,
           hostPermissionRequired: false,
+          discoverable: true,
           OR: [
             { startTime: { gte: currentDateTime } },
             { startTime: { lt: currentDateTime }, endTime: { gt: currentDateTime } },

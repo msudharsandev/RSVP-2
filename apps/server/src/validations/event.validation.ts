@@ -1,8 +1,8 @@
+import { AttendeeStatus, VenueType } from '@prisma/client';
 import z from 'zod';
-import { paginationParamsSchema } from './pagination.validation';
-import { Status, VenueType } from '@prisma/client';
 import { editSlugSchema } from './attendee.validation';
 import { uuidSchema } from './common';
+import { paginationParamsSchema } from './pagination.validation';
 
 export enum PAGINATION_ORDER {
   ASC = 'asc',
@@ -47,7 +47,6 @@ export const EventSchema = z.object({
   capacity: z.number().int().positive(),
   startTime: z.coerce.date(),
   endTime: z.coerce.date(),
-  eventDate: z.coerce.date(),
 });
 
 export const CreateEventSchema = z.object({
@@ -82,12 +81,12 @@ export const CreateEventSchema = z.object({
         const currentDateTime = new Date();
 
         const currentDateStr = currentDateTime.toISOString().split('T')[0] ?? '';
-        const eventDateStr = data.eventDate.toISOString().split('T')[0] ?? '';
+        const eventDateStr = data.startTime.toISOString().split('T')[0] ?? '';
 
         const startTime = new Date(data.startTime);
         const endTime = new Date(data.endTime);
 
-        const eventStartDateTime = new Date(data.eventDate);
+        const eventStartDateTime = new Date(data.startTime);
         eventStartDateTime.setUTCHours(
           startTime.getUTCHours(),
           startTime.getUTCMinutes(),
@@ -116,7 +115,7 @@ export const CreateEventSchema = z.object({
 
 export const UpdateEventSchema = z.object({
   body: EventSchema.omit({ description: true }).partial().extend({
-    richtextDescription: z.string(),
+    richtextDescription: z.string().optional(),
     plaintextDescription: z.string().optional(),
   }),
   params: z.object({ eventId: uuidSchema }),
@@ -188,12 +187,12 @@ export const attendeesQuerySchema = z.object({
         .refine(
           (statuses) => {
             if (!statuses) return true;
-            const validStatusValues = Object.values(Status);
-            return statuses.every((status) => validStatusValues.includes(status as Status));
+            const validStatusValues = Object.values(AttendeeStatus);
+            return statuses.every((status) => validStatusValues.includes(status as AttendeeStatus));
           },
           {
             message: `One or more status values are invalid. Valid statuses are: ${Object.values(
-              Status
+              AttendeeStatus
             ).join(', ')}`,
           }
         ),
@@ -212,7 +211,7 @@ export const eventFilterSchema = z.object({
   query: z.object({
     page: z.coerce.number().positive().default(1),
     limit: z.coerce.number().positive().default(10),
-    category: z.string().optional(),
+    categoryId: z.string().optional(),
     location: z.string().optional(),
     startDate: z.coerce.date().optional(),
     endDate: z.coerce.date().optional(),

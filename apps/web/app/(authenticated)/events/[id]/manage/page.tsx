@@ -28,6 +28,7 @@ const ManageEventPage = () => {
 
   const isCohost = isCurrentUserCohost(userData, data?.event.cohosts);
 
+  console.log(data?.event.cohosts);
   const handleTabChange = (value: string) => {
     queryParams.set('tab', value);
   };
@@ -42,6 +43,8 @@ const ManageEventPage = () => {
     );
 
   const { event } = data;
+
+  console.log(isCohost);
 
   return (
     <Container className="min-h-screen space-y-8 py-8">

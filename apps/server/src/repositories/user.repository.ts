@@ -14,8 +14,11 @@ export class UserRepository {
    * @returns The user object if found, otherwise null.
    */
   static async findById(id: string) {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id, isDeleted: false },
+      include: {
+        socialLinks: true,
+      },
     });
     return user;
   }
@@ -26,8 +29,11 @@ export class UserRepository {
    * @returns The user object if found, otherwise null.
    */
   static async findByUserName(userName: string) {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { userName, isDeleted: false },
+      include: {
+        socialLinks: true,
+      },
     });
     return user;
   }
@@ -39,7 +45,7 @@ export class UserRepository {
    * @returns The user object if found, otherwise null.
    */
   static async findbyEmail(primaryEmail: string, isDeleted: boolean | null = false) {
-    const user = await prisma.users.findFirst({
+    const user = await prisma.user.findFirst({
       where: {
         primaryEmail,
         isDeleted: isDeleted !== null ? isDeleted : undefined,
@@ -54,7 +60,7 @@ export class UserRepository {
    * @returns An array of user objects.
    */
   static async findAllByIds(ids: string[]) {
-    const users = await prisma.users.findMany({
+    const users = await prisma.user.findMany({
       where: { id: { in: ids }, isDeleted: false },
     });
     return users;
@@ -67,7 +73,7 @@ export class UserRepository {
    */
   static async create(primaryEmail: string) {
     const userName = generateUsernameByEmail(primaryEmail);
-    const newUser = await prisma.users.create({
+    const newUser = await prisma.user.create({
       data: {
         primaryEmail,
         userName,
@@ -103,8 +109,22 @@ export class UserRepository {
     const tokenId = randomUUID();
     const token = generateAccessToken({ userId, tokenId });
 
-    await prisma.users.update({
-      where: { id: userId, isDeleted: false },
+    let auth = await prisma.auth.findFirst({
+      where: { userId, provider: 'MAGIC_LINK' },
+    });
+
+    if (!auth) {
+      auth = await prisma.auth.create({
+        data: {
+          userId,
+          magicToken: tokenId,
+          provider: 'MAGIC_LINK',
+        },
+      });
+    }
+
+    await prisma.auth.update({
+      where: { id: auth.id },
       data: { magicToken: tokenId },
     });
 
@@ -117,17 +137,26 @@ export class UserRepository {
    * @returns The user object if the token is valid, otherwise null.
    */
   static async verifyToken(userId: string, tokenId: string) {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user.findUnique({
       where: { id: userId },
     });
 
     if (!user) return null;
     if (user.isDeleted) return null;
 
-    if (user.magicToken !== tokenId) return null;
+    const auth = await prisma.auth.findFirst({
+      where: {
+        userId: userId,
+        provider: 'MAGIC_LINK',
+      },
+    });
 
-    await prisma.users.update({
-      where: { id: userId, isDeleted: false },
+    if (!auth) return null;
+
+    if (auth.magicToken !== tokenId) return null;
+
+    await prisma.auth.update({
+      where: { id: auth.id },
       data: { magicToken: null },
     });
     return user;
@@ -140,7 +169,7 @@ export class UserRepository {
    * @returns The updated user object.
    */
   static async updateProfile(id: string, data: any) {
-    return await prisma.users.update({
+    return await prisma.user.update({
       where: { id, isDeleted: false },
       data: data,
     });
@@ -152,8 +181,14 @@ export class UserRepository {
    * @param refreshToken - The new refresh token, or null to clear it.
    */
   static async updateRefreshToken(userId: string, refreshToken: string | null): Promise<void> {
-    await prisma.users.update({
-      where: { id: userId, isDeleted: false },
+    const auth = await prisma.auth.findFirst({
+      where: { userId, provider: 'MAGIC_LINK' }, // `provider` is needed to by taken as param but it will be updated later.
+    });
+
+    if (!auth) return;
+
+    await prisma.auth.update({
+      where: { id: auth.id },
       data: { refreshToken },
     });
   }
@@ -176,22 +211,25 @@ export class UserRepository {
         data: { isDeleted: true, status: 'CANCELLED', allowedStatus: false },
       });
 
-      await tx.cohost.updateMany({
+      await tx.host.updateMany({
         where: { userId, isDeleted: false },
         data: { isDeleted: true },
       });
 
-      await tx.update.updateMany({
+      await tx.chat.updateMany({
         where: { userId, isDeleted: false },
         data: { isDeleted: true },
       });
 
-      const deletedUser = await tx.users.update({
+      await tx.auth.updateMany({
+        where: { userId },
+        data: { magicToken: null, refreshToken: null },
+      });
+
+      const deletedUser = await tx.user.update({
         where: { id: userId },
         data: {
           isDeleted: true,
-          magicToken: null,
-          refreshToken: null,
         },
       });
 

@@ -27,6 +27,7 @@ const CheckCohostLayout = ({ children }: { children: React.ReactNode }) => {
   const { event } = data;
   const isCoHost = event.checkCohostByUserName(userData?.userName);
 
+  console.log("is Cohost Layout",isCoHost);
   if (!isCoHost) return notFound();
 
   return <>{children}</>;

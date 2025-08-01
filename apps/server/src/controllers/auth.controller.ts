@@ -219,7 +219,15 @@ export const getMyDataController = controller(emptySchema, async (req, res) => {
   logger.info('Getting user information in getMyDataController ...');
   const user = await UserRepository.findById(userId.toString());
   if (!user) throw new TokenExpiredError();
-  const { magicToken, refreshToken, ...safeUser } = user;
+  const { socialLinks, ...safeUser } = user;
 
-  return new SuccessResponse('success', safeUser).send(res);
+  let website, instagram, twitter;
+
+  socialLinks.map((social) => {
+    if (social.type === 'TWITTER') twitter = social.handle;
+    if (social.type === 'INSTAGRAM') instagram = social.handle;
+    if (social.type === 'PERSONAL_WEBSITE') website = social.handle;
+  });
+
+  return new SuccessResponse('success', { website, twitter, instagram, ...safeUser }).send(res);
 });
