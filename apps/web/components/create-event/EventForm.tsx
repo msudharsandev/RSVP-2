@@ -21,7 +21,7 @@ import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import EventPreview from './EventPreview';
 import FormSelectInput from '../common/form/FormSelectInput';
 import SigninDialog from '../auth/SigninDialog';
-import { useEffect, } from 'react';
+import { useEffect } from 'react';
 type Props = {
   defaultValues: CreateEventFormType;
   isEditing?: boolean;
@@ -33,11 +33,11 @@ type Props = {
   hasLocalStorage?: boolean;
 };
 
-const EventForm = ({ 
-  defaultValues, 
-  isEditing = false, 
-  isLoading, 
-  onSubmit, 
+const EventForm = ({
+  defaultValues,
+  isEditing = false,
+  isLoading,
+  onSubmit,
   requireSignIn,
   setLocalStorage,
   setFormData,
@@ -64,12 +64,12 @@ const EventForm = ({
 
   useEffect(() => {
     if (setFormData && hasLocalStorage) {
-      setFormData(reset)
+      setFormData(reset);
     }
   }, [setFormData, hasLocalStorage]);
- 
+
   useEffect(() => {
-   if (setLocalStorage) {
+    if (setLocalStorage) {
       const subscription = watch((value) => {
         setLocalStorage(value);
       });
@@ -78,17 +78,22 @@ const EventForm = ({
   }, [watch, setLocalStorage]);
   const hasFormData = () => {
     const values = watch();
-    return values.name || values.category || values.description || values.location || values.eventImageUrl.file;
+    return (
+      values.name ||
+      values.category ||
+      values.description ||
+      values.location ||
+      values.eventImageUrl.file
+    );
   };
-
 
   const isButtonDisabled = () => {
     if (isLoading) return true;
     if (isEditing) {
-        return !isDirty;
-    } else{
+      return !isDirty;
+    } else {
       return !hasFormData() && !hasLocalStorage;
-    } 
+    }
   };
   const venueType = watch('venueType');
 
@@ -101,9 +106,13 @@ const EventForm = ({
     <Form {...form}>
       <section className="flex items-start justify-between gap-20">
         <form
-          onSubmit={requireSignIn ? (e) => {
-            e.preventDefault();
-          } : handleSubmit(handleFormSubmit)}
+          onSubmit={
+            requireSignIn
+              ? (e) => {
+                  e.preventDefault();
+                }
+              : handleSubmit(handleFormSubmit)
+          }
           className="flex max-w-[585px] grow flex-col gap-[1.125rem]"
         >
           <FormImageUpload
@@ -294,7 +303,6 @@ const EventForm = ({
                 {isLoading ? <LoaderCircle className="animate-spin" /> : <>{buttonText}</>}
               </Button>
             </SigninDialog>
-
           ) : (
             <Button
               type="submit"

@@ -7,7 +7,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-
 export const formatDateTime = (date: string) => {
   return {
     date: dayjs(date).format('DD MMM YYYY'),
@@ -39,4 +38,3 @@ export const getDateGroups = (events: Event[]): DateGroup[] => {
 
   return dateGroups;
 };
-

@@ -31,13 +31,14 @@ const ProfilePage = () => {
       {user && !user.isCompleted && (
         <Alert className="mt-6 w-fit" variant="warning">
           <TriangleAlert
-            className="-mt-[3px] me-3 inline-flex !text-amber-600 opacity-70"
+            className="-mt-[2px] inline-flex !text-amber-600"
             size={16}
             strokeWidth={2}
             aria-hidden="true"
           />
-          <AlertTitle>
-            Please complete your profile information to get the most out of your experience.
+          <AlertTitle className="text-sm tracking-normal">
+            Complete your profile to increase your ticket approval chances and get the most out of
+            your experience.
           </AlertTitle>
         </Alert>
       )}

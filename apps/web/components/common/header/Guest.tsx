@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '../../ui/button';
 import Container from '../Container';
 import Logo from '../Logo';
-import { Icons } from '../Icon'
+import { Icons } from '../Icon';
 
 const Guest = () => {
   const isScrolled = useScroll();

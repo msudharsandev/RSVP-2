@@ -38,12 +38,11 @@ const defaultValues: CreateEventFormType = {
 const CreateEventForm = () => {
   const { data: user } = useCurrentUser();
   const { mutate } = useCreateEvent();
-  const [isLoading, setIsLoading] = useState(false);  
-  const { hasLocalStorage, setFormData,setLocalStorage } = useLocalStorage({
+  const [isLoading, setIsLoading] = useState(false);
+  const { hasLocalStorage, setFormData, setLocalStorage } = useLocalStorage({
     defaultValues,
   });
 
-  
   async function onSubmit(data: CreateEventFormType) {
     const {
       name,
@@ -83,7 +82,6 @@ const CreateEventForm = () => {
     };
 
     mutate(submissionData);
-
   }
 
   return (
@@ -92,10 +90,10 @@ const CreateEventForm = () => {
         <p className="font-medium text-secondary">Fill in the form below to create a new event</p>
       </div>
       <Separator className="my-9 bg-separator" />
-      <EventForm 
-        defaultValues={defaultValues} 
-        isLoading={isLoading} 
-        onSubmit={onSubmit} 
+      <EventForm
+        defaultValues={defaultValues}
+        isLoading={isLoading}
+        onSubmit={onSubmit}
         requireSignIn={!user}
         setLocalStorage={setLocalStorage}
         setFormData={setFormData}

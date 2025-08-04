@@ -29,7 +29,7 @@ const EditEventForm = () => {
   const { mutate, isPending } = useUpdateEvent();
   const [alertOpen, setAlertOpen] = useState(false);
   const [formPayload, setFormPayload] = useState<CreateEventFormType | null>(null);
-   
+
   async function onSubmit(formPayload: CreateEventFormType) {
     const {
       name,
