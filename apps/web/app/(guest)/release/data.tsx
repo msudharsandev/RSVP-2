@@ -2,9 +2,79 @@ import Changelog from '@/types/changelog';
 
 export const changelogs: Changelog[] = [
   {
-    releaseDate: new Date('2025-03-01'),
-    bannerImageUrl: '/images/version/changelog.png',
-    version: '0.10',
+    releaseDate: new Date('2025-08-06'),
+    bannerImageUrl: '/images/version/0.2.0.png',
+    version: '0.2.0',
+    contributors: [
+      'VinayakaHegade',
+      'sasidharan19',
+      'sudharsan3110',
+      'azeemuddinaziz',
+      'Pratiyushkumar',
+      'hassanrahim26',
+      'Himanshu-Dhawale',
+      'rudraprasaaad',
+    ],
+    sections: [
+      {
+        title: 'Features',
+        items: [
+          {
+            summary: 'Add Google OAuth Login - Implement OAuth authentication for seamless user login experience.',
+            contributors: ['VinayakaHegade', 'sasidharan19'],
+          },
+          {
+            summary: 'Public Access to Create Event Page & UI Enhancements - Enable guest users to create events with improved authentication flow and user interface enhancements.',
+            contributors: ['sudharsan3110'],
+          },
+          {
+            summary: 'DB Schema Change for better normalization and scaling - Optimize database structure for improved performance and scalability.',
+            contributors: ['azeemuddinaziz', 'Pratiyushkumar', 'hassanrahim26'],
+          },
+        ],
+      },
+      {
+        title: 'Bug Fixes',
+        items: [
+          {
+            summary: 'Social media links validation - Fix validation issues where forms accept invalid or random input data.',
+            contributors: ['Himanshu-Dhawale'],
+          },
+          {
+            summary: 'Not able to login in In-app browser - Resolve authentication problems occurring specifically in in-app browser environments.',
+            contributors: ['sasidharan19'],
+          },
+          {
+            summary: 'Pagination in Guest list - Fix pagination functionality issues in the guest list display feature.',
+            contributors: ['hassanrahim26'],
+          },
+        ],
+      },
+      {
+        title: 'Enhancements',
+        items: [
+          {
+            summary: 'Add Asterisk and "This Field is Required" Validation - Implement visual indicators and validation for required fields on Profile Page.',
+            contributors: ['rudraprasaaad'],
+          },
+          {
+            summary: 'Add Country Code Dropdown to Phone Number Input - Enhance phone number input with country code selection on Profile Page.',
+            contributors: ['rudraprasaaad'],
+          },
+          {
+            summary: 'Redirect the new user to events page - Improve user experience by automatically redirecting new users to events page.',
+            contributors: ['azeemuddinaziz'],
+          },
+        ],
+      },
+    ],
+    improvements: [],
+    bugFixes: [],
+  },
+  {
+    releaseDate: new Date('2025-07-05'),
+    bannerImageUrl: '/images/version/0.1.0.png',
+    version: '0.1.0',
     contributors: [
       '0xatulpatil',
       'DeltaDynamo',
