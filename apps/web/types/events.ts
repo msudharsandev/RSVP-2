@@ -73,8 +73,9 @@ export class Event {
     );
   }
 
-  checkCreator(creatorId: string) {
-    return this.creator?.id === creatorId;
+  checkCreator(creatorId?: string) {
+    if (!creatorId) return false;
+    return this.creatorId === creatorId || this.creator?.id === creatorId;
   }
 
   get isPhysical() {

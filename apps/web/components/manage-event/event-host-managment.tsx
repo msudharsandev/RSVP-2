@@ -4,10 +4,16 @@ import { eventHostColumns } from '../data-columns/event-host';
 import AddCoHost from './add-host';
 import { useGetEventCohosts } from '@/lib/react-query/event';
 import { useParams } from 'next/navigation';
+import { useGetEventById } from '@/lib/react-query/event';
+import { useCurrentUser } from '@/lib/react-query/auth';
 
 const EventHostManagment = ({ className }: PropsWithClassName) => {
   const { id: eventId } = useParams();
   const { data: cohostData, isLoading } = useGetEventCohosts(eventId as string);
+  const { data: userData } = useCurrentUser();
+  const { data: eventData } = useGetEventById(eventId as string);
+
+  const isCreator = eventData?.event.checkCreator(userData?.id);
 
   return (
     <section className={cn('space-y-3', className)}>
@@ -16,7 +22,7 @@ const EventHostManagment = ({ className }: PropsWithClassName) => {
           <h2 className="text-lg font-semibold">Add a Host</h2>
           <p className="text-sm text-secondary">Add hosts, special guests, and event managers.</p>
         </div>
-        <AddCoHost />
+        {isCreator && <AddCoHost />}
       </header>
       <DataTable
         columns={eventHostColumns}

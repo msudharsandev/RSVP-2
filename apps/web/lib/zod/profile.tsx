@@ -49,10 +49,8 @@ export const phoneNumberFormSchema = (
   return z.object({
     contact: z
       .string()
-      .min(1, 'Phone number is required')
       .transform((val, ctx) => {
         const cleanInput = val.replace(/[^\d+\s\-()]/g, '').trim();
-
         if (!cleanInput) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -125,7 +123,8 @@ export const phoneNumberFormSchema = (
         }
 
         return parsed.format('E.164');
-      }),
+      })
+      .optional(),
   });
 };
 

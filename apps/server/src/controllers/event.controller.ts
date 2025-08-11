@@ -129,6 +129,15 @@ export const getPopularEventController = controller(eventLimitSchema, async (req
 export const filterEventController = controller(eventFilterSchema, async (req, res) => {
   logger.info('Filtering events in filterEventController ...');
   const filters = req.query;
+  if (filters.category) {
+    const category = await prisma.category.findFirst({ where: { name: filters.category } });
+
+    if (!category?.id) {
+      filters.category = 'not found';
+    } else {
+      filters.category = category?.id;
+    }
+  }
   const events = await EventRepository.findEvents(filters);
 
   return new SuccessResponse('success', events).send(res);

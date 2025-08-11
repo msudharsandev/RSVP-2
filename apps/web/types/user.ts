@@ -23,7 +23,7 @@ export class User {
     this.id = data.id ?? '';
     this.primaryEmail = data.primaryEmail ?? '';
     this.secondaryEmail = data.secondaryEmail;
-    this.contact = data.contact;
+    this.contact = data.contact ?? undefined;
     this.fullName = data.fullName;
     this.userName = data.userName;
     this.isCompleted = data.isCompleted ?? false;

@@ -19,5 +19,7 @@ export function sluggify(title: string): string {
 export function generateUsernameByEmail(email: string): string {
   const userName = email.split('@')[0];
   const sanitizedUsername = userName?.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || '';
-  return sanitizedUsername;
+  const domain = email.split('@')[1];
+  return `${sanitizedUsername}-${domain}`;
 }
+

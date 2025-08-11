@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useQueryParams from '@/hooks/useSearchParams';
 import { useGetEventById } from '@/lib/react-query/event';
 import { useCurrentUser } from '@/lib/react-query/auth';
-import { isCurrentUserCohost } from '@/utils/event';
 import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -26,9 +25,8 @@ const ManageEventPage = () => {
   const { data, isLoading, isError, isSuccess } = useGetEventById(id);
   const { data: userData } = useCurrentUser();
 
-  const isCohost = isCurrentUserCohost(userData, data?.event.cohosts);
-
-  console.log(data?.event.cohosts);
+  const isCreator = data?.event.checkCreator(userData?.id);
+  console.log(data?.event.creatorId, userData?.id, isCreator);
   const handleTabChange = (value: string) => {
     queryParams.set('tab', value);
   };
@@ -43,8 +41,6 @@ const ManageEventPage = () => {
     );
 
   const { event } = data;
-
-  console.log(isCohost);
 
   return (
     <Container className="min-h-screen space-y-8 py-8">
@@ -72,7 +68,7 @@ const ManageEventPage = () => {
               <TabsTrigger variant="underline" value="communication">
                 Communication
               </TabsTrigger>
-              {!isCohost && (
+              {isCreator && (
                 <TabsTrigger variant="underline" value="more">
                   More
                 </TabsTrigger>
@@ -92,10 +88,11 @@ const ManageEventPage = () => {
           <TabsContent className="mt-6" value="communication">
             <Communication eventId={id} />
           </TabsContent>
-
-          <TabsContent className="mt-6" value="more">
-            <MoreSection event={event} slug={event.slug} />
-          </TabsContent>
+          {isCreator && (
+            <TabsContent className="mt-6" value="more">
+              <MoreSection event={event} slug={event.slug} />
+            </TabsContent>
+          )}
         </Tabs>
       </main>
     </Container>

@@ -17,7 +17,7 @@ export class EventRepository {
   static async findEvents({
     page,
     limit,
-    categoryId, // renamed from 'category'
+    category,
     location,
     startDate,
     endDate,
@@ -37,7 +37,7 @@ export class EventRepository {
 
     const where: Prisma.EventWhereInput = {
       ...(location && { location: location }),
-      ...(categoryId && { categoryId: categoryId }),
+      ...(category && { categoryId: category }),
       isDeleted: false,
       isActive: true,
       discoverable: true,

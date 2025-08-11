@@ -67,7 +67,7 @@ html {
 
 @layer components {
   .container-main {
-    @apply mx-auto max-w-[90rem] px-4 sm:px-8 xl:px-12;
+    @apply mx-auto max-w-[90rem] xs:px-4 px-2 sm:px-8 xl:px-12;
   }
 
   .text-gradient {

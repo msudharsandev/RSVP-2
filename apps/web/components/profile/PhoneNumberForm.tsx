@@ -34,15 +34,16 @@ const PhoneNumberForm = ({ user }: Props) => {
   const phoneNumberOptions = useMemo(() => generatePhoneNumberOptions(), []);
 
   const [selectedCountry, setSelectedCountry] = useState('+91');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState<string | undefined>(user?.contact);
   const [open, setOpen] = useState(false);
   const [validationError, setValidationError] = useState<string>('');
 
   const form = useForm<PhoneNumberFormType>({
     resolver: zodResolver(phoneNumberFormSchema(selectedCountry, phoneNumberOptions)),
     defaultValues: {
-      contact: user?.contact || '',
+      contact: user?.contact,
     },
+    mode: 'onTouched',
   });
 
   // Initialize form with user.contact
@@ -80,7 +81,7 @@ const PhoneNumberForm = ({ user }: Props) => {
 
   // Update form value when selectedCountry or phoneNumber changes
   useEffect(() => {
-    const newContact = phoneNumber ? `${selectedCountry} ${phoneNumber}`.trim() : '';
+    const newContact = phoneNumber ? `${selectedCountry} ${phoneNumber}`.trim() : undefined;
     form.setValue('contact', newContact, { shouldValidate: true, shouldDirty: true });
     if (validationError) {
       setValidationError('');
@@ -88,7 +89,7 @@ const PhoneNumberForm = ({ user }: Props) => {
   }, [selectedCountry, phoneNumber, form, validationError]);
 
   const resetForm = () => {
-    form.reset({ contact: user?.contact || '' });
+    form.reset({ contact: user?.contact || undefined });
     setValidationError('');
     if (user?.contact) {
       try {

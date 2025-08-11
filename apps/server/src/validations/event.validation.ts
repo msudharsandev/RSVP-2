@@ -211,7 +211,7 @@ export const eventFilterSchema = z.object({
   query: z.object({
     page: z.coerce.number().positive().default(1),
     limit: z.coerce.number().positive().default(10),
-    categoryId: z.string().optional(),
+    category: z.string().optional(),
     location: z.string().optional(),
     startDate: z.coerce.date().optional(),
     endDate: z.coerce.date().optional(),
