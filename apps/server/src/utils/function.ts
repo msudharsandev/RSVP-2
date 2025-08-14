@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto';
+
 export function sluggify(title: string): string {
   const MAX_LENGTH = 256;
   const TIMESTAMP_LENGTH = 1 + Date.now().toString(36).length;
@@ -23,3 +25,11 @@ export function generateUsernameByEmail(email: string): string {
   return `${sanitizedUsername}-${domain}`;
 }
 
+function shortId() {
+  // Remove hyphens, convert to base36, take first 8 chars
+  return parseInt(randomUUID().replace(/-/g, '').slice(0, 12), 16).toString(36).slice(0, 8);
+}
+
+export function generateUniqueUsername(prefix = 'guest-user') {
+  return `${prefix}-${shortId()}`;
+}

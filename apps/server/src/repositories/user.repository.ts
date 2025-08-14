@@ -1,7 +1,7 @@
-import { generateAccessToken } from '@/utils/jwt';
 import { prisma } from '@/utils/connection';
+import { generateUniqueUsername } from '@/utils/function';
+import { generateAccessToken } from '@/utils/jwt';
 import { randomUUID } from 'crypto';
-import { generateUsernameByEmail } from '@/utils/function';
 
 /**
  * UserRepository class provides methods to interact with the Users table in the database.
@@ -72,7 +72,7 @@ export class UserRepository {
    * @returns The newly created user object.
    */
   static async create(primaryEmail: string) {
-    const userName = generateUsernameByEmail(primaryEmail);
+    const userName = generateUniqueUsername();
     const newUser = await prisma.user.create({
       data: {
         primaryEmail,
@@ -89,7 +89,7 @@ export class UserRepository {
    * @returns The newly created user object.
    */
   static async createUserByGoogleOAuth(primaryEmail: string, fullName?: string) {
-    const userName = generateUsernameByEmail(primaryEmail);
+    const userName = generateUniqueUsername();
     const newUser = await prisma.user.create({
       data: {
         primaryEmail,
