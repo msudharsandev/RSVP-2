@@ -1,64 +1,40 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { LOCALSTORAGE_KEY, LOCALSTORAGE_EXPIRY_KEY, EXPIRY_MINUTES } from '@/utils/constants';
-import { DefaultValues } from 'react-hook-form';
 
-interface FormInterface<T = any> {
-  defaultValues: DefaultValues<T>;
-}
-export const clearLocalStorage = () => {
-  window.localStorage.removeItem(LOCALSTORAGE_KEY);
-  window.localStorage.removeItem(LOCALSTORAGE_EXPIRY_KEY);
-};
-export const useLocalStorage = <T = any>({ defaultValues }: FormInterface<T>) => {
-  const [hasLocalStorage, setHasLocalStorageData] = useState(false);
+export function usePersistentState<T>(key: string, initialValue: T, expiryMinutes?: number) {
+  const [value, setValue] = useState<T>(
+    getItemFromLocalStorage(key, expiryMinutes) || initialValue
+  );
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(LOCALSTORAGE_KEY);
-    const expiry = window.localStorage.getItem(LOCALSTORAGE_EXPIRY_KEY);
-
-    if (saved && expiry) {
-      const now = Date.now();
-      if (now < Number(expiry)) {
-        try {
-          const data = JSON.parse(saved);
-          const isValid = Object.keys(data).some((key) => data[key] && data[key] !== '');
-          setHasLocalStorageData(isValid);
-        } catch (error) {
-          console.error('Error parsing localStorage data:', error);
-        }
-      } else {
-        clearLocalStorage();
-      }
+    localStorage.setItem(key, JSON.stringify(value));
+    if (expiryMinutes) {
+      localStorage.setItem(`${key}_expiry`, (Date.now() + expiryMinutes * 60 * 1000).toString());
     }
-  }, []);
+  }, [value]);
 
-  const setLocalStorage = (value: any) => {
-    window.localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify({ ...value }));
-    window.localStorage.setItem(
-      LOCALSTORAGE_EXPIRY_KEY,
-      (Date.now() + EXPIRY_MINUTES * 60 * 1000).toString()
-    );
-  };
-  const setFormData = (reset: any) => {
-    const saved = window.localStorage.getItem(LOCALSTORAGE_KEY);
-    const expiry = window.localStorage.getItem(LOCALSTORAGE_EXPIRY_KEY);
-    if (saved && expiry) {
-      const now = Date.now();
-      if (now < Number(expiry)) {
-        try {
-          const data = JSON.parse(saved);
-          reset({ ...defaultValues, ...data }, { keepDirty: false });
-          if (Object.keys(data).some((key) => data[key] && data[key] !== '')) {
-            setHasLocalStorageData(true);
-          }
-        } catch (error) {
-          console.error('Error parsing localStorage data:', error);
-        }
-      } else {
-        clearLocalStorage();
-      }
+  return [value, setValue] as const;
+}
+
+function getItemFromLocalStorage<T>(key: string, expiryMinutes?: number): T | null {
+  if (typeof window == 'undefined') return null;
+  try {
+    const value = localStorage.getItem(key);
+
+    const expiry = expiryMinutes ? localStorage.getItem(`${key}_expiry`) : null;
+    if (expiry && Date.now() > Number(expiry)) {
+      clearLocalStorage(key);
+      return null;
     }
-  };
+    return value ? JSON.parse(value) : null;
+  } catch (error) {
+    console.log('Error parsing JSON from local storage');
+  }
 
-  return { hasLocalStorage, setFormData, setLocalStorage };
-};
+  return null;
+}
+
+export function clearLocalStorage(key: string) {
+  localStorage.removeItem(key);
+  localStorage.removeItem(`${key}_expiry`);
+}

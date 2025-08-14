@@ -143,6 +143,5 @@ export const locationName = [
 
 export const VERCEL_AVATAR_BASE_URL = `https://avatar.vercel.sh`;
 
-export const LOCALSTORAGE_KEY = 'eventFormData';
-export const LOCALSTORAGE_EXPIRY_KEY = 'eventFormDataExpiry';
+export const FORM_CACHE_KEY = 'EVENTFORM';
 export const EXPIRY_MINUTES = 20;

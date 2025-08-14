@@ -21,16 +21,14 @@ import { ToggleGroup, ToggleGroupItem } from '../ui/toggle-group';
 import EventPreview from './EventPreview';
 import FormSelectInput from '../common/form/FormSelectInput';
 import SigninDialog from '../auth/SigninDialog';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 type Props = {
   defaultValues: CreateEventFormType;
   isEditing?: boolean;
   isLoading: boolean;
   onSubmit: (data: CreateEventFormType) => void;
   requireSignIn?: boolean;
-  setLocalStorage?: (value: any) => void;
-  setFormData?: (reset: any) => void;
-  hasLocalStorage?: boolean;
+  setPersistentValue?: (data: CreateEventFormType) => void;
 };
 
 const EventForm = ({
@@ -39,14 +37,11 @@ const EventForm = ({
   isLoading,
   onSubmit,
   requireSignIn,
-  setLocalStorage,
-  setFormData,
-  hasLocalStorage = false,
+  setPersistentValue,
 }: Props) => {
   const allowedDate = new Date();
   allowedDate.setHours(0, 0, 0, 0);
   allowedDate.setDate(allowedDate.getDate() + 1);
-
   const form = useForm<CreateEventFormType>({
     resolver: zodResolver(createEventFormSchema),
     defaultValues: defaultValues,
@@ -63,38 +58,13 @@ const EventForm = ({
   } = form;
 
   useEffect(() => {
-    if (setFormData && hasLocalStorage) {
-      setFormData(reset);
-    }
-  }, [setFormData, hasLocalStorage]);
+    const subscription = watch((value) => {
+      setPersistentValue?.(value as CreateEventFormType);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setPersistentValue]);
 
-  useEffect(() => {
-    if (setLocalStorage) {
-      const subscription = watch((value) => {
-        setLocalStorage(value);
-      });
-      return () => subscription.unsubscribe();
-    }
-  }, [watch, setLocalStorage]);
-  const hasFormData = () => {
-    const values = watch();
-    return (
-      values.name ||
-      values.category ||
-      values.description ||
-      values.location ||
-      values.eventImageUrl.file
-    );
-  };
-
-  const isButtonDisabled = () => {
-    if (isLoading) return true;
-    if (isEditing) {
-      return !isDirty;
-    } else {
-      return !hasFormData() && !hasLocalStorage;
-    }
-  };
+  const isButtonDisabled = isLoading || !isDirty;
   const venueType = watch('venueType');
 
   const handleFormSubmit = async (data: CreateEventFormType) => {
@@ -297,7 +267,7 @@ const EventForm = ({
             <SigninDialog variant="signin">
               <Button
                 type="button"
-                disabled={isButtonDisabled()}
+                disabled={isButtonDisabled}
                 className="m mt-2 min-h-11 w-full rounded-[1.25rem] text-base font-semibold text-white"
               >
                 {isLoading ? <LoaderCircle className="animate-spin" /> : <>{buttonText}</>}
@@ -306,7 +276,7 @@ const EventForm = ({
           ) : (
             <Button
               type="submit"
-              disabled={isButtonDisabled()}
+              disabled={isButtonDisabled}
               className="m mt-2 min-h-11 w-full rounded-[1.25rem] text-base font-semibold text-white"
             >
               {isLoading ? <LoaderCircle className="animate-spin" /> : <>{buttonText}</>}

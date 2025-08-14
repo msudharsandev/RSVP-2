@@ -8,8 +8,8 @@ import { combineDateAndTime } from '@/utils/time';
 import { useState } from 'react';
 import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-
+import { usePersistentState } from '@/hooks/useLocalStorage';
+import { FORM_CACHE_KEY, EXPIRY_MINUTES } from '@/utils/constants';
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
 allowedDate.setDate(allowedDate.getDate() + 1);
@@ -39,10 +39,11 @@ const CreateEventForm = () => {
   const { data: user } = useCurrentUser();
   const { mutate } = useCreateEvent();
   const [isLoading, setIsLoading] = useState(false);
-  const { hasLocalStorage, setFormData, setLocalStorage } = useLocalStorage({
+  const [value, setPersistentValue] = usePersistentState<CreateEventFormType>(
+    FORM_CACHE_KEY,
     defaultValues,
-  });
-
+    EXPIRY_MINUTES
+  );
   async function onSubmit(data: CreateEventFormType) {
     const {
       name,
@@ -91,13 +92,11 @@ const CreateEventForm = () => {
       </div>
       <Separator className="my-9 bg-separator" />
       <EventForm
-        defaultValues={defaultValues}
+        defaultValues={value}
         isLoading={isLoading}
         onSubmit={onSubmit}
         requireSignIn={!user}
-        setLocalStorage={setLocalStorage}
-        setFormData={setFormData}
-        hasLocalStorage={hasLocalStorage}
+        setPersistentValue={setPersistentValue}
       />
     </>
   );

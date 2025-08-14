@@ -12,6 +12,7 @@ import {
 } from '../axios/event-API';
 import { CreateEventSubmissionType } from '../zod/event';
 import { clearLocalStorage } from '@/hooks/useLocalStorage';
+import { FORM_CACHE_KEY } from '@/utils/constants';
 interface ErrorResponse {
   message?: string;
 }
@@ -77,7 +78,7 @@ export const useCreateEvent = () => {
   return useMutation<AxiosResponse, AxiosError<ErrorResponse>, CreateEventSubmissionType>({
     mutationFn: eventAPI.createEvent,
     onSuccess: ({ data }) => {
-      clearLocalStorage();
+      clearLocalStorage(FORM_CACHE_KEY);
       toast.success('Event created successfully');
       const url = `/${data.data.slug}`;
       router.push(url);

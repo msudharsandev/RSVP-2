@@ -12,6 +12,7 @@ import {
   VerifySigninPayload,
 } from '../axios/auth-API';
 import { clearLocalStorage } from '@/hooks/useLocalStorage';
+import { FORM_CACHE_KEY } from '@/utils/constants';
 interface VerifySignInResponse {
   success: boolean;
   data: { user: User };
@@ -105,7 +106,7 @@ export const useSignout = () => {
   return useMutation({
     mutationFn: authAPI.signout,
     onSuccess: () => {
-      clearLocalStorage();
+      clearLocalStorage(FORM_CACHE_KEY);
       queryClient.clear();
       router.push('/');
       router.refresh();
