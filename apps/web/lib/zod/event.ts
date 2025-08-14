@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 export const createEventFormSchema = z
   .object({
+    isEditing: z.boolean().optional(),
     name: z.string().min(2, {
       message: 'Event Name must be at least 2 characters.',
     }),
@@ -92,7 +93,7 @@ export const createEventFormSchema = z
       });
     }
 
-    if (fromDateTime <= now) {
+    if (!data.isEditing && fromDateTime <= now) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'From date and time must be greater than current time',

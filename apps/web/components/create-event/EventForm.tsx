@@ -58,6 +58,8 @@ const EventForm = ({
   } = form;
 
   useEffect(() => {
+    setValue('isEditing', isEditing);
+
     const subscription = watch((value) => {
       setPersistentValue?.(value as CreateEventFormType);
     });
@@ -111,7 +113,9 @@ const EventForm = ({
               control={control}
               name="fromDate"
               iconClassName="opacity-100"
-              disabled={(date) => date < allowedDate}
+              disabled={(date) => {
+                return isEditing ? date < defaultValues.fromDate : date < allowedDate;
+              }}
             />
           </div>
           {errors.fromDateTime && (
