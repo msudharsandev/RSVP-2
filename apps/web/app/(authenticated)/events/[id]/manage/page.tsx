@@ -10,8 +10,8 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useQueryParams from '@/hooks/useSearchParams';
-import { useGetEventById } from '@/lib/react-query/event';
 import { useCurrentUser } from '@/lib/react-query/auth';
+import { useGetEventById } from '@/lib/react-query/event';
 import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -26,7 +26,6 @@ const ManageEventPage = () => {
   const { data: userData } = useCurrentUser();
 
   const isCreator = data?.event.checkCreator(userData?.id);
-  console.log(data?.event.creatorId, userData?.id, isCreator);
   const handleTabChange = (value: string) => {
     queryParams.set('tab', value);
   };

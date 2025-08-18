@@ -30,7 +30,7 @@ export class Event {
   creator?: {
     id: string;
     fullName: string;
-    username: string;
+    userName: string;
     profileIcon: string;
   };
   cohosts?: Cohost[];

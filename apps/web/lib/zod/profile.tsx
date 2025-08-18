@@ -135,6 +135,7 @@ const instagramProfileRegex = /^(?!.*\.\.)(?!^\.)[A-Za-z0-9_.]{2,30}(?<!\.)$/;
 export const profileFormSchema = z.object({
   fullName: z
     .string()
+    .trim()
     .min(1)
     .refine((val) => !/^[\d\s]+$/.test(val.trim()), 'Cannot contain only numbers'),
   location: z

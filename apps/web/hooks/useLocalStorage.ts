@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export function usePersistentState<T>(key: string, initialValue: T, expiryMinutes?: number) {
   const [value, setValue] = useState<T>(
@@ -28,7 +28,7 @@ function getItemFromLocalStorage<T>(key: string, expiryMinutes?: number): T | nu
     }
     return value ? JSON.parse(value) : null;
   } catch (error) {
-    console.log('Error parsing JSON from local storage');
+    throw new Error('Error parsing JSON from local storage');
   }
 
   return null;

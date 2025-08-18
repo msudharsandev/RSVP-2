@@ -141,7 +141,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
                       className="rounded-full border-primary border-2 object-cover"
                     />
                     <p className="ml-3 text-sm font-medium capitalize text-secondary">
-                      {cohost.user?.fullName?.toLowerCase()}
+                      {cohost.user?.fullName?.toLowerCase() || cohost.user?.userName}
                     </p>
                   </div>
                 </Link>

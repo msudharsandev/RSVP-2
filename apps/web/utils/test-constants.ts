@@ -90,7 +90,7 @@ export const TEST_EVENT: Event = new Event({
   creator: {
     id: '1',
     fullName: 'Event Creator',
-    username: 'eventcreator',
+    userName: 'eventcreator',
     profileIcon: 'creator-icon',
   },
   cohosts: TEST_COHOSTS,

@@ -4,7 +4,7 @@ import {
   signinController,
   verifySigninController,
   googleSigninController,
-  googleOAuthUrlController
+  googleOAuthUrlController,
 } from '@/controllers/auth.controller';
 import authMiddleware from '@/middleware/authMiddleware';
 import { Router } from 'express';

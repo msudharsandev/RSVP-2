@@ -40,8 +40,7 @@ const Card = ({ className, event, type }: CardProps) => {
       <section className="flex flex-col">
         <span className="text-xl font-bold line-clamp-1">{event?.name}</span>
         <span className="mb-3 font-semibold capitalize">
-          Hosted By -{' '}
-          {event?.creator?.fullName ? event.creator.fullName.toLowerCase() : 'Unknown Host'}
+          Hosted By - {event.creator?.fullName || event.creator?.userName || 'Unknown Host'}
         </span>
         <span className="font-bold">
           {event?.startTime ? dayjs(event.startTime).format('hh:mm A, DD MMM YYYY') : ''}

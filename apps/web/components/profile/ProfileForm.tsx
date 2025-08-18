@@ -23,7 +23,7 @@ const ProfileForm = ({ user }: Props) => {
   const form = useForm<ProfileFormType>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      fullName: user.fullName ?? '',
+      fullName: user.fullName ?? user.userName ?? '',
       location: user.location ?? '',
       bio: user?.bio ?? '',
       profileIcon: user?.profileIcon ?? 1,

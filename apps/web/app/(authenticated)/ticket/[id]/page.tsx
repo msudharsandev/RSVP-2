@@ -95,7 +95,9 @@ const TicketPage = () => {
           <div className="flex flex-col gap-y-6 px-5 md:px-[70px]">
             <div>
               <p className="text-base font-bold">ATTENDEE NAME</p>
-              <p className="mt-2 text-4xl font-bold md:text-5xl">{userData?.fullName}</p>
+              <p className="mt-2 text-4xl font-bold md:text-5xl">
+                {userData?.fullName || userData?.userName}
+              </p>
             </div>
             <div>
               <p className="font-bold">EVENT</p>

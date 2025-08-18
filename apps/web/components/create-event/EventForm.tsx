@@ -48,7 +48,7 @@ const EventForm = ({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isValid, isDirty},
+    formState: { errors, isValid, isDirty },
   } = form;
   useEffect(() => {
     const subscription = watch((value) => {
@@ -61,10 +61,9 @@ const EventForm = ({
   const venueType = watch('venueType');
 
   const handleFormSubmit = (data: CreateEventFormType) => {
-      setSubmitted(true);
-      onSubmit(data);
-      reset(data);
-  
+    setSubmitted(true);
+    onSubmit(data);
+    reset(data);
   };
 
   return (
