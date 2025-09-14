@@ -14,7 +14,6 @@ import { FORM_CACHE_KEY, EXPIRY_MINUTES } from '@/utils/constants';
 function getAllowedDate() {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + 1);
   return d;
 }
 

@@ -33,7 +33,6 @@ const EventForm = ({
 }: EventFromProps) => {
   const allowedDate = new Date();
   allowedDate.setHours(0, 0, 0, 0);
-  allowedDate.setDate(allowedDate.getDate() + 1);
   const form = useForm<CreateEventFormType>({
     resolver: zodResolver(createEventFormSchema),
     defaultValues: defaultValues,

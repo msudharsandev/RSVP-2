@@ -50,6 +50,7 @@ interface FormDropdownInputProps<
   searchPlaceholder?: string;
   emptyMessage?: string;
   ariaLabel?: string;
+  isRequired?: boolean; // Add isRequired to the interface
 }
 
 function FormDropdownInput<
@@ -72,6 +73,7 @@ function FormDropdownInput<
   searchPlaceholder = 'Search...',
   emptyMessage = 'No options found.',
   ariaLabel,
+  isRequired, // Destructure isRequired here
 }: FormDropdownInputProps<TFieldValues, TName>) {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedValue, setSelectedValue] = useState<string>('');
@@ -142,7 +144,11 @@ function FormDropdownInput<
 
   return (
     <div className={cn(className)}>
-      {label && <FormLabel className="block text-sm font-medium mb-2">{label}</FormLabel>}
+      {label && (
+        <FormLabel className="block text-sm font-medium mb-2" isRequired={isRequired}>
+          {label}
+        </FormLabel>
+      )}
 
       <div className="flex items-center gap-0 rounded-md overflow-hidden">
         <Popover open={open} onOpenChange={setOpen}>

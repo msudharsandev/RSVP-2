@@ -16,6 +16,7 @@ function FormInput<
   label,
   children,
   className,
+  isRequired,
   ...props
 }: {
   label?: string;
@@ -34,13 +35,8 @@ function FormInput<
       render={({ field }) => (
         <FormItem className={className}>
           {label && (
-            <FormLabel className={cn('text-white', lableClassName)}>
+            <FormLabel className={cn('text-white', lableClassName)} isRequired={isRequired}>
               {label}
-              {props.isRequired && (
-                <span className="text-red-500 ml-1" aria-label="required">
-                  *
-                </span>
-              )}
             </FormLabel>
           )}
           <FormControl className="flex">

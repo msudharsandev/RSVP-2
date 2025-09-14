@@ -21,7 +21,6 @@ import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
-allowedDate.setDate(allowedDate.getDate() + 1);
 
 const EditEventForm = () => {
   const eventId = useParams().id as string;
