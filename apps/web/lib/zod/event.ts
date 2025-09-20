@@ -27,7 +27,13 @@ export const createEventFormSchema = z
     plaintextDescription: z.string().optional(),
     venueType: z.nativeEnum(VenueType),
     location: z.string().optional(),
-    locationMapUrl: z.string().url({ message: 'Please enter a valid URL' }).optional(),
+    locationMapUrl: z
+      .string()
+      .trim()
+      .url('Please enter a valid URL')
+      .or(z.literal(''))
+      .transform((val) => (val === '' ? undefined : val))
+      .optional(),
     // .refine(
     //   (val) => {
     //     if (val == '' || !val) return true;
