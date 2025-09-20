@@ -12,6 +12,7 @@ import { Button } from '../ui/button';
 import { Cohost } from '@/types/cohost';
 import { checkIfUserIsNotCohost, isCurrentUserCohost } from '@/utils/event';
 import { LoaderCircle } from 'lucide-react';
+import { CalendarDropdown } from '../common/CalendarDropdown';
 
 type GetTicketsButtonProps = {
   cohosts?: Cohost[];
@@ -103,6 +104,7 @@ const GetTicketsButton = ({
         <Link href={`${eventSlug}/communication`}>
           <Button className="mt-4 w-full rounded-full px-4 py-2">Updates</Button>
         </Link>
+        <CalendarDropdown eventId={eventId} />
         <Link href={`/ticket/${eventId}`}>
           <Button variant="subtle" className="w-full rounded-full px-4 py-2">
             Show Tickets
