@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id             String   @id @default(uuid()) @db.VarChar(36)
-  primaryEmail   String   @unique @map("primary_email") @db.VarChar(100)
+  primaryEmail   String   @map("primary_email") @db.VarChar(100)
   secondaryEmail String?  @map("secondary_email") @db.VarChar(100)
   contact        String?  @map("contact") @db.VarChar(15)
   fullName       String?  @map("full_name") @db.VarChar(100)

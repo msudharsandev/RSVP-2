@@ -28,17 +28,13 @@ import { emptySchema } from '@/validations/common';
 export const signinController = controller(SigninSchema, async (req, res) => {
   const { email } = req.body;
   const existingUser = await UserRepository.findbyEmail(email, null);
-  if (existingUser && existingUser.isDeleted) {
-    return new ForbiddenResponse(
-      'Your account has been deactivated. Please contact admin to restore your account.'
-    ).send(res);
-  }
 
   let user;
-  if (existingUser) {
-    user = existingUser;
-  } else {
+
+  if (!existingUser || existingUser.isDeleted) {
     user = await UserRepository.create(email);
+  } else {
+    user = existingUser;
   }
 
   logger.info('Creating token in signinController ...');
@@ -92,17 +88,11 @@ export const googleSigninController = controller(googleSigninSchema, async (req,
 
   const existingUser = await UserRepository.findbyEmail(email, null);
 
-  if (existingUser?.isDeleted) {
-    return new ForbiddenResponse(
-      'Your account has been deactivated. Please contact admin to restore your account.'
-    ).send(res);
-  }
-
   let user;
-  if (existingUser) {
-    user = existingUser;
-  } else {
+  if (!existingUser || existingUser.isDeleted) {
     user = await UserRepository.createUserByGoogleOAuth(email, name);
+  } else {
+    user = existingUser;
   }
 
   const accessToken = generateAccessToken({ userId: user.id });
