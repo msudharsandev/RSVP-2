@@ -56,7 +56,7 @@ export const createEventFormSchema = z
       .int()
       .positive()
       .min(1, { message: 'Capacity should be at least 1' }),
-    eventImageUrl: z.string().url().nullable(),
+    eventImageUrl: z.string().url('Event Image is required').nullable(),
     fromDateTime: z.string().optional(),
     toDateTime: z.string().optional(),
   })

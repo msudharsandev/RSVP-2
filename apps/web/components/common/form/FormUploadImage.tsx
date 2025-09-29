@@ -36,7 +36,7 @@ function FormImageUpload<
     control,
   });
 
-  const { setValue } = useFormContext<TFieldValues>();
+  const { setValue, clearErrors } = useFormContext<TFieldValues>();
   const cropperRef = useRef<ReactCropperElement>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -80,6 +80,7 @@ function FormImageUpload<
             shouldTouch: true,
           });
         }
+        clearErrors(name);
       } catch (err) {
         throw new Error('Error while uploading Image');
       } finally {

@@ -81,7 +81,7 @@ const EventForm = ({
     return () => subscription.unsubscribe();
   }, []);
 
-  const isButtonDisabled = isEditing ? !isDirty || isLoading : isLoading || !isValid || submitted;
+  const isButtonDisabled = isEditing ? !isDirty || isLoading : isLoading || submitted;
   const venueType = watch('venueType');
 
   const handleFormSubmit = (data: CreateEventFormType) => {
@@ -288,11 +288,6 @@ const EventForm = ({
               <EventPreview className="overflow-y-scroll" />
             </DrawerContent>
           </Drawer>
-          {errors.eventImageUrl && (
-            <p className="hidden text-sm font-medium text-destructive lg:block">
-              {errors.eventImageUrl.message}
-            </p>
-          )}
           {requireSignIn ? (
             <SigninDialog variant="signin">
               <Button

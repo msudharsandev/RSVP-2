@@ -1,6 +1,6 @@
 'use client';
 
-import { Control, FieldPath, FieldValues } from 'react-hook-form';
+import { Control, FieldPath, FieldValues, Path, useFormContext } from 'react-hook-form';
 import {
   FormControl,
   FormDescription,
@@ -37,7 +37,8 @@ function FormDatePicker<
   name: TName;
   description?: string;
   initialFocus?: boolean;
-} & Omit<CalendarProps, 'selected' | 'onSelect'>) {
+} & Omit<CalendarProps, 'selected' | 'onSelect' | 'mode'>) {
+  const { clearErrors } = useFormContext<TFieldValues>();
   return (
     <FormField
       control={control}
@@ -64,8 +65,12 @@ function FormDatePicker<
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
+                required
                 selected={field.value}
-                onSelect={field.onChange}
+                onSelect={(date: Date | undefined) => {
+                  field.onChange(date);
+                  clearErrors([name, 'fromDateTime'] as Path<TFieldValues>[]);
+                }}
                 initialFocus={initialFocus}
                 {...calendarProps}
               />
