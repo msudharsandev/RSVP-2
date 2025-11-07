@@ -1,22 +1,24 @@
 'use client';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCurrentUser } from '@/lib/react-query/auth';
 import { formatDateTime } from '@/lib/utils';
 import { Event } from '@/types/events';
 import { isCurrentUserCohost, venueDisplay } from '@/utils/event';
-import { CalendarIcon, Check, ClockIcon, LinkIcon, MapPinIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  Check,
+  ClockIcon,
+  LinkIcon,
+  MapPinIcon,
+  PencilIcon,
+  Share2,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '../ui/button';
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { formatDate } from '@/utils/formatDate';
 
 type CustomiseEventCarDProps = {
@@ -34,6 +36,7 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
   const isCohost = isCurrentUserCohost(userData, event.cohosts);
 
   const [showCopied, setShowCopied] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
 
   if (!isSuccess) return notFound();
 
@@ -50,10 +53,12 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
       await navigator.clipboard.writeText(eventPublicURL);
 
       setShowCopied(true);
+      setTooltipOpen(true);
 
       setTimeout(() => {
         setShowCopied(false);
-      }, 400);
+        setTooltipOpen(false);
+      }, 1500);
     } catch (error) {
       console.error('Failed to copy:', error);
     }
@@ -98,9 +103,60 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle>{event.name}</CardTitle>
-        <CardDescription> </CardDescription>
+      <CardHeader className="flex flex-row items-center space-y-0 justify-between">
+        <div>
+          <CardTitle className="item-center">{event.name}</CardTitle>
+        </div>
+        <div className="flex items-center gap-2">
+          {!isCohost && (
+            <Link href={`/events/${id}/edit`} className="w-full sm:flex-1">
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      className="group flex h-10 w-10 items-center justify-center border-0 p-0"
+                      radius="sm"
+                      variant="tertiary"
+                    >
+                      <PencilIcon className="size-5 text-white transition-colors group-hover:text-primary" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Edit Event</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Link>
+          )}
+          <TooltipProvider delayDuration={100}>
+            <Tooltip
+              open={tooltipOpen}
+              onOpenChange={(open) => {
+                if (!showCopied) {
+                  setTooltipOpen(open);
+                }
+              }}
+            >
+              <TooltipTrigger asChild>
+                <Button
+                  className="group flex h-10 w-10 items-center justify-center border-0 p-0"
+                  radius="sm"
+                  variant="tertiary"
+                  onClick={handleShare}
+                >
+                  {showCopied ? (
+                    <div className="flex size-10 items-center justify-center ">
+                      <Check className="size-5 text-primary" />
+                    </div>
+                  ) : (
+                    <Share2 className="size-5 text-white transition-colors group-hover:text-primary" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="">
+                {showCopied ? 'Event link Copied' : 'Share Event'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-12 md:flex-row">
         <figure className="relative md:h-40 md:w-40 aspect-square">
@@ -146,27 +202,7 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col gap-4 sm:flex-row">
-        {!isCohost && (
-          <Link href={`/events/${id}/edit`} className="w-full sm:flex-1">
-            <Button className="w-full sm:flex-1" radius="sm" variant="tertiary">
-              Edit Event
-            </Button>
-          </Link>
-        )}
-        <Button className="w-full sm:flex-1" radius="sm" variant="tertiary" onClick={handleShare}>
-          {showCopied ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex items-center justify-center rounded-md bg-purple-500/20 p-1">
-                <Check className="size-3.5 text-primary" />
-              </div>
-              <span>Link Copied</span>
-            </div>
-          ) : (
-            'Share Event'
-          )}
-        </Button>
-      </CardFooter>
+      <CardFooter></CardFooter>
     </Card>
   );
 };

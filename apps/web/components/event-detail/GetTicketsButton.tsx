@@ -11,8 +11,9 @@ import SigninDialog from '../auth/SigninDialog';
 import { Button } from '../ui/button';
 import { Cohost } from '@/types/cohost';
 import { checkIfUserIsNotCohost, isCurrentUserCohost } from '@/utils/event';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, TicketCheck, MessageCircleMore, X } from 'lucide-react';
 import { CalendarDropdown } from '../common/CalendarDropdown';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 type GetTicketsButtonProps = {
   cohosts?: Cohost[];
@@ -100,24 +101,48 @@ const GetTicketsButton = ({
     attendeeData?.allowedStatus
   ) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <Link href={`${eventSlug}/communication`}>
-          <Button className="mt-4 w-full rounded-full px-4 py-2">Updates</Button>
-        </Link>
-        <CalendarDropdown eventId={eventId} />
-        <Link href={`/ticket/${eventId}`}>
-          <Button variant="subtle" className="w-full rounded-full px-4 py-2">
-            Show Tickets
-          </Button>
-        </Link>
-        <Button
-          variant={isCancelling ? 'subtle' : 'destructive'}
-          className="w-full rounded-full px-4 py-2"
-          onClick={handleCancelRegistration}
-          disabled={isCancelling}
-        >
-          {isCancelling ? <LoaderCircle className="animate-spin" /> : <>Cancel Registration</>}
-        </Button>
+      <div className="flex w-full mt-4 px-4 flex-row items-center justify-around gap-2">
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href={`${eventSlug}/communication`}>
+                <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-primary bg-black text-primary transition-all hover:bg-primary hover:text-white">
+                  <MessageCircleMore className="h-6 w-6" />
+                </div>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Updates</TooltipContent>
+          </Tooltip>
+          <CalendarDropdown eventId={eventId} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href={`/ticket/${eventId}`}>
+                <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-primary bg-black text-primary transition-all hover:bg-primary hover:text-white">
+                  <TicketCheck className="h-6 w-6" />
+                </div>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Show Ticket</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={isCancelling ? 'subtle' : 'ghost'}
+                className="h-12 w-12 shrink-0 rounded-full border-2 bg-red-500 p-0 hover:bg-red-600"
+                onClick={handleCancelRegistration}
+                disabled={isCancelling}
+              >
+                {isCancelling ? (
+                  <LoaderCircle className="animate-spin text-white" />
+                ) : (
+                  <X className="w-3/4 h-3/4 p-1 text-white stroke-1" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Cancel Registration</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     );
   }
@@ -137,7 +162,7 @@ const GetTicketsButton = ({
   return (
     <Button
       variant={createAttendeeLoading ? 'subtle' : 'default'}
-      className="mt-4 w-full rounded-full px-4 py-2"
+      className="mt-4 w-full rounded-full px-4 py-2 h-[50px]"
       onClick={handleGetTickets}
       disabled={createAttendeeLoading}
     >

@@ -156,25 +156,29 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
             </article>
           ) : null}
         </section>
-
-        <section className="w-full md:w-[481px]">
-          <section className="w-full rounded-lg bg-dark-900 p-6 shadow-lg md:w-[481px]">
+        <section className="w-full rounded-xl shadow-lg md:w-[481px]">
+          <section className="w-full flex flex-col rounded-xl p-6 bg-dark-900 shadow-lg md:w-[481px]">
             {!event?.isActive ? (
               <p className="text-red-500">Event has been cancelled</p>
             ) : (
               <>
-                <h2 className="text-xl font-bold">Registration</h2>
-                <p className="mt-2 font-semibold">
-                  {remainingSeats > 0
-                    ? `${remainingSeats} Seats are Remaining.`
-                    : 'No Seats Remaining.'}
-                </p>
-                {totalAttendees > 0 && (
-                  <div className="flex items-center pb-2 pt-4">
-                    <AvatarGroup additionalCount={additionalCount} limit={userAvatarLimit} />
-                    <p className="ml-3 text-sm font-semibold">{totalAttendees} going</p>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex flex-col space-y-3">
+                    <h2 className="text-xl font-bold">Registration</h2>
+                    <p className="font-semibold">
+                      {remainingSeats > 0
+                        ? `${remainingSeats} Seats are Remaining.`
+                        : 'No Seats Remaining.'}
+                    </p>
                   </div>
-                )}
+
+                  {totalAttendees > 0 && (
+                    <div className="flex items-center justify-center gap-2">
+                      <AvatarGroup additionalCount={additionalCount} limit={userAvatarLimit} />
+                      <p className="text-sm font-semibold">{totalAttendees} going</p>
+                    </div>
+                  )}
+                </div>
               </>
             )}
             {/* {event?.hostPermissionRequired && (

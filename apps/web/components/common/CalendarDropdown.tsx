@@ -8,6 +8,8 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { useGetEventById } from '@/lib/react-query/event';
+import { CalendarPlus } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export const CalendarDropdown = ({ eventId }: { eventId: string }) => {
   const { data: eventData } = useGetEventById(eventId);
@@ -59,7 +61,14 @@ export const CalendarDropdown = ({ eventId }: { eventId: string }) => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger>
-        <Button className="w-full rounded-full px-4 py-2">Add to Calendar</Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-primary bg-black text-primary transition-all hover:bg-primary hover:text-white">
+              <CalendarPlus className="h-6 w-6 " />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Add to Calendar</TooltipContent>
+        </Tooltip>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-56 rounded-lg"
