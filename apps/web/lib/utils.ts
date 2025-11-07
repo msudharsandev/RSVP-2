@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { Event } from '@/types/events';
+import { formatDate } from '@/utils/formatDate';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -9,8 +10,8 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatDateTime = (date: string) => {
   return {
-    date: dayjs(date).format('DD MMM YYYY'),
-    time: dayjs(date).format('h:mm A'),
+    date: formatDate(date, { dateOnly: true }),
+    time: formatDate(date, { timeOnly: true }),
   };
 };
 

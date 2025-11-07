@@ -6,9 +6,9 @@ import { Event } from '@/types/events';
 import { getProfilePictureUrl, venueDisplay } from '@/utils/event';
 import { CalendarDaysIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { ClockIcon, LinkIcon, MessageCircleIcon, UsersIcon, UserIcon, Loader2 } from 'lucide-react';
-import dayjs from 'dayjs';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatDate } from '@/utils/formatDate';
 
 interface CommunicationProps {
   event: Event;
@@ -39,24 +39,11 @@ const Communication = ({ event, totalAttendees }: CommunicationProps) => {
     ? communicationsData
     : communicationsData?.data || [];
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-    });
-  };
-
-  const formatDate = (timestamp: string) => {
-    return dayjs(timestamp).format('dddd, MMMM D');
-  };
-
   const formatTimeRange = () => {
-    const startTime = dayjs(event.startTime).format('h:mm A');
-    const endTime = dayjs(event.endTime).format('h:mm A');
-    const startDate = dayjs(event.startTime).format('dddd, MMMM D');
-    const endDate = dayjs(event.endTime).format('dddd, MMMM D');
+    const startTime = formatDate(event.startTime, { timeOnly: true });
+    const endTime = formatDate(event.endTime, { timeOnly: true });
+    const startDate = formatDate(event.startTime, { withWeekday: true });
+    const endDate = formatDate(event.endTime, { withWeekday: true });
 
     return {
       startTime,
@@ -210,8 +197,8 @@ const Communication = ({ event, totalAttendees }: CommunicationProps) => {
                           </span>
                         </div>
                         <div className="text-xs text-secondary">
-                          {formatDate(msg.updatedAt || msg.createdAt)} at{' '}
-                          {formatTime(msg.updatedAt || msg.createdAt)}
+                          {formatDate(msg.updatedAt || msg.createdAt, { withWeekday: true })} at{' '}
+                          {formatDate(msg.updatedAt || msg.createdAt, { timeOnly: true })}
                         </div>
                       </div>
 

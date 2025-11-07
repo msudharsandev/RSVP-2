@@ -17,6 +17,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import Tiptap, { EditorRefType } from '../ui/tiptap';
 import ChatMessage from './ChatMessage';
 import { LoaderCircle } from 'lucide-react';
+import { formatDate } from '@/utils/formatDate';
 
 interface CommunicationProps {
   eventId: string;
@@ -67,18 +68,6 @@ const Communication = ({ eventId }: CommunicationProps) => {
     tiptapEditorRef.current?.editor?.commands.clearContent();
   };
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-    });
-  };
-
   return (
     <section className="flex w-full flex-col space-y-8">
       <h3>Communicate with your Attendees</h3>
@@ -94,7 +83,7 @@ const Communication = ({ eventId }: CommunicationProps) => {
                         key={index}
                         user={msg.user}
                         message={msg.content}
-                        time={formatTime(msg.updatedAt)}
+                        time={`${formatDate(msg.updatedAt, { withWeekday: true })} at ${formatDate(msg.updatedAt, { timeOnly: true })}`}
                       />
                     )
                   )}

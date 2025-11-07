@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { formatDate } from '@/utils/formatDate';
 
 export const EventHeroSection = () => {
   const eventId = useParams().id?.toString();
@@ -25,7 +26,7 @@ export const EventHeroSection = () => {
 
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      const date = dayjs().format('YYYY-MM-DD');
+      const date = formatDate(dayjs(), { dateOnly: true });
       link.download = `guest-list-${eventId}-${date}.xlsx`;
       document.body.appendChild(link);
       link.click();

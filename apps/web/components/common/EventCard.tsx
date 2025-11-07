@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils';
 import { ArrowUpRightIcon } from '@heroicons/react/24/solid';
-import dayjs from 'dayjs';
 import Image from 'next/image';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { venueDisplay } from '@/utils/event';
 import { Event } from '@/types/events';
+import { formatDate } from '@/utils/formatDate';
 
 type CardProps = {
   className?: string;
@@ -43,7 +43,7 @@ const Card = ({ className, event, type }: CardProps) => {
           Hosted By - {event.creator?.fullName || event.creator?.userName || 'Unknown Host'}
         </span>
         <span className="font-bold">
-          {event?.startTime ? dayjs(event.startTime).format('hh:mm A, DD MMM YYYY') : ''}
+          {event?.startTime ? formatDate(event.startTime, { withTime: true }) : ''}
         </span>
         <span className="font-medium">{venueDisplay(event)}</span>
       </section>

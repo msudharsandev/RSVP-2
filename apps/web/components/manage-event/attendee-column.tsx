@@ -3,10 +3,10 @@ import { Badge, BadgeVariant } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Attendee } from '@/types/attendee';
 import { ColumnDef } from '@tanstack/react-table';
-import dayjs from 'dayjs';
 import { useUpdateAttendeeStatus } from '@/lib/react-query/event';
 import { useState, useEffect } from 'react';
 import { getBadgeVariant, getProfilePictureUrl } from '@/utils/event';
+import { formatDate } from '@/utils/formatDate';
 
 const attendeeColumns: ColumnDef<Attendee>[] = [
   {
@@ -69,7 +69,7 @@ const attendeeColumns: ColumnDef<Attendee>[] = [
     header: 'Registration Date',
     cell: ({ row }) => {
       const date = row.original.registrationTime;
-      return dayjs(date).format('DD MMM YYYY');
+      return formatDate(date, { dateOnly: true });
     },
   },
 ];

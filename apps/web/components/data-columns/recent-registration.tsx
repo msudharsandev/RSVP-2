@@ -4,8 +4,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 import { AvatarFallback, Avatar, AvatarImage } from '../ui/avatar';
 import { Attendee } from '@/types/attendee';
-import dayjs from 'dayjs';
 import { getBadgeVariant, getProfilePictureUrl } from '@/utils/event';
+import { formatDate } from '@/utils/formatDate';
 
 export const recentRegistrationColumns: ColumnDef<Attendee>[] = [
   {
@@ -40,7 +40,7 @@ export const recentRegistrationColumns: ColumnDef<Attendee>[] = [
     header: 'Registration Date',
     cell: ({ row }) => {
       const date = row.original.registrationTime;
-      return dayjs(date).format('DD MMM YYYY');
+      return formatDate(date, { dateOnly: true });
     },
   },
 ];

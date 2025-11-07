@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar, CalendarProps } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import dayjs from 'dayjs';
+import { formatDate } from '@/utils/formatDate';
 
 function FormDatePicker<
   TFieldValues extends FieldValues = FieldValues,
@@ -57,7 +57,7 @@ function FormDatePicker<
                     className
                   )}
                 >
-                  {field.value ? dayjs(field.value).format('DD MMM YYYY') : <span>Date</span>}
+                  {field.value ? formatDate(field.value, { dateOnly: true }) : <span>Date</span>}
                   <CalendarIcon className={cn('ml-auto h-4 w-4 opacity-50', iconClassName)} />
                 </Button>
               </FormControl>

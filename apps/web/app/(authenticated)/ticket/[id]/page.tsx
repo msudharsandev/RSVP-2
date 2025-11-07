@@ -4,6 +4,7 @@ import LoadingScreen from '@/components/common/LoadingScreen';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/lib/react-query/auth';
 import { useCancelEvent, useGetAttendeeDetails, useGetEventById } from '@/lib/react-query/event';
+import { formatDate } from '@/utils/formatDate';
 import { MapPinIcon } from '@heroicons/react/24/solid';
 import dayjs from 'dayjs';
 import { LoaderCircle, Presentation } from 'lucide-react';
@@ -102,7 +103,7 @@ const TicketPage = () => {
             <div>
               <p className="font-bold">EVENT</p>
               <p className="mt-2 text-2xl font-bold">
-                {event?.name}, {dayjs(event?.startTime).format('DD MMM YYYY')}
+                {event?.name}, {formatDate(event?.startTime, { dateOnly: true })}
               </p>
             </div>
             <div>

@@ -4,9 +4,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Icons } from '../common/Icon';
 import { Event } from '@/types/events';
-import dayjs from 'dayjs';
 import { getDateGroups } from '@/lib/utils';
 import { Badge } from '../ui/badge';
+import { formatDate } from '@/utils/formatDate';
 
 const Timeline = ({ events }: { events?: Event[] }) => {
   if (!events || events.length === 0) {
@@ -36,14 +36,14 @@ const Timeline = ({ events }: { events?: Event[] }) => {
 
             {/* Event Date - Laptop View*/}
             <div className="absolute left-[2rem] top-0 hidden pr-4 text-right text-sm font-medium md:left-[-6rem] md:block">
-              {dayjs(dateGroup.date).format('DD MMM YYYY')}
+              {formatDate(dateGroup.date, { dateOnly: true })}
             </div>
 
             {/* Container for each day */}
             <div className="pl-4 md:pl-6">
               {/* Event Date - Mobile View */}
               <div className="block pb-4 text-left text-sm font-medium md:hidden">
-                {dayjs(dateGroup.date).format('DD MMM YYYY')}
+                {formatDate(dateGroup.date, { dateOnly: true })}
               </div>
 
               {dateGroup?.events?.map((event, eventIndex) => (
@@ -66,7 +66,7 @@ const Timeline = ({ events }: { events?: Event[] }) => {
 
                         <CardContent className="flex flex-col gap-1 p-0 pt-2">
                           <p className="text-base font-bold leading-[19.6px]">
-                            {dayjs(event.startTime).format('HH:mm A, DD MMM YYYY')}
+                            {formatDate(event.startTime, { withTime: true })}
                           </p>
                           <p className="text-sm font-medium leading-[19.6px]">
                             {event.venueAddress}

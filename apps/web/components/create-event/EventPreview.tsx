@@ -1,10 +1,10 @@
 import { CreateEventFormType } from '@/lib/zod/event';
 import { CalendarIcon, MapPinIcon } from '@heroicons/react/24/solid';
-import dayjs from 'dayjs';
 import { X } from 'lucide-react';
 import { ReactNode } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from '../ui/button';
+import { formatDate } from '@/utils/formatDate';
 
 type EventPreviewProps = {
   className?: string;
@@ -62,12 +62,12 @@ const EventPreview = ({ className, children, venueType }: EventPreviewProps) => 
         <div className="text-white">
           <p className="text-sm font-semibold">From</p>
           <span className="font-medium">
-            {watch('fromDate') ? dayjs(watch('fromDate')).format('DD MMM YYYY') : '-'},
+            {watch('fromDate') ? formatDate(watch('fromDate'), { dateOnly: true }) : '-'},
           </span>
           <span className="ml-1 font-medium">{watch('fromTime') || '-'}</span>
           <p className="mt-3 text-sm font-semibold">To</p>
           <span className="font-medium">
-            {watch('toDate') ? dayjs(watch('toDate')).format('DD MMM YYYY') : '-'},
+            {watch('toDate') ? formatDate(watch('toDate'), { dateOnly: true }) : '-'},
           </span>
           <span className="ml-1 font-medium">{watch('toTime') || '-'}</span>
         </div>

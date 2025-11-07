@@ -19,6 +19,7 @@ import {
 } from '../ui/alert-dialog';
 import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
+import { formatDate } from '@/utils/formatDate';
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
 
@@ -94,9 +95,9 @@ const EditEventForm = () => {
     locationMapUrl: event?.venueUrl ?? undefined,
     hostPermissionRequired: event?.hostPermissionRequired ?? false,
     discoverable: event?.discoverable ?? false,
-    fromTime: dayjs(event?.startTime).format('HH:mm'),
+    fromTime: event?.startTime ? formatDate(event.startTime, { time24: true }) : '',
     fromDate: event?.startTime ?? allowedDate,
-    toTime: dayjs(event?.endTime).format('HH:mm'),
+    toTime: event?.endTime ? formatDate(event.endTime, { time24: true }) : '',
     toDate: event?.endTime ?? allowedDate,
     capacity: event?.capacity ?? 0,
     eventImageUrl: event?.eventImageUrl ?? '',

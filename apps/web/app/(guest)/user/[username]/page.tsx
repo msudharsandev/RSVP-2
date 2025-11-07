@@ -12,6 +12,7 @@ import { useUserDetailsByUsername } from '@/lib/react-query/user';
 import { userAvatarOptions, INVALID_DATE } from '@/utils/constants';
 import { SocialPlatform } from '@/types/user';
 import { getIcon, getSocialLink } from '@/utils/user';
+import { formatDate } from '@/utils/formatDate';
 
 const Page = () => {
   const params = useParams();
@@ -26,10 +27,9 @@ const Page = () => {
   }, [userDetails?.data?.data.profileIcon]);
 
   const date_string = userDetails?.data?.data.createdAt;
-  const formatted_date =
-    date_string && dayjs(date_string).isValid()
-      ? dayjs(date_string).format('dddd, MMMM DD')
-      : INVALID_DATE;
+  const formatted_date = date_string
+    ? formatDate(date_string, { withWeekday: true })
+    : INVALID_DATE;
 
   return (
     <Container className="container-main py-16">

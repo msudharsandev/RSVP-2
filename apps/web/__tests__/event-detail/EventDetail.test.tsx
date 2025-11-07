@@ -23,7 +23,7 @@ describe('EventDetail', () => {
   it('should format and display date and time correctly', () => {
     renderWithQueryClient(<EventDetail eventData={TEST_EVENT_DATA} />);
 
-    const formattedDate = dayjs(TEST_EVENT.startTime).format('dddd, MMMM D');
+    const formattedDate = dayjs(TEST_EVENT.startTime).format('ddd, MMM D');
     const startTime = dayjs(TEST_EVENT.startTime).format('h:mm A');
     const endTime = dayjs(TEST_EVENT.endTime).format('h:mm A');
 

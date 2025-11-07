@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { notFound, useParams } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '../ui/button';
+import { formatDate } from '@/utils/formatDate';
 
 type CustomiseEventCarDProps = {
   className: string;
@@ -36,8 +37,11 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
 
   if (!isSuccess) return notFound();
 
-  const { date, time } = formatDateTime(event.startTime.toISOString());
-  const { date: endDate, time: endTime } = formatDateTime(event.endTime.toISOString());
+  const startDate = formatDate(event.startTime, { dateOnly: true });
+  const startTime = formatDate(event.startTime, { timeOnly: true });
+
+  const endDate = formatDate(event.endTime, { dateOnly: true });
+  const endTime = formatDate(event.endTime, { timeOnly: true });
 
   const handleShare = async () => {
     try {
@@ -130,8 +134,8 @@ const CustomiseEventCard = ({ className, event, isSuccess }: CustomiseEventCarDP
             <div className="flex flex-wrap gap-3.5">
               <div>
                 <p className="mb-1 text-xs font-semibold">From</p>
-                <span className="font-medium">{date}</span>
-                <span className="ml-1 font-medium">{time}</span>
+                <span className="font-medium">{startDate}</span>
+                <span className="ml-1 font-medium">{startTime}</span>
               </div>
               <div>
                 <p className="mb-1 text-xs font-semibold">To</p>

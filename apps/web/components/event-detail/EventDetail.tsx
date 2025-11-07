@@ -2,7 +2,6 @@
 import { Event } from '@/types/events';
 import { getProfilePictureUrl, venueDisplay } from '@/utils/event';
 import { CalendarDaysIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import dayjs from 'dayjs';
 import { ClockIcon, LinkIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '../ui/badge';
 import AvatarGroup from './AvatarGroup';
 import GetTicketsButton from './GetTicketsButton';
+import { formatDate } from '@/utils/formatDate';
 
 const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees: number } }) => {
   const { event: eventInfo, totalAttendees } = eventData;
@@ -20,10 +20,10 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
   const [formattedEndDate, setFormattedEndDate] = useState('');
 
   useEffect(() => {
-    setFormattedStartDate(dayjs(event.startTime).format('dddd, MMMM D'));
-    setFormattedStartTime(dayjs(event.startTime).format('h:mm A'));
-    setFormattedEndTime(dayjs(event.endTime).format('h:mm A'));
-    setFormattedEndDate(dayjs(event.endTime).format('dddd, MMMM D'));
+    setFormattedStartDate(formatDate(event.startTime, { withWeekday: true }));
+    setFormattedStartTime(formatDate(event.startTime, { timeOnly: true }));
+    setFormattedEndTime(formatDate(event.endTime, { timeOnly: true }));
+    setFormattedEndDate(formatDate(event.endTime, { withWeekday: true }));
   }, [event.startTime, event.endTime]);
 
   const additionalCount = totalAttendees > 4 ? totalAttendees - 4 : 0;
