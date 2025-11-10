@@ -29,19 +29,24 @@ export async function generateMetadata({
     }
 
     const event = eventData.event;
+    // Convert description to Plain text for metadata
+    const eventDescription =
+      (event.description && event.description.replace(/<[^>]+>/g, '')) ||
+      `Join us for ${event.name}`;
+
     return {
       title: event.name,
-      description: event.description || `Join us for ${event.name}`,
+      description: eventDescription,
       openGraph: {
         title: event.name,
-        description: event.description || `Join us for ${event.name}`,
+        description: eventDescription,
         images: event.eventImageUrl ? [event.eventImageUrl] : [],
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
         title: event.name,
-        description: event.description || `Join us for ${event.name}`,
+        description: eventDescription,
         images: event.eventImageUrl ? [event.eventImageUrl] : [],
       },
     };
