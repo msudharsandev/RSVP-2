@@ -22,8 +22,10 @@ import {
   TEST_USER_ID,
 } from '@/utils/testConstants';
 
-import { Role } from '@prisma/client';
+import { HostRole as Role } from '@prisma/client';
 import { eventManageMiddleware } from '@/middleware/hostMiddleware';
+import { ApiError, InternalError } from '@/utils/apiError';
+import logger from '@/utils/logger';
 
 const API_ROLES = {
   CHECK_ALLOW_STATUS: [Role.CREATOR, Role.MANAGER],
@@ -72,7 +74,15 @@ vi.mock('@/middleware/hostMiddleware', () => {
 
 const app = express();
 app.use(express.json());
-app.use(eventRouter);
+app.use(eventRouter).use((err: Error, _req: any, res: any, _next: NextFunction) => {
+  if (err instanceof ApiError) {
+    ApiError.handle(err, res);
+  } else {
+    logger.error(err);
+    const errorMessage = 'Something went wrong';
+    ApiError.handle(new InternalError(errorMessage), res);
+  }
+});
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -82,16 +92,16 @@ beforeEach(() => {
 describe('Event Router Endpoints', () => {
   describe('GET /slug/:slug', () => {
     it('should return event details and attendee count when a valid slug is provided', async () => {
-      vi.spyOn(Events as any, 'findUnique').mockResolvedValue(FAKE_EVENT);
+      vi.spyOn(Events as any, 'findbySlug').mockResolvedValue(FAKE_EVENT);
       vi.spyOn(Attendees as any, 'countAttendees').mockResolvedValue(FAKE_ATTENDEE_COUNT);
       const res = await request(app).get(`${ENDPOINT_SLUG}/${FAKE_EVENT.slug}`);
       expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('event', FAKE_EVENT);
-      expect(res.body).toHaveProperty('totalAttendees', FAKE_ATTENDEE_COUNT);
+      expect(res.body.data).toHaveProperty('event', FAKE_EVENT);
+      expect(res.body.data).toHaveProperty('totalAttendees', FAKE_ATTENDEE_COUNT);
     });
 
     it('should return 404 if no event is found', async () => {
-      vi.spyOn(Events as any, 'findUnique').mockResolvedValue(null);
+      vi.spyOn(Events as any, 'findbySlug').mockResolvedValue(null);
       const res = await request(app).get(`${ENDPOINT_SLUG}/nonexistent-slug`);
       expect(res.status).toBe(HTTP_NOT_FOUND);
       expect(res.body).toHaveProperty('message', 'Event not found');
@@ -104,10 +114,10 @@ describe('Event Router Endpoints', () => {
         { id: 'event-1', name: 'Event One' },
         { id: 'event-2', name: 'Event Two' },
       ];
-      vi.spyOn(Events as any, 'findAllEvents').mockResolvedValue(fakeEvents);
+      vi.spyOn(Events as any, 'findEvents').mockResolvedValue(fakeEvents);
       const res = await request(app).get('/');
       expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('message', 'All Events Data');
+      expect(res.body).toHaveProperty('message', 'success');
       expect(res.body).toHaveProperty('data', fakeEvents);
     });
   });
@@ -116,25 +126,26 @@ describe('Event Router Endpoints', () => {
     const validPhysicalEventPayload = {
       name: 'Annual Conference',
       category: 'Conference',
-      description: 'An event to discuss annual trends',
+      richtextDescription: 'An event to discuss annual trends',
       eventImageUrl: 'img-123',
-      venueType: 'physical',
+      venueType: 'PHYSICAL',
       venueAddress: 'World Trade Center, Bengaluru',
       hostPermissionRequired: true,
       capacity: 50,
       startTime: new Date(Date.now() + 3600 * 1000).toISOString(),
       endTime: new Date(Date.now() + 7200 * 1000).toISOString(),
-      eventDate: new Date(Date.now() + 86400 * 1000).toISOString(),
+      discoverable: true,
     };
     const invalidPhysicalEventPayload = {
       ...validPhysicalEventPayload,
       venueUrl: 'https://example.com/venue',
       venueAddress: 'World Trade Center, Bengaluru',
+      invalidVanueField: 'invalid vanue field',
     };
 
     it('should create a new event with valid data', async () => {
       isAuthenticated = true;
-      const fakeUser = { id: TEST_USER_ID, is_completed: true, primary_email: 'user@example.com' };
+      const fakeUser = { id: TEST_USER_ID, isCompleted: true, primary_email: 'user@example.com' };
       vi.spyOn(Users as any, 'findById').mockResolvedValue(fakeUser);
       const fakeNewEvent = {
         id: 'event-456',
@@ -144,9 +155,9 @@ describe('Event Router Endpoints', () => {
       vi.spyOn(Events as any, 'create').mockResolvedValue(fakeNewEvent);
       vi.spyOn(CohostRepository as any, 'create').mockResolvedValue(undefined);
       const res = await request(app).post('/').send(validPhysicalEventPayload);
-      expect(res.status).toBe(HTTP_CREATED);
+      expect(res.status).toBe(HTTP_OK);
       expect(res.body).toHaveProperty('message', 'success');
-      expect(res.body.event).toMatchObject({
+      expect(res.body.data).toMatchObject({
         id: fakeNewEvent.id,
         name: validPhysicalEventPayload.name,
         slug: expect.any(String),
@@ -178,7 +189,7 @@ describe('Event Router Endpoints', () => {
   describe(`GET ${ENDPOINT_POPULAR_EVENTS}`, () => {
     it('should return popular events with a specified limit', async () => {
       const fakePopularEvents = [{ id: 'event-1', name: 'Popular Event' }];
-      vi.spyOn(Events as any, 'getPopularEvents').mockResolvedValue(fakePopularEvents);
+      vi.spyOn(Events as any, 'findAllPopularEvents').mockResolvedValue(fakePopularEvents);
       const res = await request(app).get(ENDPOINT_POPULAR_EVENTS).query({ limit: 5 });
       expect(res.status).toBe(HTTP_OK);
       expect(res.body).toHaveProperty('data', fakePopularEvents);
