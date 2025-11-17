@@ -161,7 +161,9 @@ const PhoneNumberForm = ({ user }: Props) => {
     <FormProvider methods={form} onSubmit={form.handleSubmit(onSubmit)}>
       <ProfileSection title="Phone Number" description="Invites will be sent to this phone number.">
         <div>
-          <Label className="block text-sm font-medium mb-2">Phone Number</Label>
+          <Label className="block text-sm font-medium mb-2" aria-label="phone number">
+            Phone Number
+          </Label>
           <div className="flex items-center gap-0">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
