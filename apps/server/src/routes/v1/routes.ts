@@ -6,6 +6,7 @@ import { cohostRouter } from './cohost.routes';
 import { stateRouter } from '../state.routes';
 import { socialLinksRouter } from './socialLinks.routes';
 import { countryRouter } from './country.routes';
+import { categoryRouter } from './category.routes';
 
 const router: Router = Router();
 
@@ -16,5 +17,6 @@ router.use('/cohosts', cohostRouter);
 router.use('/states', stateRouter);
 router.use('/countries', countryRouter);
 router.use('/socials', socialLinksRouter);
+router.use('/categories', categoryRouter);
 
 export { router };
