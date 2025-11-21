@@ -65,6 +65,14 @@ jobs:
         if: steps.filter.outputs.server == 'true'
         run: pnpm --filter server build
 
+      - name: Backend Test Cases Check
+        if: steps.filter.outputs.server == 'true'
+        run: pnpm --filter server test
+
+      - name: Frontend Test Cases Check
+        if: steps.filter.outputs.web == 'true'
+        run: pnpm --filter web test
+
       - name: Check linked issues
         if: always()
         id: linked-issues
