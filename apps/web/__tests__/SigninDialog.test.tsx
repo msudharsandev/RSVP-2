@@ -130,7 +130,9 @@ describe('SigninDialog (frontend login)', () => {
     expect(submitBtn).not.toBeDisabled();
     await user.click(submitBtn);
     await user.click(submitBtn);
-    await vi.runOnlyPendingTimersAsync();
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
 
     await waitFor(() => expect(localStorageMock.setItem).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(mutateCalled).toBe(true));
@@ -145,7 +147,9 @@ describe('SigninDialog (frontend login)', () => {
     expect(resendBtn).toBeDisabled();
     expect(resendBtn).toHaveTextContent(/resend in/i);
 
-    vi.advanceTimersByTime(121_000);
+    act(() => {
+      vi.advanceTimersByTime(121_000);
+    });
     await waitFor(() => expect(resendBtn).not.toBeDisabled());
     expect(resendBtn).toHaveTextContent(/click to resend/i);
   });
@@ -239,7 +243,9 @@ describe('SigninDialog (frontend login)', () => {
 
     const submitBtn = await screen.findByRole('button', { name: /send magic link/i });
     await user.click(submitBtn);
-    await vi.runOnlyPendingTimersAsync();
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
 
     const resendBtn = await screen.findByRole('button', { name: /resend/i });
     expect(resendBtn).toBeDisabled();
@@ -248,7 +254,9 @@ describe('SigninDialog (frontend login)', () => {
     await user.click(resendBtn);
     expect(mutateMock).toHaveBeenCalledTimes(1);
 
-    vi.advanceTimersByTime(121_000);
+    act(() => {
+      vi.advanceTimersByTime(121_000);
+    });
     await waitFor(() => expect(resendBtn).not.toBeDisabled());
 
     await user.click(resendBtn);
@@ -300,6 +308,47 @@ describe('SigninDialog (frontend login)', () => {
     fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
 
     fireEvent.click(screen.getByText('Open Signin'));
+    await screen.findByRole('button', { name: /send magic link/i });
+    expect(screen.queryByText(/check your email!/i)).toBeNull();
+  });
+
+  it('does not resend while countdown is active and resumes countdown after manual close and reopen', async () => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+
+    mutateMock.mockImplementation((_payload, opts) => {
+      opts?.onSuccess?.({});
+      return Promise.resolve();
+    });
+
+    renderDialog();
+    await user.click(screen.getByText('Open Signin'));
+
+    const emailInput = await screen.findByLabelText('email');
+    await user.clear(emailInput);
+    await user.type(emailInput, 'user@example.com');
+
+    const submitBtn = await screen.findByRole('button', { name: /send magic link/i });
+    await user.click(submitBtn);
+
+    await act(async () => {
+      await vi.runOnlyPendingTimersAsync();
+    });
+
+    const resendBtn = await screen.findByTestId('resend-btn');
+    expect(resendBtn).toBeDisabled();
+
+    await user.click(resendBtn);
+    expect(mutateMock).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      vi.advanceTimersByTime(60_000);
+    });
+    expect(resendBtn).toBeDisabled();
+
+    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' });
+
+    await user.click(screen.getByText('Open Signin'));
     await screen.findByRole('button', { name: /send magic link/i });
     expect(screen.queryByText(/check your email!/i)).toBeNull();
   });
