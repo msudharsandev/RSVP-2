@@ -319,7 +319,10 @@ export class AttendeeRepository {
    * @param status - The new status.
    * @returns The updated attendees.
    */
-  static async updateMultipleAttendeesStatus(where: Prisma.AttendeeWhereInput, status: Status) {
+  static async updateMultipleAttendeesStatus(
+    where: Prisma.AttendeeWhereInput,
+    status: AttendeeStatus
+  ) {
     where.isDeleted = false;
     return await prisma.attendee.updateMany({
       where,
