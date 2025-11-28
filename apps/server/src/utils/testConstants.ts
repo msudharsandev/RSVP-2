@@ -11,7 +11,7 @@ export const TEST_USER_ID = 'test-user';
 
 export const ENDPOINT_SLUG = '/slug';
 export const ENDPOINT_POPULAR_EVENTS = '/popular';
-export const ENDPOINT_FILTER_EVENTS = '/filter';
+export const ENDPOINT_FILTER_EVENTS = '/';
 export const ENDPOINT_USER_EVENTS = '/user';
 export const ENDPOINT_AUTH_ME = '/me';
 

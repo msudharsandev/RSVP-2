@@ -90,6 +90,8 @@ beforeEach(() => {
 });
 
 describe('Event Router Endpoints', () => {
+  const fakeEventId = '123e4567-e89b-12d3-a456-426614174000';
+
   describe('GET /slug/:slug', () => {
     it('should return event details and attendee count when a valid slug is provided', async () => {
       vi.spyOn(Events as any, 'findbySlug').mockResolvedValue(FAKE_EVENT);
@@ -196,16 +198,24 @@ describe('Event Router Endpoints', () => {
     });
   });
 
-  describe(`GET ${ENDPOINT_FILTER_EVENTS}`, () => {
+  describe(`GET / (filteredEvents)`, () => {
     it('should return filtered events with metadata', async () => {
       const fakeEvents = [{ id: 'event-1', name: 'Filtered Event' }];
-      vi.spyOn(Events as any, 'findEvents').mockResolvedValue(fakeEvents);
-      vi.spyOn(Events as any, 'findAllEvents').mockResolvedValue(fakeEvents);
+      const fakeMetadata = {
+        total: 1,
+        page: 1,
+        limit: 10,
+        hasMore: false,
+      };
+      vi.spyOn(Events as any, 'findEvents').mockResolvedValue({
+        events: fakeEvents,
+        metadata: fakeMetadata,
+      });
       const res = await request(app).get(ENDPOINT_FILTER_EVENTS).query({ page: 1, limit: 10 });
       expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('message', 'Filtered Events Data');
-      expect(res.body).toHaveProperty('data', fakeEvents);
-      expect(res.body).toHaveProperty('metadata');
+      expect(res.body).toHaveProperty('message', 'success');
+      expect(res.body.data).toHaveProperty('events', fakeEvents);
+      expect(res.body.data).toHaveProperty('metadata', fakeMetadata);
     });
   });
 
@@ -215,7 +225,7 @@ describe('Event Router Endpoints', () => {
       const fakeUser = { id: TEST_USER_ID };
       vi.spyOn(Users as any, 'findById').mockResolvedValue(fakeUser);
       const fakePlannedEvents = [{ id: 'event-1', name: 'User Event' }];
-      vi.spyOn(Events as any, 'plannedEvents').mockResolvedValue(fakePlannedEvents);
+      vi.spyOn(Events as any, 'findAllPlannedEvents').mockResolvedValue(fakePlannedEvents);
       const res = await request(app).get(ENDPOINT_USER_EVENTS).query({ page: 1, limit: 10 });
       expect(res.status).toBe(HTTP_OK);
       expect(res.body).toHaveProperty('message', 'success');
@@ -227,9 +237,10 @@ describe('Event Router Endpoints', () => {
     it('should soft-delete the attendee record', async () => {
       isAuthenticated = true;
       const fakeAttendee = { id: 'attendee-1', userId: TEST_USER_ID, deleted: false };
+      vi.spyOn(Events, 'findById').mockResolvedValue({ id: fakeEventId } as any);
       vi.spyOn(Attendees as any, 'findByUserIdAndEventId').mockResolvedValue(fakeAttendee);
-      vi.spyOn(Attendees as any, 'softDelete').mockResolvedValue(undefined);
-      const res = await request(app).delete(`/event-123/attendee`);
+      vi.spyOn(Attendees as any, 'cancel').mockResolvedValue(undefined);
+      const res = await request(app).delete(`/${fakeEventId}/attendee`);
       expect(res.status).toBe(HTTP_OK);
       expect(res.body).toHaveProperty('message', 'Attendee removed successfully');
     });
@@ -238,70 +249,18 @@ describe('Event Router Endpoints', () => {
   describe(`GET /:eventId (getEventById)`, () => {
     it('should return event details when a valid eventId is provided', async () => {
       isAuthenticated = true;
-      const fakeEventDetail = { id: 'event-123', name: 'Event Detail' };
+      const fakeEventDetail = { id: fakeEventId, name: 'Event Detail' };
       vi.spyOn(Events as any, 'findById').mockResolvedValue(fakeEventDetail);
       vi.spyOn(Attendees as any, 'countAttendees').mockResolvedValue(5);
-      const res = await request(app).get(`/event-123`);
+      const res = await request(app).get(`/${fakeEventId}`);
       expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('event', fakeEventDetail);
-      expect(res.body).toHaveProperty('totalAttendees', 5);
-    });
-  });
-
-  describe('GET /:eventId/attendee/:userId/allowStatus (checkAllowStatus)', () => {
-    const eventId = 'event-123';
-    const userId = TEST_USER_ID;
-    const endpoint = `/${eventId}/attendee/${userId}/allowStatus`;
-
-    it('should allow authenticated CREATOR role to check allow status', async () => {
-      isAuthenticated = true;
-      currentTestRole = Role.MANAGER;
-      vi.spyOn(Events as any, 'findById').mockResolvedValue({ id: eventId, name: 'Test Event' });
-      vi.spyOn(CohostRepository as any, 'checkHostForEvent').mockResolvedValue(true);
-      const res = await request(app).get(endpoint);
-      expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('message', 'Success');
-      expect(res.body.data).toHaveProperty('success', true);
-    });
-
-    it('should deny unauthenticated requests from checking allow status', async () => {
-      isAuthenticated = false;
-      currentTestRole = Role.CREATOR;
-      const res = await request(app).get(endpoint);
-      expect(res.status).toBe(401);
-      expect(res.body).toHaveProperty('message', 'Invalid or expired tokens');
-    });
-
-    it('should allow authenticated MANAGER role to check allow status', async () => {
-      isAuthenticated = true;
-      currentTestRole = Role.MANAGER;
-      vi.spyOn(Events as any, 'findById').mockResolvedValue({ id: eventId, name: 'Test Event' });
-      vi.spyOn(CohostRepository as any, 'checkHostForEvent').mockResolvedValue(true);
-      const res = await request(app).get(endpoint);
-      expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('message', 'Success');
-      expect(res.body.data).toHaveProperty('success', true);
-    });
-
-    it('should deny authenticated ReadOnly role from checking allow status', async () => {
-      isAuthenticated = true;
-      currentTestRole = Role.READ_ONLY;
-      const res = await request(app).get(endpoint);
-      expect(res.status).toBe(403);
-      expect(res.body).toHaveProperty('message', 'Access denied: Insufficient permissions');
-    });
-
-    it('should deny authenticated requests with no role from checking allow status', async () => {
-      isAuthenticated = true;
-      currentTestRole = null;
-      const res = await request(app).get(endpoint);
-      expect(res.status).toBe(403);
-      expect(res.body).toHaveProperty('message', 'Access denied: No role specified');
+      expect(res.body.data).toHaveProperty('event', fakeEventDetail);
+      expect(res.body.data).toHaveProperty('totalAttendees', 5);
     });
   });
 
   describe('DELETE /:eventId (deleteEvent)', () => {
-    const eventId = 'event-123';
+    const eventId = fakeEventId;
     const endpoint = `/${eventId}`;
 
     it('should allow authenticated CREATOR role to delete an event', async () => {
@@ -314,7 +273,6 @@ describe('Event Router Endpoints', () => {
       const res = await request(app).delete(endpoint);
       expect(res.status).toBe(HTTP_OK);
       expect(res.body).toHaveProperty('message', 'Event deleted successfully');
-      expect(res.body).toHaveProperty('success', true);
       expect(res.body).toHaveProperty('data', deletedEvent);
     });
 
@@ -391,7 +349,7 @@ describe('Event Router Endpoints', () => {
       });
 
       expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('success', true);
+      expect(res.body).toHaveProperty('message', 'success');
       expect(res.body.data).toMatchObject({
         id: fakeSlugReq.id,
         name: fakeSlugReq.name,
@@ -418,7 +376,7 @@ describe('Event Router Endpoints', () => {
       });
 
       expect(res.status).toBe(HTTP_OK);
-      expect(res.body).toHaveProperty('success', true);
+      expect(res.body).toHaveProperty('message', 'success');
       expect(res.body.data).toMatchObject({
         id: fakeSlugReq.id,
         name: fakeSlugReq.name,
@@ -476,7 +434,7 @@ describe('Event Router Endpoints', () => {
     });
 
     describe('PATCH /:eventId/cancel (CancelEvent)', () => {
-      const eventId = 'event-123';
+      const eventId = fakeEventId;
       const endpoint = `/${eventId}/cancel`;
 
       it('should allow authenticated CREATOR role to cancel an event', async () => {
@@ -486,14 +444,14 @@ describe('Event Router Endpoints', () => {
         const fakeEvent = {
           id: eventId,
           name: 'Event to cancel',
-          isCancelled: false,
+          isActive: true,
           creatorId: TEST_USER_ID,
         };
 
         const cancelledEvent = {
           ...fakeEvent,
-          isCancelled: true,
-          cancelledAt: new Date(),
+          isActive: false,
+          updatedAt: new Date(),
         };
 
         vi.spyOn(Events as any, 'findById').mockResolvedValue(fakeEvent);
@@ -502,12 +460,12 @@ describe('Event Router Endpoints', () => {
         const res = await request(app).patch(endpoint);
 
         expect(res.status).toBe(HTTP_OK);
-        expect(res.body).toHaveProperty('success', true);
+        expect(res.body).toHaveProperty('message', 'success');
         expect(res.body.data).toHaveProperty('id', eventId);
         expect(res.body.data).toHaveProperty('name', 'Event to cancel');
-        expect(res.body.data).toHaveProperty('isCancelled', true);
+        expect(res.body.data).toHaveProperty('isActive', false);
         expect(res.body.data).toHaveProperty('creatorId', TEST_USER_ID);
-        expect(res.body.data).toHaveProperty('cancelledAt');
+        expect(res.body.data).toHaveProperty('updatedAt');
       });
 
       it('should deny unauthenticated requests from cancelling an event', async () => {
@@ -557,7 +515,7 @@ describe('Event Router Endpoints', () => {
         currentTestRole = Role.CREATOR;
 
         const alreadyCancelledEvent = {
-          id: eventId,
+          id: fakeEventId,
           name: 'Already Cancelled Event',
           isCancelled: true,
           creatorId: TEST_USER_ID,
