@@ -221,7 +221,7 @@ describe('Category Controllers', () => {
     it('returns different categories for different valid UUIDs', async () => {
       const uuid1 = '550e8400-e29b-41d4-a716-446655440010';
       const uuid2 = '550e8400-e29b-41d4-a716-446655440020';
-      
+
       const category1 = { ...SINGLE_CATEGORY, id: uuid1, name: 'Category 1' };
       const category2 = { ...SINGLE_CATEGORY, id: uuid2, name: 'Category 2' };
 

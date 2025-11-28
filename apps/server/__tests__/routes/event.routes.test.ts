@@ -14,24 +14,15 @@ import {
   ENDPOINT_USER_EVENTS,
   FAKE_ATTENDEE_COUNT,
   FAKE_EVENT,
-  FAKE_USER,
   HTTP_BAD_REQUEST,
-  HTTP_CREATED,
   HTTP_NOT_FOUND,
   HTTP_OK,
   TEST_USER_ID,
 } from '@/utils/testConstants';
 
 import { HostRole as Role } from '@prisma/client';
-import { eventManageMiddleware } from '@/middleware/hostMiddleware';
 import { ApiError, InternalError } from '@/utils/apiError';
 import logger from '@/utils/logger';
-
-const API_ROLES = {
-  CHECK_ALLOW_STATUS: [Role.CREATOR, Role.MANAGER],
-  DELETE_EVENT: [Role.CREATOR],
-  UPDATE_EVENT: [Role.CREATOR, Role.MANAGER],
-};
 
 let isAuthenticated: boolean = true;
 

@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
-import { afterEach, beforeEach } from 'node:test';
+import { afterEach } from 'node:test';
 import { createServer } from '@/server';
 import { UserRepository } from '@/repositories/user.repository';
 import { FAKE_USER, ENDPOINT_AUTH_ME } from '@/utils/testConstants';
@@ -71,7 +71,6 @@ describe('Auth routes', () => {
 
     it('200 - new user', async () => {
       vi.spyOn(UserRepository, 'findbyEmail').mockResolvedValue(null);
-      // @ts-ignore
       vi.spyOn(UserRepository, 'create').mockResolvedValue({});
       vi.spyOn(UserRepository, 'createToken').mockResolvedValue('token');
 
@@ -156,7 +155,6 @@ describe('Auth routes', () => {
       vi.spyOn(googleClient, 'verifyIdToken').mockResolvedValue({
         getPayload: vi.fn().mockReturnValue({ email: 'test-user@gmail.com' }),
       });
-      // @ts-ignore
       vi.spyOn(UserRepository, 'findbyEmail').mockResolvedValue(FAKE_USER);
 
       const res = await request(app).post('/v1/auth/google-signin').send({ code: 'code' });
@@ -172,9 +170,7 @@ describe('Auth routes', () => {
       vi.spyOn(googleClient, 'verifyIdToken').mockResolvedValue({
         getPayload: vi.fn().mockReturnValue({ email: 'test-user@gmail.com' }),
       });
-      // @ts-ignore
       vi.spyOn(UserRepository, 'findbyEmail').mockResolvedValue(null);
-      // @ts-ignore
       vi.spyOn(UserRepository, 'createUserByGoogleOAuth').mockResolvedValue(FAKE_USER);
 
       const res = await request(app).post('/v1/auth/google-signin').send({ code: 'code' });
@@ -226,9 +222,7 @@ describe('Auth routes', () => {
     it('200 - success', async () => {
       const mockAccessToken = generateAccessToken(FAKE_USER);
 
-      // @ts-ignore
       vi.spyOn(UserRepository, 'verifyToken').mockResolvedValue(FAKE_USER);
-
       const res = await request(app)
         .post('/v1/auth/verify-signin')
         .send({ token: mockAccessToken });
@@ -250,7 +244,6 @@ describe('Auth routes', () => {
         socialLinks: [],
       });
 
-      // @ts-ignore
       vi.spyOn(UserRepository, 'findById').mockResolvedValue({
         ...FAKE_USER,
         userId: 'test-user',
@@ -320,14 +313,11 @@ describe('Auth routes', () => {
       const mockAccessToken = generateAccessToken(FAKE_USER);
 
       vi.advanceTimersByTime(1000 * 3600 * 24 * 2);
-
-      // @ts-ignore
       vi.spyOn(UserRepository, 'findById').mockResolvedValue({
         ...FAKE_USER,
         userId: 'test-user',
         socialLinks: [],
       });
-      // @ts-ignore
       vi.mocked(prisma.auth.findFirst).mockResolvedValue({ refreshToken: mockRefreshToken });
 
       const res = await request(app)
@@ -350,15 +340,13 @@ describe('Auth routes', () => {
 
       vi.advanceTimersByTime(1000 * 3600 * 24);
 
-      // @ts-ignore
       vi.spyOn(UserRepository, 'findById').mockResolvedValue({
         ...FAKE_USER,
         userId: 'test-user',
         socialLinks: [],
       });
-      // @ts-ignore
-      vi.mocked(prisma.auth.findFirst).mockResolvedValue({ refreshToken: mockRefreshToken });
 
+      vi.mocked(prisma.auth.findFirst).mockResolvedValue({ refreshToken: mockRefreshToken });
       const res = await request(app)
         .get('/v1/auth/me')
         .set('Cookie', ['accessToken=' + mockAccessToken, 'refreshToken=' + mockRefreshToken]);
