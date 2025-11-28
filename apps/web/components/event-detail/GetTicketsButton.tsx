@@ -1,19 +1,31 @@
 'use client';
 
+import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { LoaderCircle, MessageCircleMore, TicketCheck, X } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCurrentUser } from '@/lib/react-query/auth';
 import {
   useCreateAttendee,
   useGetAttendeeTicketDetails,
   useSoftDeleteAttendee,
 } from '@/lib/react-query/event';
-import Link from 'next/link';
-import SigninDialog from '../auth/SigninDialog';
-import { Button } from '../ui/button';
 import { Cohost } from '@/types/cohost';
 import { checkIfUserIsNotCohost, isCurrentUserCohost } from '@/utils/event';
-import { LoaderCircle, TicketCheck, MessageCircleMore, X } from 'lucide-react';
-import { CalendarDropdown } from '../common/CalendarDropdown';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import SigninDialog from '../auth/SigninDialog';
+import { Button } from '../ui/button';
+
+const CalendarDropdown = dynamic(
+  () => import('../common/CalendarDropdown').then((mod) => ({ default: mod.CalendarDropdown })),
+  {
+    loading: () => (
+      <Button variant="subtle" className="w-full rounded-full px-4 py-2" disabled>
+        Loading...
+      </Button>
+    ),
+    ssr: false,
+  }
+);
 
 type GetTicketsButtonProps = {
   cohosts?: Cohost[];

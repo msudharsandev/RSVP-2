@@ -1,17 +1,20 @@
 'use client';
-import { Event } from '@/types/events';
-import { getProfilePictureUrl, venueDisplay } from '@/utils/event';
-import { CalendarDaysIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { ClockIcon, LinkIcon, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { CalendarDaysIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, LinkIcon, Loader2 } from 'lucide-react';
+import { formatDate } from '@/utils/formatDate';
+import { Event } from '@/types/events';
+import { getProfilePictureUrl, venueDisplay } from '@/utils/event';
 import { Badge } from '../ui/badge';
 import AvatarGroup from './AvatarGroup';
-import GetTicketsButton from './GetTicketsButton';
-import { useRouter } from 'next/navigation';
-import { userAPI } from '@/lib/axios/user-API';
-import { formatDate } from '@/utils/formatDate';
+
+const GetTicketsButton = dynamic(() => import('./GetTicketsButton'), {
+  ssr: false,
+});
 
 const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees: number } }) => {
   const router = useRouter();

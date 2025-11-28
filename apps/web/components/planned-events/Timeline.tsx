@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import eventImageSrc from '@/public/images/demo-event-image.png';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Icons } from '../common/Icon';
@@ -22,6 +21,7 @@ const Timeline = ({ events }: { events?: Event[] }) => {
   }
 
   const timelineData = getDateGroups(events);
+  let preloadedImageCount = 0;
 
   return (
     <div className="bg- mx-auto max-w-[70rem] text-white md:w-[90%]">
@@ -47,7 +47,7 @@ const Timeline = ({ events }: { events?: Event[] }) => {
               </div>
 
               {dateGroup?.events?.map((event, eventIndex) => (
-                <Link key={eventIndex} href={`/${event.slug}`}>
+                <Link key={eventIndex} href={`/${event.slug}`} prefetch={true}>
                   {/* Container for each day */}
                   <Card
                     key={eventIndex}
@@ -98,6 +98,7 @@ const Timeline = ({ events }: { events?: Event[] }) => {
                           fill
                           style={{ objectFit: 'cover' }}
                           className="rounded-md"
+                          priority={preloadedImageCount++ < 3}
                         />
                       </div>
                     </div>

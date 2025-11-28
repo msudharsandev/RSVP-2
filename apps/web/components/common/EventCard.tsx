@@ -49,12 +49,12 @@ const Card = ({ className, event, type }: CardProps) => {
       </section>
       {type === 'manage' && (
         <>
-          <Link href={`/events/${event?.id}/manage`} passHref className="block">
+          <Link href={`/events/${event?.id}/manage`} passHref className="block" prefetch={true}>
             <Button variant="tertiary" radius="default" className="w-full border-primary">
               Manage <ArrowUpRightIcon className="ml-2 h-4 w-4" />
             </Button>
           </Link>
-          <Link href={`/${event?.slug}`} passHref className="block">
+          <Link href={`/${event?.slug}`} passHref className="block" prefetch={true}>
             <Button variant="tertiary" radius="default" className="w-full border-primary">
               Public View <ArrowUpRightIcon className="ml-2 h-4 w-4" />
             </Button>
@@ -71,7 +71,7 @@ const EventCard = ({ className, event, type }: CardProps) => {
   }
 
   return (
-    <Link href={`/${event?.slug}`} className={className}>
+    <Link href={`/${event?.slug}`} className={className} prefetch={true}>
       <Card event={event} type={type} />
     </Link>
   );

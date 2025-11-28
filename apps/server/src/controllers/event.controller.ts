@@ -159,15 +159,16 @@ export const getUserUpcomingEventController = controller(
     const filters = req.query;
 
     logger.info('Getting upcoming event in getUserUpcomingEventController ..');
-    const registeredEvents = await AttendeeRepository.findRegisteredEventsByUser({
-      userId,
-      ...filters,
-    });
-
-    const hostedEvents = await EventRepository.getEventByCreatorId({
-      creatorId: userId,
-      ...filters,
-    });
+    const [registeredEvents, hostedEvents] = await Promise.all([
+      AttendeeRepository.findRegisteredEventsByUser({
+        userId,
+        ...filters,
+      }),
+      EventRepository.getEventByCreatorId({
+        creatorId: userId,
+        ...filters,
+      }),
+    ]);
 
     const mergedEvents = [...registeredEvents.events, ...hostedEvents].sort((a, b) => {
       if (filters.startDate) {
