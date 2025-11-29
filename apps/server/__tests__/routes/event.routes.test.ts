@@ -24,6 +24,21 @@ import { HostRole as Role } from '@prisma/client';
 import { ApiError, InternalError } from '@/utils/apiError';
 import logger from '@/utils/logger';
 
+const mocks = vi.hoisted(() => ({
+  categoryFindFirstMock: vi.fn(),
+  categoryCreateMock: vi.fn(),
+}));
+
+vi.mock('@/utils/connection', () => ({
+  __esModule: true,
+  prisma: {
+    category: {
+      findFirst: mocks.categoryFindFirstMock,
+      create: mocks.categoryCreateMock,
+    },
+  },
+}));
+
 let isAuthenticated: boolean = true;
 
 vi.mock('@/middleware/authMiddleware', () => {
@@ -140,6 +155,8 @@ describe('Event Router Endpoints', () => {
       isAuthenticated = true;
       const fakeUser = { id: TEST_USER_ID, isCompleted: true, primary_email: 'user@example.com' };
       vi.spyOn(Users as any, 'findById').mockResolvedValue(fakeUser);
+      const fakeCategory = { id: 'cat-1', name: 'Conference' };
+      mocks.categoryFindFirstMock.mockResolvedValue(fakeCategory);
       const fakeNewEvent = {
         id: 'event-456',
         name: validPhysicalEventPayload.name,

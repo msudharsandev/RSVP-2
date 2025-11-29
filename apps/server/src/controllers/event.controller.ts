@@ -209,17 +209,20 @@ export const createEventController = controller(CreateEventSchema, async (req, r
 
   logger.info('Formatting data for create event in createEventController ...');
 
-  // Find `category` in the `categories` table.
-  let categoryData = await prisma.category.findFirst({ where: { name: category } });
+  // Find `category` in the `categories` table only if provided.
+  let categoryData: any = undefined;
+  if (category) {
+    categoryData = await prisma.category.findFirst({ where: { name: category } });
 
-  // If not exists - create a new record.
-  if (!categoryData) {
-    categoryData = await prisma.category.create({ data: { name: category } });
+    // If not exists - create a new record.
+    if (!categoryData) {
+      throw new BadRequestError('Invalid category provided.');
+    }
   }
 
   const formattedData = {
     ...data,
-    categoryId: categoryData.id,
+    categoryId: categoryData?.id,
     description: richtextDescription,
     creatorId: userId,
     slug: sluggify(data.name),
@@ -252,11 +255,14 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
     throw new BadRequestError('Description cannot be greater than 300 characters.');
 
   // Find `category` in the `categories` table.
-  let categoryData = await prisma.category.findFirst({ where: { name: category } });
+  let categoryData = null;
+  if (category) {
+    categoryData = await prisma.category.findFirst({ where: { name: category } });
 
-  // If not exists - create a new record.
-  if (!categoryData && category) {
-    categoryData = await prisma.category.create({ data: { name: category } });
+    // If not exists - throw error.
+    if (!categoryData) {
+      throw new BadRequestError('Invalid category provided.');
+    }
   }
 
   logger.info('Updating event in updateEventController ...');

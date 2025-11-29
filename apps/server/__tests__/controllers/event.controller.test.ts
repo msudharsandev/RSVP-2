@@ -142,7 +142,7 @@ describe('getEventBySlugController', () => {
     );
     vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(25);
 
-    await getEventBySlugController(req, res, next);
+    await getEventBySlugController(req, res, next as any);
 
     expect(EventRepository.findbySlug).toHaveBeenCalledWith('summer-fest');
     expect(AttendeeRepository.countAttendees).toHaveBeenCalledWith(EVENT_ID);
@@ -169,10 +169,10 @@ describe('getEventBySlugController', () => {
 
     vi.spyOn(EventRepository, 'findbySlug').mockResolvedValue(null);
 
-    await getEventBySlugController(req, res, next);
+    await getEventBySlugController(req, res, next as any);
 
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
-    const error = next.mock.calls[0]![0] as NotFoundError;
+    const error = (next as unknown as any).mock.calls[0]![0] as NotFoundError;
     expect(error.message).toBe('Event not found');
     expect(res.status).not.toHaveBeenCalled();
   });
@@ -184,7 +184,7 @@ describe('getEventBySlugController', () => {
 
     const repoSpy = vi.spyOn(EventRepository, 'findbySlug');
 
-    await getEventBySlugController(req, res, next);
+    await getEventBySlugController(req, res, next as any);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
@@ -218,7 +218,7 @@ describe('createEventController', () => {
     };
   };
 
-  it('creates event, auto-creates category, and assigns creator cohost', async () => {
+  it('creates event with existing category and assigns creator cohost', async () => {
     const req = createMockRequest({
       userId: USER_ID,
       body: baseBody(),
@@ -228,8 +228,7 @@ describe('createEventController', () => {
     const createdCategory = { id: 'cat-1', name: 'Technology' };
     const createdEvent = { id: EVENT_ID, name: 'Tech Meetup', slug: 'tech-meetup' };
 
-    mocks.categoryFindFirstMock.mockResolvedValueOnce(null);
-    mocks.categoryCreateMock.mockResolvedValueOnce(createdCategory);
+    mocks.categoryFindFirstMock.mockResolvedValueOnce(createdCategory);
     vi.spyOn(UserRepository, 'findById').mockResolvedValue({
       id: USER_ID,
       isCompleted: true,
@@ -243,11 +242,11 @@ describe('createEventController', () => {
       .spyOn(CohostRepository, 'create')
       .mockResolvedValue({} as unknown as Awaited<ReturnType<typeof CohostRepository.create>>);
 
-    await createEventController(req, res, next);
+    await createEventController(req, res, next as any);
 
     expect(UserRepository.findById).toHaveBeenCalledWith(USER_ID);
     expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { name: 'Technology' } });
-    expect(mocks.categoryCreateMock).toHaveBeenCalledWith({ data: { name: 'Technology' } });
+    expect(mocks.categoryCreateMock).not.toHaveBeenCalled();
     expect(createEventSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         categoryId: createdCategory.id,
@@ -272,6 +271,27 @@ describe('createEventController', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
+  it('rejects when category does not exist', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody(),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    mocks.categoryFindFirstMock.mockResolvedValueOnce(null);
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    await createEventController(req, res, next as any);
+
+    expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { name: 'Technology' } });
+    expect(mocks.categoryCreateMock).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
+  });
+
   it('rejects when plaintext description exceeds limit', async () => {
     const req = createMockRequest({
       userId: USER_ID,
@@ -287,10 +307,10 @@ describe('createEventController', () => {
     const createEventSpy = vi.spyOn(EventRepository, 'create');
     const createHostSpy = vi.spyOn(CohostRepository, 'create');
 
-    await createEventController(req, res, next);
+    await createEventController(req, res, next as any);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0]![0] as BadRequestError;
+    const error = (next as unknown as any).mock.calls[0]![0] as BadRequestError;
     expect(error.message).toBe('Description cannot be greater than 300 characters.');
     expect(createEventSpy).not.toHaveBeenCalled();
     expect(createHostSpy).not.toHaveBeenCalled();
@@ -338,7 +358,7 @@ describe('updateEventController', () => {
       { role: 'CREATOR', user: { primaryEmail: 'creator@example.com' } },
     ] as unknown as Awaited<ReturnType<typeof CohostRepository.findAllByEventId>>);
 
-    await updateEventController(req, res, next);
+    await updateEventController(req, res, next as any);
 
     expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
     expect(updateWaitingSpy).toHaveBeenCalledWith(
@@ -379,10 +399,10 @@ describe('updateEventController', () => {
     const next = createMockNext();
     const updateSpy = vi.spyOn(EventRepository, 'update');
 
-    await updateEventController(req, res, next);
+    await updateEventController(req, res, next as any);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0]![0] as BadRequestError;
+    const error = (next as unknown as any).mock.calls[0]![0] as BadRequestError;
     expect(error.message).toBe('Venue type cannot be updated');
     expect(updateSpy).not.toHaveBeenCalled();
   });
@@ -413,7 +433,7 @@ describe('verifyQrController', () => {
       .spyOn(AttendeeRepository, 'update')
       .mockResolvedValue({} as unknown as Awaited<ReturnType<typeof AttendeeRepository.update>>);
 
-    await verifyQrController(req, res, next);
+    await verifyQrController(req, res, next as any);
 
     expect(AttendeeRepository.findById).toHaveBeenCalledWith(ATTENDEE_ID);
     expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
@@ -450,10 +470,10 @@ describe('verifyQrController', () => {
     const eventFindSpy = vi.spyOn(EventRepository, 'findById');
     const attendeeUpdateSpy = vi.spyOn(AttendeeRepository, 'update');
 
-    await verifyQrController(req, res, next);
+    await verifyQrController(req, res, next as any);
 
     expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
-    const error = next.mock.calls[0]![0] as ForbiddenError;
+    const error = (next as unknown as any).mock.calls[0]![0] as ForbiddenError;
     expect(error.message).toBe('Attendee is not allowed');
     expect(eventFindSpy).not.toHaveBeenCalled();
     expect(attendeeUpdateSpy).not.toHaveBeenCalled();
@@ -480,10 +500,10 @@ describe('verifyQrController', () => {
     } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
     const attendeeUpdateSpy = vi.spyOn(AttendeeRepository, 'update');
 
-    await verifyQrController(req, res, next);
+    await verifyQrController(req, res, next as any);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0]![0] as BadRequestError;
+    const error = (next as unknown as any).mock.calls[0]![0] as BadRequestError;
     expect(error.message).toBe('Ticket verification will start 1 hour before the event');
     expect(attendeeUpdateSpy).not.toHaveBeenCalled();
   });
@@ -508,7 +528,7 @@ describe('deleteAttendeeController', () => {
       isDeleted: true,
     } as unknown as Awaited<ReturnType<typeof AttendeeRepository.cancel>>);
 
-    await deleteAttendeeController(req, res, next);
+    await deleteAttendeeController(req, res, next as any);
 
     expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
     expect(AttendeeRepository.findByUserIdAndEventId).toHaveBeenCalledWith(USER_ID, EVENT_ID);
@@ -534,10 +554,10 @@ describe('deleteAttendeeController', () => {
     } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
     const attendeeFindSpy = vi.spyOn(AttendeeRepository, 'findByUserIdAndEventId');
 
-    await deleteAttendeeController(req, res, next);
+    await deleteAttendeeController(req, res, next as any);
 
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
-    const error = next.mock.calls[0]![0] as NotFoundError;
+    const error = (next as unknown as any).mock.calls[0]![0] as NotFoundError;
     expect(error.message).toBe('The event has already ended, cannot cancel registration.');
     expect(attendeeFindSpy).not.toHaveBeenCalled();
   });
