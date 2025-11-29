@@ -20,8 +20,8 @@ export class UpdateRepository {
           select: {
             id: true,
             fullName: true,
-            primaryEmail: true,
             profileIcon: true,
+            userName: true,
           },
         },
       },
