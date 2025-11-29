@@ -233,6 +233,7 @@ export const changelogs: Changelog[] = [
       'hassanrahim26',
       'Himanshu-Dhawale',
       'rudraprasaaad',
+      'Soumava-221B',
     ],
     sections: [
       {

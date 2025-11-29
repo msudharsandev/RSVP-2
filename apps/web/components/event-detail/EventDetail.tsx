@@ -26,10 +26,10 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
   const [formattedEndDate, setFormattedEndDate] = useState('');
 
   useEffect(() => {
-    setFormattedStartDate(formatDate(event.startTime, { withWeekday: true }));
+    setFormattedStartDate(formatDate(event.startTime, { dateOnly: true }));
     setFormattedStartTime(formatDate(event.startTime, { timeOnly: true }));
     setFormattedEndTime(formatDate(event.endTime, { timeOnly: true }));
-    setFormattedEndDate(formatDate(event.endTime, { withWeekday: true }));
+    setFormattedEndDate(formatDate(event.endTime, { dateOnly: true }));
   }, [event.startTime, event.endTime]);
 
   const additionalCount = totalAttendees > 4 ? totalAttendees - 4 : 0;

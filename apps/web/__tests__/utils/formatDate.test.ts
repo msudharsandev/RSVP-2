@@ -16,7 +16,7 @@ describe('formatDate', () => {
 
   it('should format with default pattern when no options provided', () => {
     // default: 'D MMM' -> 29 Oct
-    expect(formatDate(testDate)).toBe('29 Oct');
+    expect(formatDate(testDate)).toBe('29 Oct, 2025');
   });
 
   it('should format with timeOnly pattern', () => {
@@ -31,17 +31,12 @@ describe('formatDate', () => {
 
   it('should format with withTime pattern', () => {
     // withTime: 'h:mm A, D MMM, YYYY' -> 5:00 PM, 29 Oct, 2025
-    expect(formatDate(testDate, { withTime: true })).toBe('5:00 PM, 29 Oct, 2025');
+    expect(formatDate(testDate, { withTime: true })).toBe('5:00 PM, Wed, 29 Oct, 2025');
   });
 
   it('should format with dateOnly pattern', () => {
     // dateOnly: 'D MMM, YYYY' -> 29 Oct, 2025
-    expect(formatDate(testDate, { dateOnly: true })).toBe('29 Oct, 2025');
-  });
-
-  it('should format with withWeekday pattern', () => {
-    // withWeekday: 'ddd, D MMM' -> Wed, 29 Oct
-    expect(formatDate(testDate, { withWeekday: true })).toBe('Wed, 29 Oct');
+    expect(formatDate(testDate, { dateOnly: true })).toBe('Wed, 29 Oct, 2025');
   });
 
   it('should prioritize options in correct order', () => {
@@ -52,11 +47,11 @@ describe('formatDate', () => {
 
   it('should handle Dayjs object input', () => {
     const d = dayjs(testDate);
-    expect(formatDate(d)).toBe('29 Oct');
+    expect(formatDate(d)).toBe('29 Oct, 2025');
   });
 
   it('should handle Date object input', () => {
     const d = new Date(testDate);
-    expect(formatDate(d)).toBe('29 Oct');
+    expect(formatDate(d)).toBe('29 Oct, 2025');
   });
 });

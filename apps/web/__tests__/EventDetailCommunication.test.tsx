@@ -22,7 +22,7 @@ vi.mock('@/utils/event', () => ({
   venueDisplay: (event: any) => mockVenueDisplay(event),
 }));
 
-const mockFormatDate = vi.fn((...args: any[]) => 'Jan 15');
+const mockFormatDate = vi.fn((...args: any[]) => 'Wed, 15 Jan, 2025');
 vi.mock('@/utils/formatDate', () => ({
   formatDate: (...args: any[]) => mockFormatDate(...args),
 }));
@@ -146,8 +146,8 @@ describe('Event Detail Communication', () => {
 
   it('handles multi-day event date formatting', () => {
     mockFormatDate.mockImplementation((date: any, options: any) => {
-      if (options?.withWeekday) {
-        return date === '2025-01-15T09:00:00.000Z' ? 'Wed, Jan 15' : 'Thu, Jan 16';
+      if (options?.dateOnly) {
+        return date === '2025-01-15T09:00:00.000Z' ? 'Wed, 15 Jan, 2025' : 'Thu, 16 Jan, 2025';
       }
       return '10:00 AM';
     });
@@ -160,7 +160,7 @@ describe('Event Detail Communication', () => {
 
     render(<Communication event={multiDayEvent} totalAttendees={10} />);
 
-    expect(screen.getByText('Wed, Jan 15 - Thu, Jan 16')).toBeInTheDocument();
+    expect(screen.getByText('Wed, 15 Jan, 2025 - Thu, 16 Jan, 2025')).toBeInTheDocument();
   });
 
   it('renders event category badge', () => {
@@ -224,8 +224,8 @@ describe('Event Detail Communication', () => {
 
   it('handles multi-day event date formatting', () => {
     mockFormatDate.mockImplementation((date: any, options: any) => {
-      if (options?.withWeekday) {
-        return date === '2025-01-15T09:00:00.000Z' ? 'Wed, Jan 15' : 'Thu, Jan 16';
+      if (options?.dateOnly) {
+        return date === '2025-01-15T09:00:00.000Z' ? 'Wed, 15 Jan, 2025' : 'Thu, 16 Jan, 2025';
       }
       return '10:00 AM';
     });
@@ -238,7 +238,7 @@ describe('Event Detail Communication', () => {
 
     render(<Communication event={multiDayEvent} totalAttendees={10} />);
 
-    expect(screen.getByText('Wed, Jan 15 - Thu, Jan 16')).toBeInTheDocument();
+    expect(screen.getByText('Wed, 15 Jan, 2025 - Thu, 16 Jan, 2025')).toBeInTheDocument();
   });
 
   it('displays creator username if fullname is missing', () => {

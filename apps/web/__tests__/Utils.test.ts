@@ -46,7 +46,7 @@ describe('formatDateTime Utility', () => {
     const result = formatDateTime(inputDate);
 
     expect(result).toEqual({
-      date: '29 Oct, 2025',
+      date: 'Wed, 29 Oct, 2025',
       time: '5:00 PM',
     });
   });
@@ -56,7 +56,7 @@ describe('formatDateTime Utility', () => {
     const result = formatDateTime(inputDate);
 
     expect(result).toEqual({
-      date: '5 Jan, 2024',
+      date: 'Fri, 5 Jan, 2024',
       time: '9:30 AM',
     });
   });

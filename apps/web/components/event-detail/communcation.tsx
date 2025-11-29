@@ -28,8 +28,8 @@ const Communication = ({ event, totalAttendees }: CommunicationProps) => {
   const formatTimeRange = () => {
     const startTime = formatDate(event.startTime, { timeOnly: true });
     const endTime = formatDate(event.endTime, { timeOnly: true });
-    const startDate = formatDate(event.startTime, { withWeekday: true });
-    const endDate = formatDate(event.endTime, { withWeekday: true });
+    const startDate = formatDate(event.startTime, { dateOnly: true });
+    const endDate = formatDate(event.endTime, { dateOnly: true });
 
     return {
       startTime,

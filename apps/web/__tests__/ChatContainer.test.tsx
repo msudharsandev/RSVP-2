@@ -9,10 +9,10 @@ const mockFormatDate = vi.fn((_, options?: { withWeekday?: boolean; timeOnly?: b
   }
 
   if (options?.withWeekday) {
-    return 'Tue, Jan 07';
+    return 'Tue, 6 Jan,2025  ';
   }
 
-  return 'Jan 07';
+  return 'Tue, 6 Jan, 2025';
 });
 
 const mockGetProfilePictureUrl = vi.fn(() => 'https://cdn.test/avatar.svg');
@@ -65,18 +65,18 @@ describe('ChatContainer', () => {
     expect(screen.getByText('Hosted by RSVP')).toBeInTheDocument();
     expect(screen.getByText('Alex Doe')).toBeInTheDocument();
     expect(screen.getByText('Hello attendees')).toBeInTheDocument();
-    expect(screen.getByText('Tue, Jan 07 at 10:45 AM')).toBeInTheDocument();
+    expect(screen.getByText('Tue, 6 Jan, 2025 at 10:45 AM')).toBeInTheDocument();
 
     const avatarImage = screen.getByRole('img', { name: /alex doe/i });
     expect(avatarImage).toHaveAttribute('src', 'https://cdn.test/avatar.svg');
 
     expect(mockFormatDate).toHaveBeenCalledWith(
       '2025-01-07T10:45:00.000Z',
-      expect.objectContaining({ withWeekday: true })
+      expect.objectContaining({ dateOnly: true })
     );
     expect(mockFormatDate).toHaveBeenCalledWith(
       '2025-01-07T10:45:00.000Z',
-      expect.objectContaining({ timeOnly: true })
+      expect.objectContaining({ dateOnly: true })
     );
   });
 
@@ -147,7 +147,7 @@ describe('ChatContainer', () => {
 
     expect(mockFormatDate).toHaveBeenCalledWith(
       updatedAt,
-      expect.objectContaining({ withWeekday: true })
+      expect.objectContaining({ dateOnly: true })
     );
   });
 
@@ -158,7 +158,7 @@ describe('ChatContainer', () => {
 
     expect(mockFormatDate).toHaveBeenCalledWith(
       createdAt,
-      expect.objectContaining({ withWeekday: true })
+      expect.objectContaining({ dateOnly: true })
     );
   });
 

@@ -36,14 +36,14 @@ const Timeline = ({ events }: { events?: Event[] }) => {
 
             {/* Event Date - Laptop View*/}
             <div className="absolute left-[2rem] top-0 hidden pr-4 text-right text-sm font-medium md:left-[-6rem] md:block">
-              {formatDate(dateGroup.date, { dateOnly: true })}
+              {formatDate(dateGroup.date)}
             </div>
 
             {/* Container for each day */}
             <div className="pl-4 md:pl-6">
               {/* Event Date - Mobile View */}
               <div className="block pb-4 text-left text-sm font-medium md:hidden">
-                {formatDate(dateGroup.date, { dateOnly: true })}
+                {formatDate(dateGroup.date)}
               </div>
 
               {dateGroup?.events?.map((event, eventIndex) => (

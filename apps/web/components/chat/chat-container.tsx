@@ -80,7 +80,7 @@ export function ChatContainer({
                       />
 
                       <span className="text-xs text-secondary">
-                        {formatDate(msg.updatedAt || msg.createdAt, { withWeekday: true })} at{' '}
+                        {formatDate(msg.updatedAt || msg.createdAt, { dateOnly: true })} at{' '}
                         {formatDate(msg.updatedAt || msg.createdAt, { timeOnly: true })}
                       </span>
                     </div>

@@ -27,9 +27,7 @@ const Page = () => {
   }, [userDetails?.data?.data.profileIcon]);
 
   const date_string = userDetails?.data?.data.createdAt;
-  const formatted_date = date_string
-    ? formatDate(date_string, { withWeekday: true })
-    : INVALID_DATE;
+  const formatted_date = date_string ? formatDate(date_string, { dateOnly: true }) : INVALID_DATE;
 
   return (
     <Container className="container-main py-16">
