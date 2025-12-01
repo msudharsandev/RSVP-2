@@ -19,7 +19,7 @@ COPY --from=builder /app/src/prisma/schema.prisma ./src/prisma/schema.prisma
 COPY package.json ./
 COPY start.sh ./
 
-RUN pnpm install --prod
+RUN pnpm install
 RUN apk add --no-cache openssl
 RUN pnpm generate
 RUN chmod +x /app/start.sh
