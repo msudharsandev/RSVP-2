@@ -87,10 +87,10 @@ export class CohostRepository {
    * @param eventId - The unique ID of the event.
    * @returns A boolean indicating whether the cohost was successfully removed.
    */
-  static async removeCoHost(cohostId: string, eventId: string): Promise<boolean> {
+  static async removeCoHost(userId: string, eventId: string): Promise<boolean> {
     const removedCohost = await prisma.host.updateMany({
       where: {
-        id: cohostId,
+        userId,
         eventId,
         isDeleted: false,
       },

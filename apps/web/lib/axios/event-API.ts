@@ -202,8 +202,8 @@ export const eventAPI = {
     });
     return response.data;
   },
-  deleteEventCohost: async (eventId: string, cohostId: string) => {
-    const response = await api.delete(`cohosts/events/${eventId}/${cohostId}`);
+  deleteEventCohost: async (eventId: string, userId: string) => {
+    const response = await api.delete(`cohosts/events/${eventId}/${userId}`);
     return response.data;
   },
 };

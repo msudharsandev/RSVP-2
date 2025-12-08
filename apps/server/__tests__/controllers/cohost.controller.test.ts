@@ -19,20 +19,25 @@ import type { IAuthenticatedRequest } from '@/interface/middleware';
 import { HostRole } from '@prisma/client';
 
 const EVENT_ID = '6f1d1a0e-8e8c-4d1f-9e0e-1234567890ab';
-const COHOST_ID = '12b7b5ad-5678-4f89-b9a2-0a0f0c0e0c0f';
+const TARGET_USER_ID = '12b7b5ad-5678-4f89-b9a2-0a0f0c0e0c0f';
 const CREATOR_ID = 'd74a3f20-2b68-40c2-b5d0-7a8c916f9d65';
 const MANAGER_ID = '06c8b20c-bf5b-465f-8fcb-4f64a1ad8b45';
 const NEW_USER_ID = '8cd61ca6-5a5c-4a9e-9f9f-b94d5346f9d7';
 
-type TestRequest = IAuthenticatedRequest<any, any, any, any>;
-
-const createMockRequest = (overrides: Partial<TestRequest> = {}): TestRequest =>
-  ({
+const createMockRequest = (overrides: any = {}): any => {
+  return {
     params: {},
     body: {},
     query: {},
+    userId: undefined,
+    Role: undefined,
+    headers: {},
+    method: 'GET',
+    url: '/',
+    get: vi.fn(),
     ...overrides,
-  }) as TestRequest;
+  };
+};
 
 const createMockResponse = () => {
   const res = {
@@ -43,7 +48,7 @@ const createMockResponse = () => {
   return res as unknown as Response;
 };
 
-const createMockNext = () => vi.fn<Parameters<NextFunction>, void>();
+const createMockNext = (): NextFunction => vi.fn() as unknown as NextFunction;
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -81,7 +86,7 @@ describe('getEventHostController', () => {
     await getEventHostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
-    const error = next.mock.calls[0][0] as NotFoundError;
+    const error = (next as any).mock.calls[0][0] as NotFoundError;
     expect(error.message).toBe('No hosts found');
   });
 
@@ -173,7 +178,7 @@ describe('addEventHostController', () => {
     await addEventHostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
-    const error = next.mock.calls[0][0] as NotFoundError;
+    const error = (next as any).mock.calls[0][0] as NotFoundError;
     expect(error.message).toBe(API_MESSAGES.EVENT.NOT_FOUND);
   });
 
@@ -191,7 +196,7 @@ describe('addEventHostController', () => {
     await addEventHostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
-    const error = next.mock.calls[0][0] as ForbiddenError;
+    const error = (next as any).mock.calls[0][0] as ForbiddenError;
     expect(error.message).toBe(
       API_MESSAGES.COHOST.ADD.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED
     );
@@ -212,7 +217,7 @@ describe('addEventHostController', () => {
     await addEventHostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
-    const error = next.mock.calls[0][0] as NotFoundError;
+    const error = (next as any).mock.calls[0][0] as NotFoundError;
     expect(error.message).toBe(API_MESSAGES.USER.NOT_FOUND);
   });
 
@@ -234,7 +239,7 @@ describe('addEventHostController', () => {
     await addEventHostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0][0] as BadRequestError;
+    const error = (next as any).mock.calls[0][0] as BadRequestError;
     expect(error.message).toBe(API_MESSAGES.USER.PROFILE_INCOMPLETE);
   });
 
@@ -260,14 +265,14 @@ describe('addEventHostController', () => {
     await addEventHostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0][0] as BadRequestError;
+    const error = (next as any).mock.calls[0][0] as BadRequestError;
     expect(error.message).toBe('Host already exists');
     expect(createSpy).not.toHaveBeenCalled();
   });
 });
 
 describe('removeEventCohostController', () => {
-  const baseParams = { eventId: EVENT_ID, cohostId: COHOST_ID };
+  const baseParams = { eventId: EVENT_ID, userId: TARGET_USER_ID };
 
   it('soft-deletes cohost and returns success response', async () => {
     const req = createMockRequest({
@@ -284,12 +289,12 @@ describe('removeEventCohostController', () => {
     await removeEventCohostController(req, res, next);
 
     expect(CohostRepository.FindhostOrCohost).toHaveBeenCalledWith(
-      COHOST_ID,
+      TARGET_USER_ID,
       EVENT_ID,
       [HostRole.MANAGER, HostRole.CREATOR],
       true
     );
-    expect(CohostRepository.removeCoHost).toHaveBeenCalledWith(COHOST_ID, EVENT_ID);
+    expect(CohostRepository.removeCoHost).toHaveBeenCalledWith(TARGET_USER_ID, EVENT_ID);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -315,29 +320,32 @@ describe('removeEventCohostController', () => {
     await removeEventCohostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0][0] as BadRequestError;
+    const error = (next as any).mock.calls[0][0] as BadRequestError;
     expect(error.message).toBe(API_MESSAGES.COHOST.REMOVE.CANNOT_REMOVE_CREATOR);
     expect(removeSpy).not.toHaveBeenCalled();
   });
 
-  it('blocks users from removing themselves', async () => {
+  it('allows self-removal for managers', async () => {
     const req = createMockRequest({
-      userId: COHOST_ID,
-      Role: HostRole.CREATOR,
+      userId: TARGET_USER_ID,
+      Role: HostRole.MANAGER,
       params: baseParams,
     });
     const res = createMockResponse();
     const next = createMockNext();
 
     vi.spyOn(CohostRepository, 'FindhostOrCohost').mockResolvedValue(HostRole.MANAGER);
-    const removeSpy = vi.spyOn(CohostRepository, 'removeCoHost');
+    vi.spyOn(CohostRepository, 'removeCoHost').mockResolvedValue(true);
 
     await removeEventCohostController(req, res, next);
 
-    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0][0] as BadRequestError;
-    expect(error.message).toBe(API_MESSAGES.COHOST.REMOVE.CANNOT_REMOVE_SELF);
-    expect(removeSpy).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: API_MESSAGES.COHOST.REMOVE.SUCCESS,
+      })
+    );
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('blocks manager-to-manager removal attempts', async () => {
@@ -355,7 +363,7 @@ describe('removeEventCohostController', () => {
     await removeEventCohostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0][0] as BadRequestError;
+    const error = (next as any).mock.calls[0][0] as BadRequestError;
     expect(error.message).toBe(
       API_MESSAGES.COHOST.REMOVE.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED
     );
@@ -377,7 +385,7 @@ describe('removeEventCohostController', () => {
     await removeEventCohostController(req, res, next);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = next.mock.calls[0][0] as BadRequestError;
+    const error = (next as any).mock.calls[0][0] as BadRequestError;
     expect(error.message).toBe(API_MESSAGES.COHOST.REMOVE.FAILED);
   });
 });

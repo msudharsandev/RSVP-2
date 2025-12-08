@@ -6,6 +6,7 @@ import { useGetEventCohosts } from '@/lib/react-query/event';
 import { useParams } from 'next/navigation';
 import { useGetEventById } from '@/lib/react-query/event';
 import { useCurrentUser } from '@/lib/react-query/auth';
+import { useMemo } from 'react';
 
 const EventHostManagment = ({ className }: PropsWithClassName) => {
   const { id: eventId } = useParams();
@@ -14,6 +15,8 @@ const EventHostManagment = ({ className }: PropsWithClassName) => {
   const { data: eventData } = useGetEventById(eventId as string);
 
   const isCreator = eventData?.event.checkCreator(userData?.id);
+
+  const columns = useMemo(() => eventHostColumns(isCreator ?? false), [isCreator]);
 
   return (
     <section className={cn('space-y-3', className)}>
@@ -25,7 +28,7 @@ const EventHostManagment = ({ className }: PropsWithClassName) => {
         {isCreator && <AddCoHost />}
       </header>
       <DataTable
-        columns={eventHostColumns}
+        columns={columns}
         skeletonRows={3}
         data={cohostData ?? []}
         loading={isLoading}

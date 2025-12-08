@@ -79,12 +79,12 @@ export const addEventHostController = controller(addCohostSchema, async (req, re
  * @returns A success or failure message.
  */
 export const removeEventCohostController = controller(removeCohostSchema, async (req, res) => {
-  const userId = req.userId;
-  const { eventId, cohostId } = req.params;
+  const requesterUserId = req.userId;
+  const { eventId, userId: targetUserId } = req.params;
   const userRole = req.Role;
 
   const cohostRole = await CohostRepository.FindhostOrCohost(
-    cohostId,
+    targetUserId,
     eventId,
     [HostRole.MANAGER, HostRole.CREATOR],
     true
@@ -93,14 +93,21 @@ export const removeEventCohostController = controller(removeCohostSchema, async 
   if (cohostRole === HostRole.CREATOR)
     throw new BadRequestError(API_MESSAGES.COHOST.REMOVE.CANNOT_REMOVE_CREATOR);
 
-  if (userId === cohostId) throw new BadRequestError(API_MESSAGES.COHOST.REMOVE.CANNOT_REMOVE_SELF);
+  if (requesterUserId === targetUserId) {
+    const deletedSelf = await CohostRepository.removeCoHost(targetUserId, eventId);
+    if (!deletedSelf) {
+      throw new BadRequestError(API_MESSAGES.COHOST.REMOVE.FAILED);
+    } else {
+      return new SuccessResponse(API_MESSAGES.COHOST.REMOVE.SUCCESS, deletedSelf).send(res);
+    }
+  }
 
   if (cohostRole === HostRole.MANAGER && userRole === HostRole.MANAGER)
     throw new BadRequestError(
       API_MESSAGES.COHOST.REMOVE.INSUFFICIENT_PERMS_MANAGER_OR_CREATOR_REQUIRED
     );
 
-  const deletedCohost = await CohostRepository.removeCoHost(cohostId, eventId);
+  const deletedCohost = await CohostRepository.removeCoHost(targetUserId, eventId);
   if (!deletedCohost) {
     throw new BadRequestError(API_MESSAGES.COHOST.REMOVE.FAILED);
   } else {

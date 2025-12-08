@@ -18,9 +18,9 @@ cohostRouter.get(
 );
 
 cohostRouter.delete(
-  '/events/:eventId/:cohostId',
+  '/events/:eventId/:userId',
   authMiddleware,
-  eventManageMiddleware([HostRole.CREATOR]),
+  eventManageMiddleware([HostRole.CREATOR, HostRole.MANAGER]),
   removeEventCohostController
 );
 

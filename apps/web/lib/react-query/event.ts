@@ -386,8 +386,8 @@ export const useAddEventCohost = () => {
 export const useDeleteCohost = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ eventId, cohostId }: { eventId: string; cohostId: string }) =>
-      eventAPI.deleteEventCohost(eventId, cohostId),
+    mutationFn: ({ eventId, userId }: { eventId: string; userId: string }) =>
+      eventAPI.deleteEventCohost(eventId, userId),
     onSuccess: (resp, { eventId }) => {
       toast.success(resp?.message);
       queryClient.invalidateQueries({ queryKey: [EVENT_COHOST_KEY, eventId] });
