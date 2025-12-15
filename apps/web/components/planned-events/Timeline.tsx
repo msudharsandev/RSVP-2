@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,7 +9,19 @@ import { Badge } from '../ui/badge';
 import { formatDate } from '@/utils/formatDate';
 
 const Timeline = ({ events }: { events?: Event[] }) => {
-  if (!events || events.length === 0) {
+  const isEmpty = !events || events.length === 0;
+
+  const timelineData = useMemo(() => {
+    if (!events) return [];
+    return getDateGroups(events);
+  }, [events]);
+
+  const priorityEventIds = useMemo(() => {
+    const allEvents = timelineData.flatMap((group) => group.events ?? []);
+    return new Set(allEvents.slice(0, 3).map((event) => event.id));
+  }, [timelineData]);
+
+  if (isEmpty) {
     return (
       <div className="py-8 text-center">
         <h2 className="text-2xl font-semibold text-gray-600">No Events Found</h2>
@@ -20,11 +33,8 @@ const Timeline = ({ events }: { events?: Event[] }) => {
     );
   }
 
-  const timelineData = getDateGroups(events);
-  let preloadedImageCount = 0;
-
   return (
-    <div className="bg- mx-auto max-w-[70rem] text-white md:w-[90%]">
+    <div className="mx-auto max-w-[70rem] text-white md:w-[90%]">
       <div className="relative md:pl-24">
         {/* Timeline Rod */}
         <div className="absolute bottom-0 left-0 top-0 w-0.5 bg-gray-700 md:left-24"></div>
@@ -46,13 +56,10 @@ const Timeline = ({ events }: { events?: Event[] }) => {
                 {formatDate(dateGroup.date)}
               </div>
 
-              {dateGroup?.events?.map((event, eventIndex) => (
-                <Link key={eventIndex} href={`/${event.slug}`} prefetch={true}>
+              {dateGroup?.events?.map((event) => (
+                <Link key={event.id} href={`/${event.slug}`} prefetch={true}>
                   {/* Container for each day */}
-                  <Card
-                    key={eventIndex}
-                    className="mb-4 flex cursor-pointer flex-col-reverse justify-between gap-3 rounded-lg border border-dark-500 bg-dark-900 p-3 text-card-foreground shadow-sm transition-all duration-200 hover:border-b-4 hover:border-r-4 hover:border-purple-500 md:h-auto md:min-h-[190px] md:flex-row"
-                  >
+                  <Card className="mb-4 flex cursor-pointer flex-col-reverse justify-between gap-3 rounded-lg border border-dark-500 bg-dark-900 p-3 text-card-foreground shadow-sm transition-all duration-200 hover:border-b-4 hover:border-r-4 hover:border-purple-500 md:h-auto md:min-h-[190px] md:flex-row">
                     <div className="flex h-auto w-full flex-col justify-between gap-4 md:w-3/4">
                       <div className="flex flex-col gap-2">
                         <CardHeader className="flex flex-col items-start justify-between space-y-1.5 border-b-0 py-0 pl-0">
@@ -98,7 +105,7 @@ const Timeline = ({ events }: { events?: Event[] }) => {
                           fill
                           style={{ objectFit: 'cover' }}
                           className="rounded-md"
-                          priority={preloadedImageCount++ < 3}
+                          priority={priorityEventIds.has(event.id)}
                         />
                       </div>
                     </div>
