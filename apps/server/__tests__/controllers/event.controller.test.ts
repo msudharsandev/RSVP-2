@@ -1,8 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import type { Response, NextFunction } from 'express';
 import type { IAuthenticatedRequest } from '@/interface/middleware';
 import { AttendeeStatus, VenueType } from '@prisma/client';
-import { BadRequestError, ForbiddenError, NotFoundError } from '@/utils/apiError';
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+  TokenExpiredError,
+} from '@/utils/apiError';
 
 const mocks = vi.hoisted(() => ({
   categoryFindFirstMock: vi.fn(),
@@ -77,6 +82,13 @@ import {
   updateEventController,
   verifyQrController,
   deleteAttendeeController,
+  getEventByIdController,
+  createInvitesController,
+  getExcelSheetController,
+  getAttendeeTicketController,
+  getAttendeeController,
+  scanTicketController,
+  createAttendeeController,
   updateAttendeeStatusController,
 } from '@/controllers/event.controller';
 import { EventRepository } from '@/repositories/event.repository';
@@ -108,11 +120,14 @@ const createMockResponse = () => {
   return res as unknown as Response;
 };
 
-const createMockNext = () => vi.fn<NextFunction>();
+const createMockNext = () => vi.fn() as Mock;
 
 const EVENT_ID = '11111111-1111-1111-1111-111111111111';
 const ATTENDEE_ID = '22222222-2222-2222-2222-222222222222';
 const USER_ID = '33333333-3333-3333-3333-333333333333';
+const PUBLIC_EVENTS_PER_MONTH = 10;
+const PRIVATE_EVENTS_PER_MONTH = 5;
+const QR_TOKEN = 'ABC123';
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -144,7 +159,7 @@ describe('getEventBySlugController', () => {
     );
     vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(25);
 
-    await getEventBySlugController(req, res, next as any);
+    await getEventBySlugController(req, res, next as unknown as NextFunction);
 
     expect(EventRepository.findbySlug).toHaveBeenCalledWith('summer-fest');
     expect(AttendeeRepository.countAttendees).toHaveBeenCalledWith(EVENT_ID);
@@ -171,22 +186,22 @@ describe('getEventBySlugController', () => {
 
     vi.spyOn(EventRepository, 'findbySlug').mockResolvedValue(null);
 
-    await getEventBySlugController(req, res, next as any);
+    await getEventBySlugController(req, res, next as unknown as NextFunction);
 
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
-    const error = (next as unknown as any).mock.calls[0]![0] as NotFoundError;
+    const error = next.mock.calls[0]![0] as NotFoundError;
     expect(error.message).toBe('Event not found');
     expect(res.status).not.toHaveBeenCalled();
   });
 
   it('short-circuits with validation error when slug param is absent', async () => {
-    const req = createMockRequest({ params: {} as any });
+    const req = createMockRequest({ params: {} });
     const res = createMockResponse();
     const next = createMockNext();
 
     const repoSpy = vi.spyOn(EventRepository, 'findbySlug');
 
-    await getEventBySlugController(req, res, next as any);
+    await getEventBySlugController(req, res, next as unknown as NextFunction);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith(
@@ -196,6 +211,160 @@ describe('getEventBySlugController', () => {
     );
     expect(repoSpy).not.toHaveBeenCalled();
     expect(next).not.toHaveBeenCalled();
+  });
+
+  it('forwards error when attendee count lookup fails', async () => {
+    const req = createMockRequest({ params: { slug: 'summer-fest' } });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const event = { id: EVENT_ID, name: 'Summer Fest', hosts: [] };
+    const dbError = new Error('DB failure');
+
+    vi.spyOn(EventRepository, 'findbySlug').mockResolvedValue(
+      event as unknown as Awaited<ReturnType<typeof EventRepository.findbySlug>>
+    );
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockRejectedValue(dbError);
+
+    await getEventBySlugController(req, res, next as unknown as NextFunction);
+
+    expect(EventRepository.findbySlug).toHaveBeenCalledWith('summer-fest');
+    expect(AttendeeRepository.countAttendees).toHaveBeenCalledWith(EVENT_ID);
+
+    expect(next).toHaveBeenCalledWith(dbError);
+
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
+  });
+});
+
+describe('getEventByIdController', () => {
+  it('returns event data with attendee count and category when event exists', async () => {
+    const req = createMockRequest({ params: { eventId: EVENT_ID } });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const event = {
+      id: EVENT_ID,
+      name: 'Tech Conference',
+      hosts: [{ role: 'CREATOR' }],
+      categoryId: 'cat-1',
+    };
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(
+      event as unknown as Awaited<ReturnType<typeof EventRepository.findById>>
+    );
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(50);
+    mocks.categoryFindFirstMock.mockResolvedValue({ name: 'Technology' });
+
+    await getEventByIdController(req, res, next as unknown as NextFunction);
+
+    expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
+    expect(AttendeeRepository.countAttendees).toHaveBeenCalledWith(EVENT_ID);
+    expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({
+      where: { id: 'cat-1' },
+    });
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'success',
+        data: {
+          event: expect.objectContaining({
+            id: EVENT_ID,
+            cohosts: event.hosts,
+            category: 'Technology',
+          }),
+          totalAttendees: 50,
+        },
+      })
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('returns event data without category when categoryId is missing', async () => {
+    const req = createMockRequest({ params: { eventId: EVENT_ID } });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const event = {
+      id: EVENT_ID,
+      name: 'Tech Conference',
+      hosts: [],
+      categoryId: null,
+    };
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(
+      event as unknown as Awaited<ReturnType<typeof EventRepository.findById>>
+    );
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(10);
+
+    mocks.categoryFindFirstMock.mockResolvedValue({ name: 'Technology' });
+
+    await getEventByIdController(req, res, next as unknown as NextFunction);
+
+    expect(mocks.categoryFindFirstMock).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('forwards NotFoundError when event does not exist', async () => {
+    const req = createMockRequest({ params: { eventId: EVENT_ID } });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(null);
+
+    await getEventByIdController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+    const error = next.mock.calls[0]![0] as NotFoundError;
+    expect(error.message).toBe('Event not found');
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('short-circuits with validation error when eventId param is missing', async () => {
+    const req = createMockRequest({ params: {} });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const repoSpy = vi.spyOn(EventRepository, 'findById');
+
+    await getEventByIdController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Invalid request',
+      })
+    );
+    expect(repoSpy).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('forwards error when attendee count fails', async () => {
+    const req = createMockRequest({ params: { eventId: EVENT_ID } });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const event = {
+      id: EVENT_ID,
+      name: 'Tech Conference',
+      hosts: [],
+    };
+
+    const dbError = new Error('DB error');
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(
+      event as unknown as Awaited<ReturnType<typeof EventRepository.findById>>
+    );
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockRejectedValue(dbError);
+
+    await getEventByIdController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(dbError);
+    expect(res.status).not.toHaveBeenCalled();
   });
 });
 
@@ -235,6 +404,10 @@ describe('createEventController', () => {
       id: USER_ID,
       isCompleted: true,
     } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValue(0);
+    mocks.categoryFindFirstMock.mockResolvedValueOnce(createdCategory);
+
     const createEventSpy = vi
       .spyOn(EventRepository, 'create')
       .mockResolvedValue(
@@ -244,7 +417,7 @@ describe('createEventController', () => {
       .spyOn(CohostRepository, 'create')
       .mockResolvedValue({} as unknown as Awaited<ReturnType<typeof CohostRepository.create>>);
 
-    await createEventController(req, res, next as any);
+    await createEventController(req, res, next as unknown as NextFunction);
 
     expect(UserRepository.findById).toHaveBeenCalledWith(USER_ID);
     expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { id: 'Technology' } });
@@ -287,7 +460,10 @@ describe('createEventController', () => {
       isCompleted: true,
     } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
 
-    await createEventController(req, res, next as any);
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValue(0);
+    mocks.categoryFindFirstMock.mockResolvedValueOnce(null);
+
+    await createEventController(req, res, next as unknown as NextFunction);
 
     expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { id: 'Technology' } });
     expect(mocks.categoryCreateMock).not.toHaveBeenCalled();
@@ -309,19 +485,141 @@ describe('createEventController', () => {
     const createEventSpy = vi.spyOn(EventRepository, 'create');
     const createHostSpy = vi.spyOn(CohostRepository, 'create');
 
-    await createEventController(req, res, next as any);
+    await createEventController(req, res, next as unknown as NextFunction);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = (next as unknown as any).mock.calls[0]![0] as BadRequestError;
+    const error = next.mock.calls[0]![0] as BadRequestError;
     expect(error.message).toBe('Description cannot be greater than 300 characters.');
     expect(createEventSpy).not.toHaveBeenCalled();
     expect(createHostSpy).not.toHaveBeenCalled();
+  });
+
+  it('rejects when public event limit is exceeded', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ discoverable: true }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValueOnce(
+      PUBLIC_EVENTS_PER_MONTH
+    );
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(EventRepository.countEventsCreatedThisMonth).toHaveBeenCalledWith(USER_ID, true);
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+    const error = next.mock.calls[0]![0] as BadRequestError;
+
+    expect(error.message).toBe(API_MESSAGES.EVENT.PUBLIC_EVENT_LIMIT_EXCEEDED);
+  });
+
+  it('rejects when private event limit is exceeded', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ discoverable: false }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValueOnce(
+      PRIVATE_EVENTS_PER_MONTH
+    );
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(EventRepository.countEventsCreatedThisMonth).toHaveBeenCalledWith(USER_ID, false);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+    const error = next.mock.calls[0]![0] as BadRequestError;
+
+    expect(error.message).toBe(API_MESSAGES.EVENT.PRIVATE_EVENT_LIMIT_EXCEEDED);
+  });
+
+  it('allows public event creation when under limit', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ discoverable: true }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    mocks.categoryFindFirstMock.mockResolvedValue({ id: 'cat-1' });
+
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValueOnce(3);
+
+    const createdEvent = { id: EVENT_ID, name: 'Tech Meetup' };
+
+    vi.spyOn(EventRepository, 'create').mockResolvedValue(
+      createdEvent as unknown as Awaited<ReturnType<typeof EventRepository.create>>
+    );
+    vi.spyOn(CohostRepository, 'create').mockResolvedValue(
+      {} as unknown as Awaited<ReturnType<typeof CohostRepository.create>>
+    );
+
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'success', data: createdEvent })
+    );
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('allows private event creation when under limit', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ discoverable: true }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    mocks.categoryFindFirstMock.mockResolvedValue({ id: 'cat-1' });
+
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValueOnce(2);
+
+    const createdEvent = { id: EVENT_ID, name: 'Tech Meetup' };
+
+    vi.spyOn(EventRepository, 'create').mockResolvedValue(
+      createdEvent as unknown as Awaited<ReturnType<typeof EventRepository.create>>
+    );
+    vi.spyOn(CohostRepository, 'create').mockResolvedValue(
+      {} as unknown as Awaited<ReturnType<typeof CohostRepository.create>>
+    );
+
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'success', data: createdEvent })
+    );
+    expect(next).not.toHaveBeenCalled();
   });
 });
 
 describe('updateEventController', () => {
   it('updates event, unlocks waiting attendees, and skips email in development', async () => {
     const req = createMockRequest({
+      userId: USER_ID,
       params: { eventId: EVENT_ID },
       body: {
         venueType: VenueType.PHYSICAL,
@@ -333,8 +631,17 @@ describe('updateEventController', () => {
     });
     const res = createMockResponse();
     const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValue(0);
+
     const existingEvent = {
       id: EVENT_ID,
+      creatorId: USER_ID,
+      VenueType: VenueType.PHYSICAL,
       hostPermissionRequired: true,
       hosts: [],
     };
@@ -360,7 +667,7 @@ describe('updateEventController', () => {
       { role: 'CREATOR', user: { primaryEmail: 'creator@example.com' } },
     ] as unknown as Awaited<ReturnType<typeof CohostRepository.findAllByEventId>>);
 
-    await updateEventController(req, res, next as any);
+    await updateEventController(req, res, next as unknown as NextFunction);
 
     expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
     expect(updateWaitingSpy).toHaveBeenCalledWith(
@@ -392,6 +699,7 @@ describe('updateEventController', () => {
 
   it('returns 400 when venueType is missing', async () => {
     const req = createMockRequest({
+      userId: USER_ID,
       params: { eventId: EVENT_ID },
       body: {
         hostPermissionRequired: false,
@@ -399,12 +707,23 @@ describe('updateEventController', () => {
     });
     const res = createMockResponse();
     const next = createMockNext();
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValue(0);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      creatorId: USER_ID,
+      VenueType: VenueType.PHYSICAL,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
     const updateSpy = vi.spyOn(EventRepository, 'update');
 
-    await updateEventController(req, res, next as any);
+    await updateEventController(req, res, next as unknown as NextFunction);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = (next as unknown as any).mock.calls[0]![0] as BadRequestError;
+    const error = next.mock.calls[0]![0] as BadRequestError;
     expect(error.message).toBe('Venue type cannot be updated');
     expect(updateSpy).not.toHaveBeenCalled();
   });
@@ -435,7 +754,7 @@ describe('verifyQrController', () => {
       .spyOn(AttendeeRepository, 'update')
       .mockResolvedValue({} as unknown as Awaited<ReturnType<typeof AttendeeRepository.update>>);
 
-    await verifyQrController(req, res, next as any);
+    await verifyQrController(req, res, next as unknown as NextFunction);
 
     expect(AttendeeRepository.findById).toHaveBeenCalledWith(ATTENDEE_ID);
     expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
@@ -472,10 +791,10 @@ describe('verifyQrController', () => {
     const eventFindSpy = vi.spyOn(EventRepository, 'findById');
     const attendeeUpdateSpy = vi.spyOn(AttendeeRepository, 'update');
 
-    await verifyQrController(req, res, next as any);
+    await verifyQrController(req, res, next as unknown as NextFunction);
 
     expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
-    const error = (next as unknown as any).mock.calls[0]![0] as ForbiddenError;
+    const error = next.mock.calls[0]![0] as ForbiddenError;
     expect(error.message).toBe('Attendee is not allowed');
     expect(eventFindSpy).not.toHaveBeenCalled();
     expect(attendeeUpdateSpy).not.toHaveBeenCalled();
@@ -502,12 +821,316 @@ describe('verifyQrController', () => {
     } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
     const attendeeUpdateSpy = vi.spyOn(AttendeeRepository, 'update');
 
-    await verifyQrController(req, res, next as any);
+    await verifyQrController(req, res, next as unknown as NextFunction);
 
     expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
-    const error = (next as unknown as any).mock.calls[0]![0] as BadRequestError;
+    const error = next.mock.calls[0]![0] as BadRequestError;
     expect(error.message).toBe('Ticket verification will start 1 hour before the event');
     expect(attendeeUpdateSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('createInvitesController', () => {
+  it('forwards NotFoundError when event does not exist', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      body: { emails: ['a@test.com'] },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(null);
+
+    await createInvitesController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+  });
+
+  it('throws BadRequestError when event is not active', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      body: { emails: ['a@test.com'] },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: false,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    await createInvitesController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+  });
+
+  it('throws BadRequestError when event is expired', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      body: { emails: ['a@test.com'] },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: true,
+      endTime: new Date(Date.now() - 1000),
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    await createInvitesController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+  });
+
+  it('throws error when event is at full capacity', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      body: { emails: ['a@test.com'] },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: true,
+      endTime: new Date(Date.now() + 10000),
+      capacity: 1,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(1);
+
+    await createInvitesController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+  });
+
+  it('invites a new attendee successfully', async () => {
+    const email = 'new@test.com';
+
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      body: { emails: [email] },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      name: 'Event',
+      isActive: true,
+      endTime: new Date(Date.now() + 10000),
+      capacity: -1,
+      hosts: [],
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(0);
+    vi.spyOn(UserRepository, 'findManyByEmails').mockResolvedValue([]);
+    vi.spyOn(UserRepository, 'createMany').mockResolvedValue([
+      { id: USER_ID, primaryEmail: email, fullName: 'Guest' },
+    ] as unknown as Awaited<ReturnType<typeof UserRepository.createMany>>);
+
+    vi.spyOn(AttendeeRepository, 'findAllByEventIdAndUserIds').mockResolvedValue([]);
+    vi.spyOn(AttendeeRepository, 'create').mockResolvedValue({
+      id: ATTENDEE_ID,
+      userId: USER_ID,
+      qrToken: 'ABC123',
+    } as unknown as Awaited<ReturnType<typeof AttendeeRepository.create>>);
+
+    await createInvitesController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'success',
+        data: expect.objectContaining({
+          invited: [{ email }],
+        }),
+      })
+    );
+  });
+
+  it('restores cancelled attendee', async () => {
+    const email = 'restore@test.com';
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: true,
+      endTime: new Date(Date.now() + 10000),
+      capacity: -1,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(0);
+    vi.spyOn(UserRepository, 'findManyByEmails').mockResolvedValue([
+      { id: USER_ID, primaryEmail: email },
+    ] as unknown as Awaited<ReturnType<typeof UserRepository.findManyByEmails>>);
+    vi.spyOn(UserRepository, 'createMany').mockResolvedValue([]);
+
+    vi.spyOn(AttendeeRepository, 'findAllByEventIdAndUserIds').mockResolvedValue([
+      {
+        id: ATTENDEE_ID,
+        userId: USER_ID,
+        isDeleted: true,
+        status: AttendeeStatus.CANCELLED,
+      },
+    ] as unknown as Awaited<ReturnType<typeof AttendeeRepository.findAllByEventIdAndUserIds>>);
+
+    vi.spyOn(AttendeeRepository, 'restore').mockResolvedValue(
+      {} as unknown as Awaited<ReturnType<typeof AttendeeRepository.restore>>
+    );
+
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      body: { emails: [email] },
+    });
+
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    await createInvitesController(req, res, next as unknown as NextFunction);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          restored: [{ email: 'restore@test.com' }],
+        }),
+      })
+    );
+  });
+
+  it('marks invite as failed when error occurs inside loop', async () => {
+    const email = 'fail@test.com';
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: true,
+      endTime: new Date(Date.now() + 10000),
+      capacity: -1,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(0);
+    vi.spyOn(UserRepository, 'findManyByEmails').mockResolvedValue([]);
+    vi.spyOn(UserRepository, 'createMany').mockResolvedValue([
+      { id: USER_ID, primaryEmail: email },
+    ] as unknown as Awaited<ReturnType<typeof UserRepository.createMany>>);
+
+    vi.spyOn(AttendeeRepository, 'findAllByEventIdAndUserIds').mockResolvedValue([]);
+    vi.spyOn(AttendeeRepository, 'create').mockRejectedValue(new Error('DB error'));
+
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      body: { emails: [email] },
+    });
+
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    await createInvitesController(req, res, next as unknown as NextFunction);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          failed: [{ email: 'fail@test.com', error: 'DB error' }],
+        }),
+      })
+    );
+  });
+});
+
+describe('getAttendeeController', () => {
+  it('returns paginated attendees when event exists', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      query: {
+        page: 1,
+        limit: 10,
+      },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    const attendeesResult = {
+      data: [
+        { id: 'a1', userId: 'u1' },
+        { id: 'a2', userId: 'u2' },
+      ],
+      meta: {
+        page: 1,
+        limit: 10,
+        total: 2,
+      },
+    };
+
+    vi.spyOn(AttendeeRepository, 'findAttendeesByEventId').mockResolvedValue(
+      attendeesResult as unknown as Awaited<
+        ReturnType<typeof AttendeeRepository.findAttendeesByEventId>
+      >
+    );
+
+    await getAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
+
+    expect(AttendeeRepository.findAttendeesByEventId).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventId: EVENT_ID,
+        page: 1,
+        limit: 10,
+      })
+    );
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'success',
+        data: attendeesResult,
+      })
+    );
+
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('forwards NotFoundError when event does not exist', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      query: {},
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(null);
+
+    await getAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('short-circuits with validation error when eventId is missing', async () => {
+    const req = createMockRequest({
+      params: {},
+      query: {},
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const repoSpy = vi.spyOn(AttendeeRepository, 'findAttendeesByEventId');
+
+    await getAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Invalid request',
+      })
+    );
+
+    expect(repoSpy).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
   });
 });
 
@@ -530,7 +1153,7 @@ describe('deleteAttendeeController', () => {
       isDeleted: true,
     } as unknown as Awaited<ReturnType<typeof AttendeeRepository.cancel>>);
 
-    await deleteAttendeeController(req, res, next as any);
+    await deleteAttendeeController(req, res, next as unknown as NextFunction);
 
     expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
     expect(AttendeeRepository.findByUserIdAndEventId).toHaveBeenCalledWith(USER_ID, EVENT_ID);
@@ -556,10 +1179,10 @@ describe('deleteAttendeeController', () => {
     } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
     const attendeeFindSpy = vi.spyOn(AttendeeRepository, 'findByUserIdAndEventId');
 
-    await deleteAttendeeController(req, res, next as any);
+    await deleteAttendeeController(req, res, next as unknown as NextFunction);
 
     expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
-    const error = (next as unknown as any).mock.calls[0]![0] as NotFoundError;
+    const error = next.mock.calls[0]![0] as NotFoundError;
     expect(error.message).toBe('The event has already ended, cannot cancel registration.');
     expect(attendeeFindSpy).not.toHaveBeenCalled();
   });
@@ -657,5 +1280,529 @@ describe('updateAttendeeStatusController', () => {
     expect(updateSpy).toHaveBeenCalledWith(ATTENDEE_ID, false);
     expect(res.status).toHaveBeenCalledWith(200);
     expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe('getExcelSheetController', () => {
+  it('forwards BadRequestError when eventId is missing', async () => {
+    const req = createMockRequest({
+      params: {},
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    getExcelSheetController(req, res, next as unknown as NextFunction);
+    await new Promise(process.nextTick);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+    expect(res.send).not.toHaveBeenCalled();
+  });
+
+  it('forwards NotFoundError when event does not exist', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(null);
+
+    getExcelSheetController(req, res, next as unknown as NextFunction);
+    await new Promise(process.nextTick);
+
+    expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+    expect(res.send).not.toHaveBeenCalled();
+  });
+
+  it('exports attendees as an excel sheet when event exists', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      name: 'Test Event',
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'findAllAttendees').mockResolvedValue([
+      {
+        registrationTime: new Date(),
+        status: 'GOING',
+        hasAttended: false,
+        checkInTime: null,
+        feedback: null,
+        qrToken: 'ABC123',
+        allowedStatus: true,
+        updatedAt: new Date(),
+        user: {
+          fullName: 'John Doe',
+          primaryEmail: 'john@test.com',
+          contact: null,
+        },
+      },
+    ] as unknown as Awaited<ReturnType<typeof AttendeeRepository.findAllAttendees>>);
+
+    getExcelSheetController(req, res, next as unknown as NextFunction);
+    await new Promise(process.nextTick);
+
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      expect.stringContaining(`attendees-${EVENT_ID}.xlsx`)
+    );
+
+    expect(res.send).toHaveBeenCalledWith(expect.any(Buffer));
+    expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe('getAttendeeTicketController', () => {
+  it('returns attendee ticket when user is registered for event', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      userId: USER_ID,
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const attendee = {
+      id: 'attendee-1',
+      userId: USER_ID,
+      eventId: EVENT_ID,
+      qrToken: 'ABC123',
+      status: 'GOING',
+    };
+
+    vi.spyOn(AttendeeRepository, 'findByUserIdAndEventId').mockResolvedValue(
+      attendee as unknown as Awaited<ReturnType<typeof AttendeeRepository.findByUserIdAndEventId>>
+    );
+
+    await getAttendeeTicketController(req, res, next as unknown as NextFunction);
+
+    expect(AttendeeRepository.findByUserIdAndEventId).toHaveBeenCalledWith(USER_ID, EVENT_ID);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'success',
+        data: attendee,
+      })
+    );
+
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('forwards TokenExpiredError when userId is missing', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      userId: undefined,
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    await getAttendeeTicketController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(TokenExpiredError));
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('forwards NotFoundError when attendee does not exist', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+      userId: USER_ID,
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(AttendeeRepository, 'findByUserIdAndEventId').mockResolvedValue(null);
+
+    await getAttendeeTicketController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('short-circuits with validation error when eventId param is missing', async () => {
+    const req = createMockRequest({
+      params: {},
+      userId: USER_ID,
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const repoSpy = vi.spyOn(AttendeeRepository, 'findByUserIdAndEventId');
+
+    await getAttendeeTicketController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Invalid request',
+      })
+    );
+
+    expect(repoSpy).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateAttendeeStatusController', () => {
+  it('updates attendee allowed status successfully', async () => {
+    const req = createMockRequest({
+      params: { attendeeId: ATTENDEE_ID, eventId: EVENT_ID },
+      body: { allowedStatus: true },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const updatedAttendee = {
+      id: ATTENDEE_ID,
+      allowedStatus: true,
+      status: 'GOING',
+    };
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      capacity: 100,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(10);
+
+    vi.spyOn(AttendeeRepository, 'updateAttendeeStatus').mockResolvedValue(
+      updatedAttendee as unknown as Awaited<
+        ReturnType<typeof AttendeeRepository.updateAttendeeStatus>
+      >
+    );
+
+    await updateAttendeeStatusController(req, res, next as unknown as NextFunction);
+
+    expect(AttendeeRepository.updateAttendeeStatus).toHaveBeenCalledWith(ATTENDEE_ID, true);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: API_MESSAGES.ALLOW_GUEST.SUCCESSFUL_ATTENDEE_UPDATE,
+        data: updatedAttendee,
+      })
+    );
+
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('short-circuits with validation error when required params are missing', async () => {
+    const req = createMockRequest({
+      params: {},
+      body: {},
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const repoSpy = vi.spyOn(AttendeeRepository, 'updateAttendeeStatus');
+
+    await updateAttendeeStatusController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Invalid request',
+      })
+    );
+
+    expect(repoSpy).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('forwards error when repository throws', async () => {
+    const req = createMockRequest({
+      params: { attendeeId: ATTENDEE_ID, eventId: EVENT_ID },
+      body: { allowedStatus: false },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const dbError = new Error('DB failure');
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      capacity: 100,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(10);
+
+    vi.spyOn(AttendeeRepository, 'updateAttendeeStatus').mockRejectedValue(dbError);
+
+    await updateAttendeeStatusController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(dbError);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+});
+
+describe('scanTicketController', () => {
+  it('returns attendee details when qr token is valid', async () => {
+    const req = createMockRequest({
+      params: {
+        eventId: EVENT_ID,
+        qrToken: QR_TOKEN,
+      },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const attendee = {
+      id: 'attendee-1',
+      qrToken: QR_TOKEN,
+      eventId: EVENT_ID,
+      status: 'GOING',
+    };
+
+    vi.spyOn(AttendeeRepository, 'findByQrToken').mockResolvedValue(
+      attendee as unknown as Awaited<ReturnType<typeof AttendeeRepository.findByQrToken>>
+    );
+
+    await scanTicketController(req, res, next as unknown as NextFunction);
+
+    expect(AttendeeRepository.findByQrToken).toHaveBeenCalledWith(QR_TOKEN, EVENT_ID);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'success',
+        data: attendee,
+      })
+    );
+
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('forwards NotFoundError when attendee does not exist', async () => {
+    const req = createMockRequest({
+      params: {
+        eventId: EVENT_ID,
+        qrToken: QR_TOKEN,
+      },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(AttendeeRepository, 'findByQrToken').mockResolvedValue(null);
+
+    await scanTicketController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('short-circuits with validation error when params are missing', async () => {
+    const req = createMockRequest({
+      params: {},
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    const repoSpy = vi.spyOn(AttendeeRepository, 'findByQrToken');
+
+    await scanTicketController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Invalid request',
+      })
+    );
+
+    expect(repoSpy).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+});
+
+describe('createAttendeeController', () => {
+  it('throws TokenExpiredError when userId is missing', async () => {
+    const req = createMockRequest({
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    await createAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(TokenExpiredError));
+  });
+
+  it('returns 400 when user profile is not completed', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: false,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    await createAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+  });
+
+  it('returns 404 when event is not found', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue(null);
+
+    await createAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(NotFoundError));
+  });
+
+  it('returns 400 when event has expired', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: true,
+      endTime: new Date(Date.now() - 1000),
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    await createAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+  });
+
+  it('returns 400 when event is at full capacity', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: true,
+      capacity: 2,
+      endTime: new Date(Date.now() + 10000),
+      hostPermissionRequired: false,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(2);
+
+    await createAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+  });
+
+  it('restores cancelled attendee instead of creating new one', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      primaryEmail: 'user@test.com',
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      isActive: true,
+      hostPermissionRequired: false,
+      endTime: new Date(Date.now() + 10000),
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'findByUserIdAndEventId').mockResolvedValue({
+      id: 'att-1',
+      isDeleted: true,
+      status: AttendeeStatus.CANCELLED,
+    } as unknown as Awaited<ReturnType<typeof AttendeeRepository.findByUserIdAndEventId>>);
+
+    const restoreSpy = vi
+      .spyOn(AttendeeRepository, 'restore')
+      .mockResolvedValue({ id: 'att-1' } as unknown as Awaited<
+        ReturnType<typeof AttendeeRepository.restore>
+      >);
+
+    await createAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(restoreSpy).toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Attendee restored successfully',
+      })
+    );
+  });
+
+  it('creates attendee with GOING status when host permission is not required', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      primaryEmail: 'user@test.com',
+      fullName: 'Test User',
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      name: 'Test Event',
+      isActive: true,
+      hostPermissionRequired: false,
+      endTime: new Date(Date.now() + 10000),
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(AttendeeRepository, 'findByUserIdAndEventId').mockResolvedValue(null);
+    vi.spyOn(AttendeeRepository, 'create').mockResolvedValue({
+      id: 'att-123',
+      eventId: EVENT_ID,
+      qrToken: 'ABC123',
+    } as unknown as Awaited<ReturnType<typeof AttendeeRepository.create>>);
+
+    await createAttendeeController(req, res, next as unknown as NextFunction);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'success',
+      })
+    );
   });
 });

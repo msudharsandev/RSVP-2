@@ -527,7 +527,9 @@ describe('CustomiseEventCard', () => {
 
     try {
       render(<CustomiseEventCard className="test-class" event={event} isSuccess={true} />);
-    } catch (error) {}
+    } catch (error) {
+      void error;
+    }
 
     expect(mockNotFound).toHaveBeenCalled();
 
@@ -559,7 +561,7 @@ describe('CustomiseEventCard', () => {
 
     await act(async () => {
       fireEvent.click(shareButton!);
-      (await mockWriteText.mock.results[0]?.value) || Promise.resolve();
+      await (mockWriteText.mock.results[0]?.value ?? Promise.resolve());
     });
 
     await act(async () => {

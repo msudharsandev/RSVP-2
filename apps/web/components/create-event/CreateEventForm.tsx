@@ -10,6 +10,10 @@ import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
 import { usePersistentState } from '@/hooks/useLocalStorage';
 import { FORM_CACHE_KEY, EXPIRY_MINUTES } from '@/utils/constants';
+import EventLimitDialog from './EventLimitDialog';
+import type { AxiosError } from 'axios';
+import { handleEventLimitError } from '@/lib/utils';
+import type { LimitErrorResponse } from '@/lib/utils';
 import { useGetCategoryList } from '@/lib/react-query/event';
 
 function getAllowedDate() {
@@ -20,6 +24,12 @@ function getAllowedDate() {
 
 const CreateEventForm = () => {
   const [mounted, setMounted] = useState(false);
+  const [limitMessage, setLimitMessage] = useState<string | null>(null);
+
+  const { data: user } = useCurrentUser();
+  const { mutate, isPending } = useCreateEvent();
+  const { data: categories } = useGetCategoryList();
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -43,15 +53,12 @@ const CreateEventForm = () => {
       eventImageUrl: '',
     };
   }, []);
-  const { data: user } = useCurrentUser();
-  const { mutate } = useCreateEvent();
-  const [isLoading, setIsLoading] = useState(false);
+
   const [value, setPersistentValue] = usePersistentState<CreateEventFormType>(
     FORM_CACHE_KEY,
     defaultValues,
     EXPIRY_MINUTES
   );
-  const { data: categories } = useGetCategoryList();
 
   async function onSubmit(data: CreateEventFormType) {
     const {
@@ -93,10 +100,15 @@ const CreateEventForm = () => {
       endTime: combineDateAndTime(toDate, toTime),
     };
 
-    mutate(submissionData);
+    mutate(submissionData, {
+      onError: (error: AxiosError<LimitErrorResponse>) => {
+        handleEventLimitError(error, setLimitMessage);
+      },
+    });
   }
 
   if (!mounted) return null;
+
   return (
     <>
       <div className="mt-1 flex items-baseline justify-between">
@@ -105,12 +117,19 @@ const CreateEventForm = () => {
       <Separator className="my-9 bg-separator" />
       <EventForm
         defaultValues={value}
-        isLoading={isLoading}
+        isLoading={isPending}
         onSubmit={onSubmit}
         requireSignIn={!user}
         setPersistentValue={setPersistentValue}
         eventCategoryOptions={categories}
       />
+      {limitMessage && (
+        <EventLimitDialog
+          open={true}
+          onOpenChange={(open) => !open && setLimitMessage(null)}
+          message={limitMessage}
+        />
+      )}
     </>
   );
 };

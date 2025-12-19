@@ -294,6 +294,36 @@ export class EventRepository {
   }
 
   /**
+   * Counts events created by a user in the current month, filtered by discoverable status.
+   * Deleted events are excluded, but cancelled events are included.
+   * @param creatorId - The unique ID of the creator.
+   * @param discoverable - Whether to count public (true) or private (false) events.
+   * @returns The count of events created this month.
+   */
+  static async countEventsCreatedThisMonth(creatorId: string, discoverable: boolean) {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    return await prisma.event.count({
+      where: {
+        creatorId,
+        discoverable,
+        createdAt: {
+          gte: startOfMonth,
+          lt: startOfNextMonth,
+        },
+        OR: [
+          // If the event is not deleted, it is always counted towards the limit
+          { isDeleted: false },
+          // If the event is deleted, it is only counted towards the limit if the event is in the past
+          { isDeleted: true, endTime: { lt: now } },
+        ],
+      },
+    });
+  }
+
+  /**
    * Creates a new event.
    * @param eventDetails - The details of the event to create.
    * @returns The newly created event object.

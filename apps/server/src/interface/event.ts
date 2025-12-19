@@ -60,6 +60,7 @@ export interface ICreateEvent {
   hostPermissionRequired: boolean;
   capacity?: number;
   isActive?: boolean;
+  discoverable?: boolean;
 }
 
 /**

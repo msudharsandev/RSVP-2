@@ -22,6 +22,7 @@ import {
 } from '@/utils/constants';
 interface ErrorResponse {
   message?: string;
+  errorCode?: string;
 }
 
 export const useInviteGuests = () => {
@@ -105,7 +106,12 @@ export const useCreateEvent = () => {
       router.push(url);
     },
     onError: (error) => {
-      toast.error(error.response?.data.message || 'An error occurred');
+      const errorCode = error.response?.data?.errorCode;
+      const message = error.response?.data?.message || 'An error occurred';
+
+      if (errorCode === 'EVENT_LIMIT_PUBLIC' || errorCode === 'EVENT_LIMIT_PRIVATE') return;
+
+      toast.error(message);
     },
   });
 };
@@ -211,7 +217,12 @@ export const useUpdateEvent = () => {
       toast.success('Event updated successfully');
     },
     onError: (error) => {
-      toast.error(error.response?.data.message || 'An error occurred');
+      const errorCode = error.response?.data?.errorCode;
+      const message = error.response?.data?.message || 'An error occurred';
+
+      if (errorCode === 'EVENT_LIMIT_PUBLIC' || errorCode === 'EVENT_LIMIT_PRIVATE') return;
+
+      toast.error(message);
     },
   });
 };

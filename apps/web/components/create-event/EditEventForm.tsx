@@ -20,6 +20,11 @@ import {
 import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
 import { formatDate } from '@/utils/formatDate';
+import EventLimitDialog from './EventLimitDialog';
+import type { AxiosError } from 'axios';
+import { handleEventLimitError } from '@/lib/utils';
+import type { LimitErrorResponse } from '@/lib/utils';
+
 const allowedDate = new Date();
 allowedDate.setHours(0, 0, 0, 0);
 
@@ -29,6 +34,7 @@ const EditEventForm = () => {
   const { mutate, isPending } = useUpdateEvent();
   const [alertOpen, setAlertOpen] = useState(false);
   const [formPayload, setFormPayload] = useState<CreateEventFormType | null>(null);
+  const [limitMessage, setLimitMessage] = useState<string | null>(null);
   const { data: categories } = useGetCategoryList();
 
   async function onSubmit(formPayload: CreateEventFormType) {
@@ -81,7 +87,12 @@ const EditEventForm = () => {
       startTime: combineDateAndTime(fromDate, fromTime),
       endTime: combineDateAndTime(toDate, toTime),
     };
-    mutate(submissionData);
+
+    mutate(submissionData, {
+      onError: (error: AxiosError<LimitErrorResponse>) => {
+        handleEventLimitError(error, setLimitMessage);
+      },
+    });
   }
 
   const event = data?.event;
@@ -133,6 +144,13 @@ const EditEventForm = () => {
           setAlertOpen(false);
         }}
       />
+      {limitMessage && (
+        <EventLimitDialog
+          open={true}
+          onOpenChange={(open) => !open && setLimitMessage(null)}
+          message={limitMessage}
+        />
+      )}
     </>
   );
 };

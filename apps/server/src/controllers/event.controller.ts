@@ -46,6 +46,9 @@ import { CalendarEvent, google, ics, outlook } from 'calendar-link';
 import { createHash, randomUUID } from 'crypto';
 import * as XLSX from 'xlsx';
 
+const PUBLIC_EVENTS_PER_MONTH = 10;
+const PRIVATE_EVENTS_PER_MONTH = 5;
+
 /**
  * Retrieves an event by its slug.
  * @param req - The HTTP request object containing the slug in the parameters.
@@ -82,7 +85,8 @@ export const getEventByIdController = controller(getEventByIdSchema, async (req,
 
   let category;
   if (event.categoryId) {
-    category = await prisma.category.findFirst({ where: { id: event.categoryId } });
+    const categoryObj = await prisma.category.findFirst({ where: { id: event.categoryId } });
+    category = categoryObj ? categoryObj.name : undefined;
   }
 
   return new SuccessResponse('success', {
@@ -207,6 +211,24 @@ export const createEventController = controller(CreateEventSchema, async (req, r
   if (plaintextDescription && plaintextDescription.length > 300)
     throw new BadRequestError('Description cannot be greater than 300 characters.');
 
+  const isPublic = data.discoverable !== false;
+
+  const eventsCreatedThisMonth = await EventRepository.countEventsCreatedThisMonth(
+    userId,
+    isPublic
+  );
+
+  if (isPublic && eventsCreatedThisMonth >= PUBLIC_EVENTS_PER_MONTH) {
+    throw new BadRequestError(API_MESSAGES.EVENT.PUBLIC_EVENT_LIMIT_EXCEEDED, 'EVENT_LIMIT_PUBLIC');
+  }
+
+  if (!isPublic && eventsCreatedThisMonth >= PRIVATE_EVENTS_PER_MONTH) {
+    throw new BadRequestError(
+      API_MESSAGES.EVENT.PRIVATE_EVENT_LIMIT_EXCEEDED,
+      'EVENT_LIMIT_PRIVATE'
+    );
+  }
+
   logger.info('Formatting data for create event in createEventController ...');
 
   // Find `category` in the `categories` table only if provided.
@@ -249,6 +271,9 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
   const { eventId } = req.params;
   const { richtextDescription, plaintextDescription, category, ...data } = req.body;
 
+  const userId = req.userId;
+  if (!userId) throw new TokenExpiredError();
+
   if (!data.venueType) throw new BadRequestError('Venue type cannot be updated');
 
   if (plaintextDescription && plaintextDescription.length > 300)
@@ -267,6 +292,32 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
 
   logger.info('Updating event in updateEventController ...');
   const event = await EventRepository.findById(eventId);
+  if (!event) throw new NotFoundError('Event not found');
+
+  const currentEventIsPublic = event.discoverable !== false;
+  const newEventIsPublic =
+    data.discoverable !== undefined ? data.discoverable !== false : currentEventIsPublic;
+
+  if (currentEventIsPublic !== newEventIsPublic) {
+    const eventsInTargetCategory = await EventRepository.countEventsCreatedThisMonth(
+      userId,
+      newEventIsPublic
+    );
+
+    if (newEventIsPublic && eventsInTargetCategory >= PUBLIC_EVENTS_PER_MONTH) {
+      throw new BadRequestError(
+        API_MESSAGES.EVENT.PUBLIC_EVENT_LIMIT_EXCEEDED,
+        'EVENT_LIMIT_PUBLIC'
+      );
+    }
+
+    if (!newEventIsPublic && eventsInTargetCategory >= PRIVATE_EVENTS_PER_MONTH) {
+      throw new BadRequestError(
+        API_MESSAGES.EVENT.PRIVATE_EVENT_LIMIT_EXCEEDED,
+        'EVENT_LIMIT_PRIVATE'
+      );
+    }
+  }
 
   // current is private and converting to public
   if (event?.hostPermissionRequired == true && data.hostPermissionRequired == false) {
