@@ -245,7 +245,7 @@ describe('createEventController', () => {
     await createEventController(req, res, next as any);
 
     expect(UserRepository.findById).toHaveBeenCalledWith(USER_ID);
-    expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { name: 'Technology' } });
+    expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { id: 'Technology' } });
     expect(mocks.categoryCreateMock).not.toHaveBeenCalled();
     expect(createEventSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -287,7 +287,7 @@ describe('createEventController', () => {
 
     await createEventController(req, res, next as any);
 
-    expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { name: 'Technology' } });
+    expect(mocks.categoryFindFirstMock).toHaveBeenCalledWith({ where: { id: 'Technology' } });
     expect(mocks.categoryCreateMock).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledWith(expect.any(Error));
   });

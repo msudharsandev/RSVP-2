@@ -5,7 +5,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { createEventFormSchema, CreateEventFormType, EventFromProps } from '@/lib/zod/event';
 import { VenueType } from '@/types/events';
-import { capacityOptions, eventCategoryOptions, evenTimeOptions } from '@/utils/constants';
+import { capacityOptions, evenTimeOptions } from '@/utils/constants';
 import { BuildingOfficeIcon, LinkIcon } from '@heroicons/react/16/solid';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Clock1, Link, LoaderCircle } from 'lucide-react';
@@ -29,6 +29,7 @@ const EventForm = ({
   onSubmit,
   requireSignIn,
   setPersistentValue,
+  eventCategoryOptions,
 }: EventFromProps) => {
   const allowedDate = new Date();
   allowedDate.setHours(0, 0, 0, 0);
@@ -115,7 +116,7 @@ const EventForm = ({
             label="Category"
             name="category"
             placeholder="Select a category"
-            options={eventCategoryOptions}
+            options={eventCategoryOptions || []}
           />
           <div className="flex max-w-96 items-end gap-3.5">
             <FormGroupSelect

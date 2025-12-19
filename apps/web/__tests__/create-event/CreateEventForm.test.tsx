@@ -18,7 +18,10 @@ vi.mock('@/components/create-event/EventForm', () => ({
   ),
 }));
 
-vi.mock('@/lib/react-query/event', () => ({ useCreateEvent: () => ({ mutate: mockMutate }) }));
+vi.mock('@/lib/react-query/event', () => ({
+  useCreateEvent: () => ({ mutate: mockMutate }),
+  useGetCategoryList: () => ({ data: [{ value: 1, label: 'Technology' }], isLoading: false }),
+}));
 vi.mock('@/lib/react-query/auth', () => ({ useCurrentUser: () => mockUseCurrentUser() }));
 vi.mock('@/hooks/useLocalStorage', () => ({
   usePersistentState: (k: any, d: any, e: any) => mockUsePersistentState(k, d, e),

@@ -10,6 +10,7 @@ import { Separator } from '../ui/separator';
 import EventForm from './EventForm';
 import { usePersistentState } from '@/hooks/useLocalStorage';
 import { FORM_CACHE_KEY, EXPIRY_MINUTES } from '@/utils/constants';
+import { useGetCategoryList } from '@/lib/react-query/event';
 
 function getAllowedDate() {
   const d = new Date();
@@ -50,6 +51,8 @@ const CreateEventForm = () => {
     defaultValues,
     EXPIRY_MINUTES
   );
+  const { data: categories } = useGetCategoryList();
+
   async function onSubmit(data: CreateEventFormType) {
     const {
       name,
@@ -106,6 +109,7 @@ const CreateEventForm = () => {
         onSubmit={onSubmit}
         requireSignIn={!user}
         setPersistentValue={setPersistentValue}
+        eventCategoryOptions={categories}
       />
     </>
   );

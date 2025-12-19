@@ -13,14 +13,16 @@ import {
 } from '../axios/event-API';
 import { CreateEventSubmissionType } from '../zod/event';
 import { clearLocalStorage } from '@/hooks/useLocalStorage';
-import { FORM_CACHE_KEY } from '@/utils/constants';
+import {
+  FORM_CACHE_KEY,
+  EVENTS_QUERY_KEY,
+  EVENT_COHOST_KEY,
+  ATTENDEE_QUERY_KEY,
+  EVENT_CATEGORY_LIST_KEY,
+} from '@/utils/constants';
 interface ErrorResponse {
   message?: string;
 }
-
-const EVENTS_QUERY_KEY = 'events';
-const EVENT_COHOST_KEY = 'cohost';
-const ATTENDEE_QUERY_KEY = 'attendees';
 
 export const useInviteGuests = () => {
   const queryClient = useQueryClient();
@@ -397,5 +399,12 @@ export const useDeleteCohost = () => {
       const errMsg = resp.response?.data as ErrorResponse | undefined;
       toast.error(errMsg?.message ?? resp.message ?? 'An unexpected error occured');
     },
+  });
+};
+
+export const useGetCategoryList = () => {
+  return useQuery({
+    queryKey: [EVENT_CATEGORY_LIST_KEY],
+    queryFn: () => eventAPI.getCategoryList(),
   });
 };

@@ -11,7 +11,13 @@ export const getAllCategoryController = controller(emptySchema, async (req, res)
   const categories = await CategoryRepository.findAll();
 
   if (!categories) throw new NotFoundError('No categories found');
-  return new SuccessResponse('success', categories).send(res);
+
+  const sortedCategories = [
+    ...categories.filter((c) => c.name.toLowerCase() !== 'others...'),
+    ...categories.filter((c) => c.name.toLowerCase() === 'others...'),
+  ];
+
+  return new SuccessResponse('success', sortedCategories).send(res);
 });
 
 export const getCategoryByIdController = controller(categoryParamsSchema, async (req, res) => {

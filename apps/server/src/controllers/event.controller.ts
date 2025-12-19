@@ -86,7 +86,7 @@ export const getEventByIdController = controller(getEventByIdSchema, async (req,
   }
 
   return new SuccessResponse('success', {
-    event: { ...event, cohosts: event.hosts, category: category?.name },
+    event: { ...event, cohosts: event.hosts, category },
     totalAttendees,
   }).send(res);
 });
@@ -133,7 +133,7 @@ export const filterEventController = controller(eventFilterSchema, async (req, r
   logger.info('Filtering events in filterEventController ...');
   const filters = req.query;
   if (filters.category) {
-    const category = await prisma.category.findFirst({ where: { name: filters.category } });
+    const category = await prisma.category.findFirst({ where: { id: filters.category } });
 
     if (!category?.id) {
       filters.category = 'not found';
@@ -212,7 +212,7 @@ export const createEventController = controller(CreateEventSchema, async (req, r
   // Find `category` in the `categories` table only if provided.
   let categoryData: any = undefined;
   if (category) {
-    categoryData = await prisma.category.findFirst({ where: { name: category } });
+    categoryData = await prisma.category.findFirst({ where: { id: category } });
 
     // If not exists - create a new record.
     if (!categoryData) {
@@ -257,7 +257,7 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
   // Find `category` in the `categories` table.
   let categoryData = null;
   if (category) {
-    categoryData = await prisma.category.findFirst({ where: { name: category } });
+    categoryData = await prisma.category.findFirst({ where: { id: category } });
 
     // If not exists - throw error.
     if (!categoryData) {

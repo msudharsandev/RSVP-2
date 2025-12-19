@@ -13,6 +13,7 @@ vi.mock('@/components/common/form/FormUploadImage', () => ({
 vi.mock('@/lib/react-query/event', () => ({
   useGetEventById: vi.fn(),
   useUpdateEvent: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+  useGetCategoryList: () => ({ data: [{ value: 1, label: 'Technology' }], isLoading: false }),
 }));
 
 vi.mock('next/navigation', () => ({

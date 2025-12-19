@@ -138,4 +138,5 @@ export type EventFromProps = {
   onSubmit: (data: CreateEventFormType) => void;
   requireSignIn?: boolean;
   setPersistentValue?: (data: CreateEventFormType) => void;
+  eventCategoryOptions?: FormSelectOption[];
 };

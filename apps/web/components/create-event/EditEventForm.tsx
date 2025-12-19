@@ -1,7 +1,7 @@
 'use client';
 
 import { UpdateEventSubmissionType } from '@/lib/axios/event-API';
-import { useGetEventById, useUpdateEvent } from '@/lib/react-query/event';
+import { useGetEventById, useUpdateEvent, useGetCategoryList } from '@/lib/react-query/event';
 import { CreateEventFormType } from '@/lib/zod/event';
 import { VenueType } from '@/types/events';
 import { combineDateAndTime } from '@/utils/time';
@@ -29,6 +29,7 @@ const EditEventForm = () => {
   const { mutate, isPending } = useUpdateEvent();
   const [alertOpen, setAlertOpen] = useState(false);
   const [formPayload, setFormPayload] = useState<CreateEventFormType | null>(null);
+  const { data: categories } = useGetCategoryList();
 
   async function onSubmit(formPayload: CreateEventFormType) {
     const {
@@ -87,7 +88,7 @@ const EditEventForm = () => {
 
   const defaultValues: CreateEventFormType = {
     name: event?.name ?? '',
-    category: event?.category?.name ?? '',
+    category: event?.category?.id ?? '',
     description: event?.description ?? '',
     plaintextDescription: '',
     venueType: event?.venueType ?? VenueType.Physical,
@@ -118,6 +119,7 @@ const EditEventForm = () => {
         defaultValues={defaultValues}
         isLoading={isPending}
         onSubmit={onSubmit}
+        eventCategoryOptions={categories}
       />
       <ChangeVisibility
         open={alertOpen}

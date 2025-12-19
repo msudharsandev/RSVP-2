@@ -4,6 +4,7 @@ import { CommunicationForm } from '../zod/communication';
 import { CreateEventSubmissionType } from '../zod/event';
 import api from './instance';
 import { Cohost } from '@/types/cohost';
+import { CategoryType } from '@/types/category';
 
 export interface GetAttendeeByEventIdParams extends PaginationParams {
   eventId: string;
@@ -205,5 +206,13 @@ export const eventAPI = {
   deleteEventCohost: async (eventId: string, userId: string) => {
     const response = await api.delete(`cohosts/events/${eventId}/${userId}`);
     return response.data;
+  },
+
+  /* Category API to fetch all category list */
+  getCategoryList: async () => {
+    const response = await api.get('/categories');
+    return response.data.data.map((category: CategoryType) => {
+      return { value: category.id, label: category.name };
+    });
   },
 };
