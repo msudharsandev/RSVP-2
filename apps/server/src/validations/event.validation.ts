@@ -232,7 +232,7 @@ export const eventFilterSchema = z.object({
 export type EventFilter = z.infer<typeof eventFilterSchema>['query'];
 
 export const updateAttendeeStatusSchema = z.object({
-  params: z.object({ attendeeId: z.string().uuid() }),
+  params: z.object({ attendeeId: z.string().uuid(), eventId: z.string().uuid() }),
   body: z.object({ allowedStatus: z.boolean() }),
 });
 

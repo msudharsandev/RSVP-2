@@ -17,7 +17,15 @@ interface FilterState {
   page: number;
 }
 
-export default function EventDetailsTable() {
+type EventDetailsTableProps = Readonly<{
+  eventCapacity: number;
+  totalAttendees: number;
+}>;
+
+export default function EventDetailsTable({
+  eventCapacity,
+  totalAttendees,
+}: EventDetailsTableProps) {
   const [filters, setFilters] = useState<FilterState>({
     searchTerm: '',
     page: 1,
@@ -40,6 +48,11 @@ export default function EventDetailsTable() {
 
   const attendees = data?.attendees ?? [];
   const totalPages = Math.ceil((data?.total ?? 0) / 10);
+
+  const columns = useMemo(
+    () => attendeeColumns(eventCapacity, totalAttendees),
+    [eventCapacity, totalAttendees]
+  );
 
   // Debounced search handler
   const handleSearch = (value: string) => {
@@ -104,7 +117,7 @@ export default function EventDetailsTable() {
         </div>
 
         <div className="overflow-x-auto">
-          <DataTable columns={attendeeColumns} data={attendees} loading={isLoading} />
+          <DataTable columns={columns} data={attendees} loading={isLoading} />
         </div>
 
         <TablePagination

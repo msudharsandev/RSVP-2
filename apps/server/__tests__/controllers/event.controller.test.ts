@@ -77,12 +77,14 @@ import {
   updateEventController,
   verifyQrController,
   deleteAttendeeController,
+  updateAttendeeStatusController,
 } from '@/controllers/event.controller';
 import { EventRepository } from '@/repositories/event.repository';
 import { AttendeeRepository } from '@/repositories/attendee.repository';
 import { CohostRepository } from '@/repositories/cohost.repository';
 import { UserRepository } from '@/repositories/user.repository';
 import EmailService from '@/utils/sendEmail';
+import { API_MESSAGES } from '@/constants/apiMessages';
 
 type TestRequest = IAuthenticatedRequest<any, any, any, any>;
 
@@ -560,5 +562,100 @@ describe('deleteAttendeeController', () => {
     const error = (next as unknown as any).mock.calls[0]![0] as NotFoundError;
     expect(error.message).toBe('The event has already ended, cannot cancel registration.');
     expect(attendeeFindSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateAttendeeStatusController', () => {
+  it('updates attendee status when capacity is not reached', async () => {
+    const req = createMockRequest({
+      params: { attendeeId: ATTENDEE_ID, eventId: EVENT_ID },
+      body: { allowedStatus: true },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      capacity: 100,
+    } as any);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(50);
+
+    const updateSpy = vi.spyOn(AttendeeRepository, 'updateAttendeeStatus').mockResolvedValue({
+      id: ATTENDEE_ID,
+      allowedStatus: true,
+    } as any);
+
+    await updateAttendeeStatusController(req, res, next as any);
+
+    expect(EventRepository.findById).toHaveBeenCalledWith(EVENT_ID);
+    expect(AttendeeRepository.countAttendees).toHaveBeenCalledWith(EVENT_ID);
+    expect(updateSpy).toHaveBeenCalledWith(ATTENDEE_ID, true);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: API_MESSAGES.ALLOW_GUEST.SUCCESSFUL_ATTENDEE_UPDATE,
+        data: expect.objectContaining({
+          id: ATTENDEE_ID,
+          allowedStatus: true,
+        }),
+      })
+    );
+
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('rejects when event capacity is reached and allowedStatus is true', async () => {
+    const req = createMockRequest({
+      params: { attendeeId: ATTENDEE_ID, eventId: EVENT_ID },
+      body: { allowedStatus: true },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      capacity: 50,
+    } as any);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(50);
+
+    const updateSpy = vi.spyOn(AttendeeRepository, 'updateAttendeeStatus');
+
+    await updateAttendeeStatusController(req, res, next as any);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+    const error = (next as any).mock.calls[0][0];
+    expect(error.message).toBe('Event capacity reached');
+
+    expect(updateSpy).not.toHaveBeenCalled();
+  });
+
+  it('allows disabling attendee even when event is full', async () => {
+    const req = createMockRequest({
+      params: { attendeeId: ATTENDEE_ID, eventId: EVENT_ID },
+      body: { allowedStatus: false }, // disabling attendee
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      capacity: 50,
+    } as any);
+
+    vi.spyOn(AttendeeRepository, 'countAttendees').mockResolvedValue(50);
+
+    const updateSpy = vi.spyOn(AttendeeRepository, 'updateAttendeeStatus').mockResolvedValue({
+      id: ATTENDEE_ID,
+      allowedStatus: false,
+    } as any);
+
+    await updateAttendeeStatusController(req, res, next as any);
+
+    expect(updateSpy).toHaveBeenCalledWith(ATTENDEE_ID, false);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(next).not.toHaveBeenCalled();
   });
 });

@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import SemiCircleBar from '../ui/SemiCircleBar';
 import { Icons } from '../common/Icon';
 import { Card, CardHeader } from '../ui/card';
-import {
-  useGetAttendeeExcelByEventId,
-  useGetEventById,
-  useInviteGuests,
-} from '@/lib/react-query/event';
+import { useGetAttendeeExcelByEventId, useInviteGuests } from '@/lib/react-query/event';
 import { useParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
@@ -16,13 +12,17 @@ import { InviteGuestModal } from './InviteGuestModal';
 import { InviteResultsModal } from './InviteResultModal';
 import { AxiosError } from 'axios';
 
-export const EventHeroSection = () => {
+type EventHeroSectionProps = Readonly<{
+  totalAttendees: number;
+  eventCapacity: number;
+}>;
+
+export const EventHeroSection = ({ totalAttendees, eventCapacity }: EventHeroSectionProps) => {
   const eventId = useParams().id?.toString();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteResults, setInviteResults] = useState(null);
   const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
 
-  const { data } = useGetEventById(eventId!);
   const { mutateAsync, isPending } = useGetAttendeeExcelByEventId();
   const { mutateAsync: inviteGuests, isPending: isInviting } = useInviteGuests();
 
@@ -73,9 +73,7 @@ export const EventHeroSection = () => {
     }
   };
 
-  const percentage = (((data?.totalAttendees || 0) / (data?.event?.capacity || 1)) * 100).toFixed(
-    2
-  );
+  const percentage = ((totalAttendees / (eventCapacity || 1)) * 100).toFixed(2);
 
   return (
     <div className="mb-10 mt-8 w-full space-y-6">
@@ -87,7 +85,7 @@ export const EventHeroSection = () => {
             <p className="pl-3 pt-3 text-sm text-gray-400">{`Your ${percentage}% of seats have been booked.`}</p>
           </CardHeader>
           <div className="flex items-center justify-center">
-            <SemiCircleBar score={data?.totalAttendees || 0} total={data?.event?.capacity || 0} />
+            <SemiCircleBar score={totalAttendees} total={eventCapacity} />
           </div>
         </Card>
 

@@ -775,8 +775,18 @@ export const getAttendeeTicketController = controller(eventParamsSchema, async (
 export const updateAttendeeStatusController = controller(
   updateAttendeeStatusSchema,
   async (req, res) => {
-    const { attendeeId } = req.params;
+    const { attendeeId, eventId } = req.params;
     const { allowedStatus } = req.body;
+
+    const event = await EventRepository.findById(eventId);
+
+    if (!event) throw new NotFoundError(API_MESSAGES.EVENT.NOT_FOUND);
+
+    const totalAttendees = await AttendeeRepository.countAttendees(eventId);
+
+    if (totalAttendees >= event?.capacity && allowedStatus) {
+      throw new BadRequestError(API_MESSAGES.EVENT.MAX_CAPACITY);
+    }
 
     logger.info('Updating attendee status in updateAttendeeStatusController ...');
     const updatedAttendee = await AttendeeRepository.updateAttendeeStatus(
