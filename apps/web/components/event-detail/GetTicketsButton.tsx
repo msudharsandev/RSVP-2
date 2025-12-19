@@ -34,6 +34,7 @@ type GetTicketsButtonProps = {
   creatorId: string;
   remainingSeats: number;
   eventSlug: string;
+  isPastEvent: boolean;
 };
 
 const GetTicketsButton = ({
@@ -43,6 +44,7 @@ const GetTicketsButton = ({
   creatorId,
   remainingSeats,
   eventSlug,
+  isPastEvent,
 }: GetTicketsButtonProps) => {
   const { data: userData, isLoading: userDataLoading } = useCurrentUser();
   const { mutate, isSuccess, isPending: createAttendeeLoading } = useCreateAttendee();
@@ -104,6 +106,19 @@ const GetTicketsButton = ({
           Manage Events
         </Button>
       </Link>
+    );
+  }
+
+  if (
+    isPastEvent &&
+    (isSuccess || attendeeDataSuccess) &&
+    !cancelRegistrationSuccess &&
+    attendeeData?.allowedStatus
+  ) {
+    return (
+      <Button variant="subtle" className="mt-4 w-full rounded-full px-4 py-2 text-center">
+        Event has passed
+      </Button>
     );
   }
 
@@ -172,14 +187,22 @@ const GetTicketsButton = ({
   }
 
   return (
-    <Button
-      variant={createAttendeeLoading ? 'subtle' : 'default'}
-      className="mt-4 w-full rounded-full px-4 py-2 h-[50px]"
-      onClick={handleGetTickets}
-      disabled={createAttendeeLoading}
-    >
-      {createAttendeeLoading ? <LoaderCircle className="animate-spin" /> : <>Get Tickets</>}
-    </Button>
+    <>
+      {isPastEvent ? (
+        <Button variant="subtle" className="mt-4 w-full rounded-full px-4 py-2 text-center">
+          Event has passed
+        </Button>
+      ) : (
+        <Button
+          variant={createAttendeeLoading ? 'subtle' : 'default'}
+          className="mt-4 w-full rounded-full px-4 py-2 h-[50px]"
+          onClick={handleGetTickets}
+          disabled={createAttendeeLoading}
+        >
+          {createAttendeeLoading ? <LoaderCircle className="animate-spin" /> : <>Get Tickets</>}
+        </Button>
+      )}
+    </>
   );
 };
 

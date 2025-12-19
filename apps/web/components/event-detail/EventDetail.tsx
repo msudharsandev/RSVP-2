@@ -34,6 +34,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
 
   const additionalCount = totalAttendees > 4 ? totalAttendees - 4 : 0;
   const userAvatarLimit = totalAttendees > 4 ? 4 : totalAttendees;
+  const isPastEvent = new Date(event.endTime) < new Date();
 
   const cohosts = event.cohosts?.length ?? 0;
   const capacity = event.capacity ?? 0;
@@ -218,15 +219,21 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
               <>
                 <div className="flex items-center justify-between w-full">
                   <div className="flex flex-col space-y-3">
-                    <h2 className="text-xl font-bold">Registration</h2>
-                    <p className="font-semibold">
-                      {remainingSeats > 0
-                        ? `${remainingSeats} Seats are Remaining.`
-                        : 'No Seats Remaining.'}
-                    </p>
+                    {isPastEvent ? (
+                      <h2 className="text-xl font-bold">Registration closed</h2>
+                    ) : (
+                      <>
+                        <h2 className="text-xl font-bold">Registration</h2>
+                        <p className="font-semibold">
+                          {remainingSeats > 0
+                            ? `${remainingSeats} Seats are Remaining.`
+                            : 'No Seats Remaining.'}
+                        </p>
+                      </>
+                    )}
                   </div>
 
-                  {totalAttendees > 0 && (
+                  {!isPastEvent && totalAttendees > 0 && (
                     <div className="flex items-center justify-center gap-2">
                       <AvatarGroup additionalCount={additionalCount} limit={userAvatarLimit} />
                       <p className="text-sm font-semibold">{totalAttendees} going</p>
@@ -253,6 +260,7 @@ const EventDetail = ({ eventData }: { eventData: { event: Event; totalAttendees:
                 eventId={event.id}
                 eventSlug={event.slug}
                 isPermissionRequired={event?.hostPermissionRequired}
+                isPastEvent={isPastEvent}
               />
             )}
           </section>
