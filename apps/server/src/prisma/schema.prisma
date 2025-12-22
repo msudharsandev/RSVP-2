@@ -194,6 +194,24 @@ model Auth {
   @@map("auth")
 }
 
+model City {
+  id        String  @id @default(uuid()) @db.VarChar(36)
+  name      String  @map("name") @db.VarChar(100)
+
+  stateId   String  @map("state_id")   @db.VarChar(36)
+  countryId String  @map("country_id") @db.VarChar(36)
+
+  state   State   @relation(fields: [stateId],   references: [id], onDelete: Cascade)
+
+  Users  User[]
+  Event  Event[]
+  
+  @@unique([name, stateId])   // ensures city names are unique per state
+  @@index([stateId])
+  @@index([countryId])
+  @@map("cities")
+}
+
 enum AttendeeStatus {
   GOING     @map("1")
   NOT_GOING @map("2")
@@ -225,22 +243,4 @@ enum Platform {
 enum AuthProvider {
   MAGIC_LINK
   GOOGLE
-}
-
-model City {
-  id        String  @id @default(uuid()) @db.VarChar(36)
-  name      String  @map("name") @db.VarChar(100)
-
-  stateId   String  @map("state_id")   @db.VarChar(36)
-  countryId String  @map("country_id") @db.VarChar(36)
-
-  state   State   @relation(fields: [stateId],   references: [id], onDelete: Cascade)
-
-  Users  User[]
-  Event  Event[]
-  
-  @@unique([name, stateId])   // ensures city names are unique per state
-  @@index([stateId])
-  @@index([countryId])
-  @@map("cities")
 }

@@ -70,6 +70,8 @@ export const QR_TOKEN = 'token-123';
 export const INVALID_TOKEN = 'invalid-token';
 export const NON_EXISTENT_ID = 'non-existent-id';
 export const EVENT_NO_ATTENDEES = 'event-no-attendees';
+export const STATE_ID = '1';
+export const COUNTRY_ID = '1';
 
 // Mock Attendee Objects
 export const MOCK_ATTENDEE = {
@@ -220,3 +222,35 @@ export const ATTENDEE_COUNT_GOING = 5;
 // Date constants for testing date filtering
 export const START_DATE = new Date('2025-12-01');
 export const END_DATE = new Date('2025-12-31');
+
+export const DUMMY_CITIES = [
+  {
+    id: '1',
+    name: 'dumb city',
+    stateId: '11',
+    countryId: '111',
+  },
+  {
+    id: '2',
+    name: 'dumb city 0',
+    stateId: '12',
+    countryId: '112',
+  },
+];
+export const DUMMY_CITY = {
+  id: '1',
+  name: 'single dumb city',
+  stateId: '11',
+  countryId: '111',
+};
+
+export const MOCK_STATE = {
+  id: '1',
+  name: 'New York',
+  country_id: '1',
+};
+
+export const MOCK_STATES = [
+  { id: '1', name: 'New York', country_id: '1' },
+  { id: '2', name: 'California', country_id: '1' },
+];

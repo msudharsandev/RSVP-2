@@ -7,6 +7,7 @@ import { stateRouter } from '../state.routes';
 import { socialLinksRouter } from './socialLinks.routes';
 import { countryRouter } from './country.routes';
 import { categoryRouter } from './category.routes';
+import { cityRouter } from './city.routes';
 
 const router: Router = Router();
 
@@ -18,5 +19,6 @@ router.use('/states', stateRouter);
 router.use('/countries', countryRouter);
 router.use('/socials', socialLinksRouter);
 router.use('/categories', categoryRouter);
+router.use('/cities', cityRouter);
 
 export { router };
