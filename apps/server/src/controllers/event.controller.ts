@@ -231,20 +231,25 @@ export const createEventController = controller(CreateEventSchema, async (req, r
 
   const isPublic = data.discoverable !== false;
 
-  const eventsCreatedThisMonth = await EventRepository.countEventsCreatedThisMonth(
-    userId,
-    isPublic
-  );
-
-  if (isPublic && eventsCreatedThisMonth >= PUBLIC_EVENTS_PER_MONTH) {
-    throw new BadRequestError(API_MESSAGES.EVENT.PUBLIC_EVENT_LIMIT_EXCEEDED, 'EVENT_LIMIT_PUBLIC');
-  }
-
-  if (!isPublic && eventsCreatedThisMonth >= PRIVATE_EVENTS_PER_MONTH) {
-    throw new BadRequestError(
-      API_MESSAGES.EVENT.PRIVATE_EVENT_LIMIT_EXCEEDED,
-      'EVENT_LIMIT_PRIVATE'
+  if (!getUserData.hasUnlimitedAccess) {
+    const eventsCreatedThisMonth = await EventRepository.countEventsCreatedThisMonth(
+      userId,
+      isPublic
     );
+
+    if (isPublic && eventsCreatedThisMonth >= PUBLIC_EVENTS_PER_MONTH) {
+      throw new BadRequestError(
+        API_MESSAGES.EVENT.PUBLIC_EVENT_LIMIT_EXCEEDED,
+        'EVENT_LIMIT_PUBLIC'
+      );
+    }
+
+    if (!isPublic && eventsCreatedThisMonth >= PRIVATE_EVENTS_PER_MONTH) {
+      throw new BadRequestError(
+        API_MESSAGES.EVENT.PRIVATE_EVENT_LIMIT_EXCEEDED,
+        'EVENT_LIMIT_PRIVATE'
+      );
+    }
   }
 
   logger.info('Formatting data for create event in createEventController ...');
@@ -292,6 +297,9 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
   const userId = req.userId;
   if (!userId) throw new TokenExpiredError();
 
+  const getUserData = await UserRepository.findById(userId);
+  if (!getUserData) throw new NotFoundError('User not found');
+
   if (!data.venueType) throw new BadRequestError('Venue type cannot be updated');
 
   if (plaintextDescription && plaintextDescription.length > 300)
@@ -316,7 +324,7 @@ export const updateEventController = controller(UpdateEventSchema, async (req, r
   const newEventIsPublic =
     data.discoverable !== undefined ? data.discoverable !== false : currentEventIsPublic;
 
-  if (currentEventIsPublic !== newEventIsPublic) {
+  if (!getUserData.hasUnlimitedAccess && currentEventIsPublic !== newEventIsPublic) {
     const eventsInTargetCategory = await EventRepository.countEventsCreatedThisMonth(
       userId,
       newEventIsPublic

@@ -520,6 +520,8 @@ describe('CustomiseEventCard', () => {
   });
 
   it('throws notFound when id is not a string', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     mockNotFound.mockClear();
     mockUseParams.mockReturnValueOnce({ id: 123 as any });
 
@@ -534,14 +536,19 @@ describe('CustomiseEventCard', () => {
     expect(mockNotFound).toHaveBeenCalled();
 
     mockUseParams.mockReturnValue({ id: 'event-123' });
+    consoleErrorSpy.mockRestore();
   });
 
   it('throws notFound when isSuccess is false', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     const event = createMockEvent();
 
     expect(() => {
       render(<CustomiseEventCard className="test-class" event={event} isSuccess={false} />);
     }).toThrow('notFound');
+
+    consoleErrorSpy.mockRestore();
   });
 
   it('resets copied state after timeout', async () => {

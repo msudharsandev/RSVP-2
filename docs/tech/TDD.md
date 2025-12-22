@@ -244,6 +244,7 @@ erDiagram
     bio VARCHAR(500)
     profileIcon INT "DEFAULT 1"
     isDeleted BOOLEAN "DEFAULT FALSE"
+    has_unlimited_access BOOLEAN "DEFAULT FALSE"
     createdAt TIMESTAMP "DEFAULT CURRENT_TIMESTAMP()"
     updatedAt TIMESTAMP "DEFAULT CURRENT_TIMESTAMP()"
   }
@@ -594,6 +595,11 @@ graph TD
         <td>is_deleted</td>
         <td>boolean</td>
         <td>Soft delete flag</td>
+      </tr>
+      <tr>
+        <td>has_unlimited_access</td>
+        <td>boolean</td>
+        <td>Toggle to bypass all feature restrictions</td>
       </tr>
       <tr>
         <td>created_at</td>
@@ -1166,6 +1172,7 @@ graph TD
 >     "website": "https://arjunsharma.dev",
 >     "profileIcon": 5,
 >     "eventParticipationEnabled": true,
+>     "hasUnlimitedAccess": false,
 >     "isDeleted": false,
 >     "createdAt": "2025-04-20T09:45:12.303Z",
 >     "updatedAt": "2025-04-24T06:30:00.000Z"
@@ -1200,6 +1207,7 @@ graph TD
 >     "website": "https://arjunsharma.dev",
 >     "profileIcon": 5,
 >     "eventParticipationEnabled": true,
+>     "hasUnlimitedAccess": false,
 >     "isDeleted": false,
 >     "createdAt": "2025-04-20T09:45:12.303Z",
 >     "updatedAt": "2025-04-24T06:30:00.000Z"
@@ -1233,6 +1241,7 @@ graph TD
 >     "website": "https://arjunsharma.dev",
 >     "profileIcon": 5,
 >     "eventParticipationEnabled": true,
+>     "hasUnlimitedAccess": false,
 >     "isDeleted": true,
 >     "createdAt": "2023-01-01T12:00:00Z",
 >     "updatedAt": "2025-04-24T07:00:00.000Z"
@@ -1403,6 +1412,7 @@ graph TD
 >     "website": "https://arjunsharma.dev",
 >     "profileIcon": 5,
 >     "eventParticipationEnabled": true,
+>     "hasUnlimitedAccess": false,
 >     "isDeleted": false,
 >     "createdAt": "2023-01-01T12:00:00Z",
 >     "updatedAt": "2025-04-24T07:00:00.000Z"
@@ -1442,6 +1452,7 @@ graph TD
 >       "website": "https://arjunsharma.dev",
 >       "profileIcon": 5,
 >       "eventParticipationEnabled": true,
+>       "hasUnlimitedAccess": false,
 >       "isDeleted": false,
 >       "createdAt": "2023-01-01T12:00:00Z",
 >       "updatedAt": "2025-04-24T07:00:00.000Z"
@@ -2225,6 +2236,7 @@ graph TD
 >                 "website": "https://rohitsharma.dev",
 >                 "profileIcon": 4,
 >                 "eventParticipationEnabled": true,
+>                 "hasUnlimitedAccess": false,
 >                 "isDeleted": false,
 >                 "createdAt": "2025-04-21T12:08:25.043Z",
 >                 "updatedAt": "2025-04-25T07:14:45.804Z"

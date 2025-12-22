@@ -21,6 +21,7 @@ model User {
   bio            String?  @map("bio") @db.VarChar(500)
   profileIcon    Int      @default(1) @map("profile_icon")
   isDeleted      Boolean  @default(false) @map("is_deleted")
+  hasUnlimitedAccess Boolean  @default(false) @map("has_unlimited_access")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 

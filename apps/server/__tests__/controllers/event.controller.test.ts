@@ -617,6 +617,171 @@ describe('createEventController', () => {
   });
 });
 
+describe('createEventController - Unlimited Access Feature', () => {
+  const baseBody = (overrides: Partial<TestRequest['body']> = {}) => {
+    const start = new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
+    const end = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
+    return {
+      name: 'Tech Meetup',
+      category: 'Technology',
+      richtextDescription: '<p>Full description</p>',
+      plaintextDescription: 'Short description',
+      eventImageUrl: 'https://example.com/banner.png',
+      venueType: VenueType.PHYSICAL,
+      venueAddress: '123 Event Street',
+      hostPermissionRequired: true,
+      discoverable: true,
+      capacity: 100,
+      startTime: start,
+      endTime: end,
+      ...overrides,
+    };
+  };
+
+  it('allows user with unlimited access to create public event beyond monthly limit', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ discoverable: true }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+    const createdEvent = { id: EVENT_ID, name: 'Tech Meetup', slug: 'tech-meetup' };
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      hasUnlimitedAccess: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    mocks.categoryFindFirstMock.mockResolvedValue({ id: 'cat-1' });
+
+    const countSpy = vi
+      .spyOn(EventRepository, 'countEventsCreatedThisMonth')
+      .mockResolvedValue(PUBLIC_EVENTS_PER_MONTH + 5);
+
+    vi.spyOn(EventRepository, 'create').mockResolvedValue(
+      createdEvent as unknown as Awaited<ReturnType<typeof EventRepository.create>>
+    );
+    vi.spyOn(CohostRepository, 'create').mockResolvedValue(
+      {} as unknown as Awaited<ReturnType<typeof CohostRepository.create>>
+    );
+
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(countSpy).not.toHaveBeenCalled();
+
+    expect(EventRepository.create).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('allows user with unlimited access to create private event beyond monthly limit', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ discoverable: false }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+    const createdEvent = { id: EVENT_ID, name: 'Private Meetup' };
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      hasUnlimitedAccess: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    mocks.categoryFindFirstMock.mockResolvedValue({ id: 'cat-1' });
+
+    const countSpy = vi
+      .spyOn(EventRepository, 'countEventsCreatedThisMonth')
+      .mockResolvedValue(PRIVATE_EVENTS_PER_MONTH + 3);
+
+    vi.spyOn(EventRepository, 'create').mockResolvedValue(
+      createdEvent as unknown as Awaited<ReturnType<typeof EventRepository.create>>
+    );
+    vi.spyOn(CohostRepository, 'create').mockResolvedValue(
+      {} as unknown as Awaited<ReturnType<typeof CohostRepository.create>>
+    );
+
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(countSpy).not.toHaveBeenCalled();
+
+    expect(EventRepository.create).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('still enforces monthly limit for users without unlimited access', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ discoverable: true }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      hasUnlimitedAccess: false,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValue(
+      PUBLIC_EVENTS_PER_MONTH
+    );
+
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(EventRepository.countEventsCreatedThisMonth).toHaveBeenCalledWith(USER_ID, true);
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+
+    const error = next.mock.calls[0]![0] as BadRequestError;
+    expect(error.message).toBe(API_MESSAGES.EVENT.PUBLIC_EVENT_LIMIT_EXCEEDED);
+  });
+
+  it('still enforces other validations even with unlimited access (incomplete profile)', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody(),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: false,
+      hasUnlimitedAccess: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+    const error = next.mock.calls[0]![0] as BadRequestError;
+    expect(error.message).toBe('Please complete your profile before creating event');
+  });
+
+  it('still enforces description length validation with unlimited access', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      body: baseBody({ plaintextDescription: 'a'.repeat(301) }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      hasUnlimitedAccess: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    await createEventController(req, res, next as unknown as NextFunction);
+
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+    const error = next.mock.calls[0]![0] as BadRequestError;
+    expect(error.message).toBe('Description cannot be greater than 300 characters.');
+  });
+});
+
 describe('updateEventController', () => {
   it('updates event, unlocks waiting attendees, and skips email in development', async () => {
     const req = createMockRequest({
@@ -727,6 +892,125 @@ describe('updateEventController', () => {
     const error = next.mock.calls[0]![0] as BadRequestError;
     expect(error.message).toBe('Venue type cannot be updated');
     expect(updateSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('updateEventController - Unlimited Access Feature', () => {
+  const baseBody = (overrides: Partial<TestRequest['body']> = {}) => ({
+    name: 'Updated Event',
+    venueType: VenueType.PHYSICAL,
+    richtextDescription: '<p>Updated description</p>',
+    ...overrides,
+  });
+
+  it('allows user with unlimited access to switch event from private to public beyond limit', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+      body: baseBody({ discoverable: true }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      hasUnlimitedAccess: true,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      discoverable: false,
+      hostPermissionRequired: false,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    const countSpy = vi
+      .spyOn(EventRepository, 'countEventsCreatedThisMonth')
+      .mockResolvedValue(PUBLIC_EVENTS_PER_MONTH + 5);
+
+    vi.spyOn(EventRepository, 'update').mockResolvedValue({
+      id: EVENT_ID,
+      name: 'Updated Event',
+    } as unknown as Awaited<ReturnType<typeof EventRepository.update>>);
+
+    vi.spyOn(AttendeeRepository, 'findAllAttendees').mockResolvedValue([]);
+    vi.spyOn(CohostRepository, 'findAllByEventId').mockResolvedValue([]);
+
+    await updateEventController(req, res, next as unknown as NextFunction);
+
+    expect(countSpy).not.toHaveBeenCalled();
+
+    expect(EventRepository.update).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('enforces limit for normal users when switching from private to public', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+      body: baseBody({ discoverable: true }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      hasUnlimitedAccess: false,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      discoverable: false,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'countEventsCreatedThisMonth').mockResolvedValue(
+      PUBLIC_EVENTS_PER_MONTH
+    );
+
+    await updateEventController(req, res, next as unknown as NextFunction);
+
+    expect(EventRepository.countEventsCreatedThisMonth).toHaveBeenCalledWith(USER_ID, true);
+    expect(next).toHaveBeenCalledWith(expect.any(BadRequestError));
+
+    const error = next.mock.calls[0]![0] as BadRequestError;
+    expect(error.message).toBe(API_MESSAGES.EVENT.PUBLIC_EVENT_LIMIT_EXCEEDED);
+  });
+
+  it('does not check limit when event discoverable status unchanged', async () => {
+    const req = createMockRequest({
+      userId: USER_ID,
+      params: { eventId: EVENT_ID },
+      body: baseBody({ name: 'New Name' }),
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(UserRepository, 'findById').mockResolvedValue({
+      id: USER_ID,
+      isCompleted: true,
+      hasUnlimitedAccess: false,
+    } as unknown as Awaited<ReturnType<typeof UserRepository.findById>>);
+
+    vi.spyOn(EventRepository, 'findById').mockResolvedValue({
+      id: EVENT_ID,
+      discoverable: true,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.findById>>);
+
+    const countSpy = vi.spyOn(EventRepository, 'countEventsCreatedThisMonth');
+
+    vi.spyOn(EventRepository, 'update').mockResolvedValue({
+      id: EVENT_ID,
+    } as unknown as Awaited<ReturnType<typeof EventRepository.update>>);
+
+    vi.spyOn(AttendeeRepository, 'findAllAttendees').mockResolvedValue([]);
+    vi.spyOn(CohostRepository, 'findAllByEventId').mockResolvedValue([]);
+
+    await updateEventController(req, res, next as unknown as NextFunction);
+
+    expect(countSpy).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });
 
@@ -1259,7 +1543,7 @@ describe('updateAttendeeStatusController', () => {
   it('allows disabling attendee even when event is full', async () => {
     const req = createMockRequest({
       params: { attendeeId: ATTENDEE_ID, eventId: EVENT_ID },
-      body: { allowedStatus: false }, // disabling attendee
+      body: { allowedStatus: false },
     });
     const res = createMockResponse();
     const next = createMockNext();
