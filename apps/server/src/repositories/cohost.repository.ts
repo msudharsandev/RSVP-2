@@ -1,4 +1,5 @@
 import { prisma } from '@/utils/connection';
+import { Paginator } from '@/utils/pagination';
 import { Host, HostRole, Prisma } from '@prisma/client';
 
 /**
@@ -56,6 +57,122 @@ export class CohostRepository {
     });
   }
 
+  /**
+   * Retrieves all cohosts for a specific user.
+   * @param userId - The unique ID of the user.
+   * @param startDate - Events hosted after this date.
+   * @param endDate - Events hosted before this date.
+   * @param paginatedResult - If true, the result will be paginated.
+   * @param paginationFilters - Additional filters for pagination.
+   * @param pagination - Pagination options.
+   * @returns A list of cohosts for the user, including their roles and user details.
+   */
+  static async findAllByUserId({
+    userId,
+    startDate,
+    endDate,
+    paginatedResult = false,
+    paginationFilters,
+    pagination = { page: 1, limit: 10, sortBy: 'startTime', sortOrder: 'desc' },
+  }: {
+    userId: string;
+    startDate?: Date;
+    endDate?: Date;
+    paginatedResult?: boolean;
+    paginationFilters?: { status?: string; search?: string };
+    pagination?: { page: number; limit: number; sortBy: string; sortOrder: 'asc' | 'desc' };
+  }) {
+    const whereClause: Prisma.HostWhereInput = {
+      userId,
+      isDeleted: false,
+      user: {
+        isDeleted: false,
+      },
+    };
+    const eventWhereClause: Prisma.EventWhereInput = {
+      isDeleted: false,
+    };
+    if (!paginatedResult) {
+      whereClause.event = eventWhereClause;
+      if (startDate) {
+        whereClause.event = {
+          startTime: {
+            gte: startDate,
+          },
+        };
+      }
+      if (endDate) {
+        whereClause.event = {
+          endTime: {
+            lt: endDate,
+          },
+        };
+      }
+      return await prisma.host.findMany({
+        where: whereClause,
+        include: {
+          event: true,
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              primaryEmail: true,
+              contact: true,
+              userName: true,
+              profileIcon: true,
+            },
+          },
+        },
+      });
+    }
+
+    const { status, search } = paginationFilters || {};
+    const hostPaginator = new Paginator('host');
+    const { page = 1, limit = 10, sortBy = 'startTime', sortOrder = 'desc' } = pagination;
+    const currentDateTime = new Date();
+    if (status && status !== 'all') {
+      if (status === 'active') {
+        eventWhereClause.isActive = true;
+        eventWhereClause.endTime = { gte: currentDateTime };
+      } else if (status === 'inactive') {
+        eventWhereClause.OR = [
+          { isActive: false },
+          {
+            isActive: true,
+            endTime: { lt: currentDateTime },
+          },
+        ];
+      }
+    }
+    if (search) {
+      eventWhereClause.OR = [
+        { name: { contains: search } },
+        { description: { contains: search } },
+        { category: { name: { contains: search } } },
+      ];
+    }
+    whereClause.event = eventWhereClause;
+
+    const adjustedSortBy =
+      sortBy === 'startTime' ? { event: { startTime: sortOrder } } : { [sortBy]: sortOrder };
+
+    return await hostPaginator.paginate(
+      { page, limit, sortOrder, sortBy: 'createdAt' },
+      {
+        where: whereClause,
+        include: {
+          event: {
+            include: {
+              creator: true,
+              attendees: true,
+            },
+          },
+          user: true,
+        },
+        orderBy: adjustedSortBy,
+      }
+    );
+  }
   /**
    * Creates a new cohost record.
    * @param data - The data for the new cohost.

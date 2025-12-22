@@ -165,33 +165,51 @@ export const getUserUpcomingEventController = controller(
     const filters = req.query;
 
     logger.info('Getting upcoming event in getUserUpcomingEventController ..');
-    const [registeredEvents, hostedEvents] = await Promise.all([
+    const [registeredEvents, cohosts] = await Promise.all([
       AttendeeRepository.findRegisteredEventsByUser({
         userId,
         ...filters,
       }),
-      EventRepository.getEventByCreatorId({
-        creatorId: userId,
+      CohostRepository.findAllByUserId({
+        userId,
         ...filters,
       }),
     ]);
+    const cohostEvents = Array.isArray(cohosts) ? cohosts.map((cohost) => cohost.event) : [];
 
-    const mergedEvents = [...registeredEvents.events, ...hostedEvents].sort((a, b) => {
-      if (filters.startDate) {
-        return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
-      } else {
-        return new Date(b.startTime).getTime() - new Date(a.startTime).getTime();
+    const mergedEvents = [...registeredEvents.events, ...cohostEvents].filter(Boolean);
+
+    const getTimeOrInfinity = (value: any) => {
+      try {
+        const t = new Date(value).getTime();
+        return Number.isFinite(t) ? t : Number.POSITIVE_INFINITY;
+      } catch (err) {
+        return Number.POSITIVE_INFINITY;
       }
-    });
+    };
+
+    const uniqueMergeEvents = Array.from(new Map(mergedEvents.map((e) => [e.id, e])).values()).sort(
+      (a, b) => {
+        try {
+          const timeA = getTimeOrInfinity(a?.startTime);
+          const timeB = getTimeOrInfinity(b?.startTime);
+          return filters.startDate ? timeA - timeB : timeB - timeA;
+        } catch (err) {
+          logger.warn('Error comparing event times in getUserUpcomingEventController', {
+            error: err,
+          });
+          return 0;
+        }
+      }
+    );
 
     const data = {
-      events: mergedEvents,
+      events: uniqueMergeEvents,
       metadata: registeredEvents.metadata,
     };
     return new SuccessResponse('Registered events retrieved successfully', data).send(res);
   }
 );
-
 /**
  * Creates a new event.
  * @param req - The HTTP request object containing event details in the body.

@@ -82,6 +82,7 @@ import {
   updateEventController,
   verifyQrController,
   deleteAttendeeController,
+  getUserUpcomingEventController,
   getEventByIdController,
   createInvitesController,
   getExcelSheetController,
@@ -1802,6 +1803,179 @@ describe('createAttendeeController', () => {
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'success',
+      })
+    );
+  });
+});
+
+describe('getUserUpcomingEventController', () => {
+  const eventOld = { id: 'old-1', startTime: '2023-01-01T10:00:00Z' };
+  const eventNew = { id: 'new-1', startTime: '2024-01-01T10:00:00Z' };
+  // An event with an invalid date to test the try/catch and Infinity logic
+  const eventInvalid = { id: 'invalid-1', startTime: 'invalid-date-string' };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('merges, deduplicates, and sorts events descending (default)', async () => {
+    const req = createMockRequest({ userId: USER_ID });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    // Mock: User is registered for the old event
+    vi.spyOn(AttendeeRepository, 'findRegisteredEventsByUser').mockResolvedValue({
+      events: [eventOld],
+      metadata: { total: 1 },
+    } as any);
+
+    // Mock: User is cohost for the new event
+    vi.spyOn(CohostRepository, 'findAllByUserId').mockResolvedValue([{ event: eventNew }] as any);
+
+    await getUserUpcomingEventController(req, res, next as any);
+
+    // Expect merged results, deduplicated (if any overlap), sorted descending (Newest first)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          events: [eventNew, eventOld],
+        }),
+      })
+    );
+  });
+
+  it('sorts events ascending when startDate filter is present', async () => {
+    // Providing a valid date string satisfies schema validation and triggers ascending sort
+    const req = createMockRequest({
+      userId: USER_ID,
+      query: { startDate: '2023-01-01T00:00:00Z' },
+    });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(AttendeeRepository, 'findRegisteredEventsByUser').mockResolvedValue({
+      events: [eventNew],
+      metadata: {},
+    } as any);
+    vi.spyOn(CohostRepository, 'findAllByUserId').mockResolvedValue([{ event: eventOld }] as any);
+
+    await getUserUpcomingEventController(req, res, next as any);
+
+    // Sort Ascending (Oldest first): [eventOld, eventNew]
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          events: [eventOld, eventNew],
+        }),
+      })
+    );
+  });
+
+  it('handles invalid dates gracefully without crashing', async () => {
+    const req = createMockRequest({ userId: USER_ID });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(AttendeeRepository, 'findRegisteredEventsByUser').mockResolvedValue({
+      events: [eventInvalid],
+      metadata: {},
+    } as any);
+    vi.spyOn(CohostRepository, 'findAllByUserId').mockResolvedValue([{ event: eventNew }] as any);
+
+    await getUserUpcomingEventController(req, res, next as any);
+
+    // Should not throw. Logic converts invalid dates to Infinity.
+    // In descending sort: TimeB - TimeA.
+    // If A is Invalid (Infinity), B is Valid (Number).
+    // Valid - Infinity = -Infinity (A is "larger", so A comes first).
+    // Note: Exact order depends on JS engine sort stability with Infinity,
+    // but primarily we verify it returns success and includes both events.
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining('success'),
+        data: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({ id: 'invalid-1' }),
+            expect.objectContaining({ id: 'new-1' }),
+          ]),
+        }),
+      })
+    );
+  });
+
+  it('deduplicates events if user is both attendee and cohost', async () => {
+    const req = createMockRequest({ userId: USER_ID });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    // User is registered AND cohosting the same event
+    vi.spyOn(AttendeeRepository, 'findRegisteredEventsByUser').mockResolvedValue({
+      events: [eventNew],
+      metadata: {},
+    } as any);
+    vi.spyOn(CohostRepository, 'findAllByUserId').mockResolvedValue([{ event: eventNew }] as any);
+
+    await getUserUpcomingEventController(req, res, next as any);
+
+    // Result should contain unique event only once
+    const jsonCall = (res.json as any).mock.calls[0][0];
+    expect(jsonCall.data.events).toHaveLength(1);
+    expect(jsonCall.data.events[0].id).toBe(eventNew.id);
+  });
+
+  it('filters out null/undefined events if repository returns holes', async () => {
+    const req = createMockRequest({ userId: USER_ID });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    // Mock cohost repo returning a cohost object where .event might be missing/null (edge case)
+    vi.spyOn(AttendeeRepository, 'findRegisteredEventsByUser').mockResolvedValue({
+      events: [eventNew],
+      metadata: {},
+    } as any);
+
+    // Simulate a malformed cohost result or one that maps to undefined
+    vi.spyOn(CohostRepository, 'findAllByUserId').mockResolvedValue([
+      { event: null },
+      { event: undefined },
+    ] as any);
+
+    await getUserUpcomingEventController(req, res, next as any);
+
+    // The .filter(Boolean) in controller should remove the nulls
+    const jsonCall = (res.json as any).mock.calls[0][0];
+    expect(jsonCall.data.events).toHaveLength(1);
+    expect(jsonCall.data.events[0].id).toBe(eventNew.id);
+  });
+
+  it('throws TokenExpiredError if userId is missing', async () => {
+    const req = createMockRequest({ userId: undefined });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    await getUserUpcomingEventController(req, res, next as any);
+
+    expect(next).toHaveBeenCalledWith(expect.any(TokenExpiredError));
+  });
+
+  it('handles empty results gracefully', async () => {
+    const req = createMockRequest({ userId: USER_ID });
+    const res = createMockResponse();
+    const next = createMockNext();
+
+    vi.spyOn(AttendeeRepository, 'findRegisteredEventsByUser').mockResolvedValue({
+      events: [],
+      metadata: {},
+    } as any);
+    vi.spyOn(CohostRepository, 'findAllByUserId').mockResolvedValue([] as any);
+
+    await getUserUpcomingEventController(req, res, next as any);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          events: [],
+        }),
       })
     );
   });
