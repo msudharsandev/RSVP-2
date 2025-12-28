@@ -2,6 +2,89 @@ import Changelog from '@/types/changelog';
 
 export const changelogs: Changelog[] = [
   {
+    releaseDate: new Date('2025-12-28'),
+    bannerImageUrl: '/images/version/0.2.0.png',
+    version: '0.5.0',
+    contributors: [
+      'hassanrahim26',
+      'Soumava-221B',
+      'surajmaity1',
+      'aashishdubey1',
+      'sasidharan19',
+      'Kishan-Agarwal-28',
+      'anupkgurung',
+    ],
+    sections: [
+      {
+        title: 'Features',
+        items: [
+          {
+            summary: 'Introduced monthly limits for event creation for basic users.',
+            contributors: ['hassanrahim26'],
+          },
+          {
+            summary:
+              'Admins can now grant full feature access of the platform to users on request.',
+            contributors: ['hassanrahim26'],
+          },
+        ],
+      },
+      {
+        title: 'Enhancements',
+        items: [
+          {
+            summary: 'Event categories now update automatically to show the latest options.',
+            contributors: ['anupkgurung'],
+          },
+          {
+            summary: 'Updates to improve app stability and bug-free app experience..',
+            contributors: ['Soumava-221B'],
+          },
+          {
+            summary: 'Location selection is now smoother with smarter city-specific options.',
+            contributors: ['anupkgurung'],
+          },
+        ],
+      },
+      {
+        title: 'Bug Fixes',
+        items: [
+          {
+            summary: 'Events can now be added directly to Apple iCal.',
+            contributors: ['surajmaity1'],
+          },
+          {
+            summary: 'Host now can re-add the co-host to the event.',
+            contributors: ['surajmaity1'],
+          },
+          {
+            summary: 'Co-host can now leave an event voluntarily.',
+            contributors: ['aashishdubey1'],
+          },
+          {
+            summary: 'Host will not be able to edit the past events.',
+            contributors: ['hassanrahim26'],
+          },
+          {
+            summary: 'Guest cannot register for events that have already passed. ',
+            contributors: ['sasidharan19'],
+          },
+          {
+            summary:
+              'Guest count indicators are now accurate and ensure total guests do not exceed event capacity.',
+            contributors: ['aashishdubey1'],
+          },
+          {
+            summary: 'Co-host can now view events in their upcoming events and my events page.',
+            contributors: ['Kishan-Agarwal-28'],
+          },
+        ],
+      },
+    ],
+    improvements: [],
+    bugFixes: [],
+  },
+  {
     releaseDate: new Date('2025-11-30'),
     bannerImageUrl: '/images/version/0.2.0.png',
     version: '0.4.0',
