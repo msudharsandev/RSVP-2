@@ -7,7 +7,7 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY apps/server/package.json apps/server/package.json
 
 # TODO: Regenerate and commit pnpm-lock.yaml locally, then restore --frozen-lockfile
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 COPY . .
 
 # Build app instll deps
