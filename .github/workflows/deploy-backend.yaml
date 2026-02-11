@@ -28,10 +28,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      - name: Debug secrets
-        run: |
-          echo "USERNAME=${{ secrets.DOCKER_USERNAME }}"
-          echo "REPO=${{ secrets.DOCKER_REPOSITORY_NAME }}"
+      
       - name: Check if repository exists and create if not
         run: |
           REPO_NAME=${{ secrets.DOCKER_REPOSITORY_NAME}}
@@ -64,11 +61,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./
-          file: ./apps/server/Dockerfile
+          context: ./apps/server
+          file: Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY_NAME}}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY_NAME}}:${{ steps.get-latest-tag.outputs.NEXT_TAG }}
-
-
