@@ -32,7 +32,8 @@ jobs:
       - name: Check if repository exists and create if not
         run: |
           REPO_NAME=${{ secrets.DOCKER_REPOSITORY_NAME}}
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_USERNAME }}/${REPO_NAME})
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://hub.docker.com/v2/repositories/${USERNAME}/${REPO_NAME}")
           if [ "$STATUS" != "200" ]; then
             echo "Repository doesn't exist. Creating it..."
             curl -X POST \
@@ -67,4 +68,5 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY_NAME}}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY_NAME}}:${{ steps.get-latest-tag.outputs.NEXT_TAG }}
+
 
